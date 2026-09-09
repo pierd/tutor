@@ -1,0 +1,44 @@
+tsconfig.app.json
+  h_373d6cc5be4f86 17
+src/SignOut.tsx
+  s_b3770c0475a7d7::t_c5fc0e9c364539 5-12
+src/App.tsx
+  s_b3770c0475a7d7::t_fb2c3e0e09ef8d 32-55
+  s_b3770c0475a7d7::t_154b8af04fa145 12-14,28-31,56-62
+  h_373d6cc5be4f86 1,5-6,27
+src/index.css
+  h_373d6cc5be4f86 1
+vite.config.ts
+  h_373d6cc5be4f86 1-3,7-8
+src/SignIn.tsx
+  s_b3770c0475a7d7::t_f365224531a655 8-14,17-53
+package-lock.json
+  h_373d6cc5be4f86 13,15,17-18,1326-1855,1881,2415-2427,2813-2818,2898-2906,3301-3318,3676-3694,3779
+package.json
+  h_373d6cc5be4f86 15,17,19-20
+src/dummy/practica-etre-avoir.jsx
+  h_373d6cc5be4f86 1-496
+src/dummy/practica-verbos-er.jsx
+  h_373d6cc5be4f86 1-546
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "f092a37eaa78704bc9370a6891eec07c46194ab5",
+  "prompts": {},
+  "humans": {
+    "h_373d6cc5be4f86": {
+      "author": "Kuba Jaroszewski <jakub.jaroszewski@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_b3770c0475a7d7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_f78917408ffeQrXFtXMnGcGdFC",
+        "model": "kimi-k2.5"
+      },
+      "human_author": "Kuba Jaroszewski <jakub.jaroszewski@gmail.com>"
+    }
+  }
+}
