@@ -1,0 +1,148 @@
+.agents/skills/convex-add/SKILL.md
+  h_373d6cc5be4f86 1-26
+.agents/skills/convex-advisor/SKILL.md
+  h_373d6cc5be4f86 1-32
+.agents/skills/convex-agent/SKILL.md
+  h_373d6cc5be4f86 1-25
+.agents/skills/convex-auth/SKILL.md
+  h_373d6cc5be4f86 1-29
+.agents/skills/convex-authz/SKILL.md
+  h_373d6cc5be4f86 1-36
+.agents/skills/convex-backup/SKILL.md
+  h_373d6cc5be4f86 1-33
+.agents/skills/convex-billing/SKILL.md
+  h_373d6cc5be4f86 1-69
+.agents/skills/convex-cost/SKILL.md
+  h_373d6cc5be4f86 1-29
+.agents/skills/convex-create-component/SKILL.md
+  h_373d6cc5be4f86 99,134-136,212-213,269,276
+.agents/skills/convex-create-component/references/advanced-patterns.md
+  h_373d6cc5be4f86 50-51,54-56,58-65
+.agents/skills/convex-crons/SKILL.md
+  h_373d6cc5be4f86 1-23
+.agents/skills/convex-deploy-guard/SKILL.md
+  h_373d6cc5be4f86 1-29
+.agents/skills/convex-design/SKILL.md
+  h_373d6cc5be4f86 1-30
+.agents/skills/convex-docs/SKILL.md
+  h_373d6cc5be4f86 1-31
+.agents/skills/convex-domains/SKILL.md
+  h_373d6cc5be4f86 1-26
+.agents/skills/convex-env/SKILL.md
+  h_373d6cc5be4f86 1-23
+.agents/skills/convex-expert/SKILL.md
+  h_373d6cc5be4f86 1-38
+.agents/skills/convex-explain-app/SKILL.md
+  h_373d6cc5be4f86 1-29
+.agents/skills/convex-improve-convex-plugin/SKILL.md
+  h_373d6cc5be4f86 1-24
+.agents/skills/convex-insights/SKILL.md
+  h_373d6cc5be4f86 1-32
+.agents/skills/convex-launch-readiness/SKILL.md
+  h_373d6cc5be4f86 1-35
+.agents/skills/convex-migrate-rehearse/SKILL.md
+  h_373d6cc5be4f86 1-31
+.agents/skills/convex-migrate/SKILL.md
+  h_373d6cc5be4f86 1-23
+.agents/skills/convex-monitor/SKILL.md
+  h_373d6cc5be4f86 1-22
+.agents/skills/convex-optimize/SKILL.md
+  h_373d6cc5be4f86 1-26
+.agents/skills/convex-quickstart/SKILL.md
+  h_373d6cc5be4f86 3,6,8,10,14-29
+.agents/skills/convex-reviewer/SKILL.md
+  h_373d6cc5be4f86 1-26
+.agents/skills/convex-seed/SKILL.md
+  h_373d6cc5be4f86 1-23
+.agents/skills/convex-self-heal/SKILL.md
+  h_373d6cc5be4f86 1-38
+.agents/skills/convex-sentinel/SKILL.md
+  h_373d6cc5be4f86 1-25
+.agents/skills/convex-suggest/SKILL.md
+  h_373d6cc5be4f86 1-27
+.agents/skills/convex-test/SKILL.md
+  h_373d6cc5be4f86 1-23
+.agents/skills/convex-verify/SKILL.md
+  h_373d6cc5be4f86 1-34
+.agents/skills/convex/SKILL.md
+  h_373d6cc5be4f86 3,6,8,10-69
+.claude/skills/convex
+  h_373d6cc5be4f86 1
+.claude/skills/convex-add
+  h_373d6cc5be4f86 1
+.claude/skills/convex-advisor
+  h_373d6cc5be4f86 1
+.claude/skills/convex-agent
+  h_373d6cc5be4f86 1
+.claude/skills/convex-auth
+  h_373d6cc5be4f86 1
+.claude/skills/convex-authz
+  h_373d6cc5be4f86 1
+.claude/skills/convex-backup
+  h_373d6cc5be4f86 1
+.claude/skills/convex-billing
+  h_373d6cc5be4f86 1
+.claude/skills/convex-cost
+  h_373d6cc5be4f86 1
+.claude/skills/convex-create-component
+  h_373d6cc5be4f86 1
+.claude/skills/convex-crons
+  h_373d6cc5be4f86 1
+.claude/skills/convex-deploy-guard
+  h_373d6cc5be4f86 1
+.claude/skills/convex-design
+  h_373d6cc5be4f86 1
+.claude/skills/convex-docs
+  h_373d6cc5be4f86 1
+.claude/skills/convex-domains
+  h_373d6cc5be4f86 1
+.claude/skills/convex-env
+  h_373d6cc5be4f86 1
+.claude/skills/convex-expert
+  h_373d6cc5be4f86 1
+.claude/skills/convex-explain-app
+  h_373d6cc5be4f86 1
+.claude/skills/convex-improve-convex-plugin
+  h_373d6cc5be4f86 1
+.claude/skills/convex-insights
+  h_373d6cc5be4f86 1
+.claude/skills/convex-launch-readiness
+  h_373d6cc5be4f86 1
+.claude/skills/convex-migrate
+  h_373d6cc5be4f86 1
+.claude/skills/convex-migrate-rehearse
+  h_373d6cc5be4f86 1
+.claude/skills/convex-monitor
+  h_373d6cc5be4f86 1
+.claude/skills/convex-optimize
+  h_373d6cc5be4f86 1
+.claude/skills/convex-quickstart
+  h_373d6cc5be4f86 1
+.claude/skills/convex-reviewer
+  h_373d6cc5be4f86 1
+.claude/skills/convex-seed
+  h_373d6cc5be4f86 1
+.claude/skills/convex-self-heal
+  h_373d6cc5be4f86 1
+.claude/skills/convex-sentinel
+  h_373d6cc5be4f86 1
+.claude/skills/convex-suggest
+  h_373d6cc5be4f86 1
+.claude/skills/convex-test
+  h_373d6cc5be4f86 1
+.claude/skills/convex-verify
+  h_373d6cc5be4f86 1
+skills-lock.json
+  h_373d6cc5be4f86 8-56,62-140,148-159,170-194,201-218
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "144037e36e015066b61051824e48278183d7ea71",
+  "prompts": {},
+  "humans": {
+    "h_373d6cc5be4f86": {
+      "author": "Kuba Jaroszewski <jakub.jaroszewski@gmail.com>"
+    }
+  }
+}
