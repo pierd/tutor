@@ -1,0 +1,16 @@
+src/App.tsx
+  h_373d6cc5be4f86 7,28,31,56-66,71-77
+src/dummy/practica-30-verbos.jsx
+  h_373d6cc5be4f86 1-707
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f7a14bff6c1b642ed7bd981efd7db479d5cacc42",
+  "prompts": {},
+  "humans": {
+    "h_373d6cc5be4f86": {
+      "author": "Kuba Jaroszewski <jakub.jaroszewski@gmail.com>"
+    }
+  }
+}
