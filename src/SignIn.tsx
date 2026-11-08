@@ -17,6 +17,12 @@ export function SignIn() {
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
           Tutor
         </h1>
+        {step === "signUp" && (
+          <p className="-mt-3 mb-6 text-center text-sm text-gray-500">
+            Tutor is invite-only for now. Create an account to join the
+            wishlist and we'll let you know when you're in.
+          </p>
+        )}
         <div className="space-y-4">
           <input
             name="email"
@@ -35,7 +41,7 @@ export function SignIn() {
             type="submit"
             className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
           >
-            {step === "signIn" ? "Sign in" : "Sign up"}
+            {step === "signIn" ? "Sign in" : "Join the wishlist"}
           </button>
         </div>
         <div className="mt-6 text-center">
@@ -46,7 +52,9 @@ export function SignIn() {
               setStep(step === "signIn" ? "signUp" : "signIn");
             }}
           >
-            {step === "signIn" ? "Sign up instead" : "Sign in instead"}
+            {step === "signIn"
+              ? "No account? Join the wishlist"
+              : "Already have an account? Sign in"}
           </button>
         </div>
       </form>
