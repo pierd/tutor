@@ -88,7 +88,7 @@ What it should cover: ${input.focus}
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Already tracked item keys: ${input.existingKeys.join(", ") || "(none)"}`,
   });
   if (context) {
-    captureAiGeneration({
+    await captureAiGeneration({
       context,
       model: COACH_MODEL,
       input: [{ role: "user", content: JSON.stringify(input) }],

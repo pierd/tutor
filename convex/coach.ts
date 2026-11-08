@@ -161,6 +161,7 @@ export const respond = internalAction({
   handler: async (ctx, { profileId, threadId, promptMessageId, prompt }) => {
     const c = await ctx.runQuery(internal.coach.context, { profileId });
     const aiContext = createAiContext({
+      scheduler: ctx.scheduler,
       distinctId: c.profile.userId,
       sessionId: threadId,
       traceId: promptMessageId,
@@ -198,7 +199,7 @@ export const respond = internalAction({
               cards,
             });
             const output = { proposalId, summary: `Proposed lesson "${input.title}" with ${items.length} items and ${cards.length} cards.` };
-            captureAiToolSpan({
+            await captureAiToolSpan({
               context: aiContext,
               name: "propose_lesson",
               input,
@@ -228,7 +229,7 @@ export const respond = internalAction({
             const started = Date.now();
             const proposalId = await save({ kind: "unit", ...input });
             const output = { proposalId, summary: `Proposed unit "${input.title}" with ${input.lessons.length} lessons.` };
-            captureAiToolSpan({
+            await captureAiToolSpan({
               context: aiContext,
               name: "propose_unit",
               input,
@@ -244,7 +245,7 @@ export const respond = internalAction({
     const result = await coach.streamText(ctx, { threadId }, { promptMessageId }, { saveStreamDeltas: true });
     await result.consumeStream();
     // Latency covers all steps, including tool calls (each also has its own span).
-    captureAiGeneration({
+    await captureAiGeneration({
       context: aiContext,
       model: COACH_MODEL,
       input: [{ role: "user", content: prompt ?? "" }],
@@ -396,7 +397,7 @@ export const buildLesson = internalAction({
         title: c.lesson.title,
         focus: c.lesson.buildFocus ?? c.lesson.description ?? c.lesson.title,
         existingKeys: c.existingKeys,
-      }, createAiContext({ distinctId: c.profile.userId }));
+      }, createAiContext({ scheduler: ctx.scheduler, distinctId: c.profile.userId }));
       await ctx.runMutation(internal.coach.finishBuild, { lessonId, ...content });
     } catch (e) {
       await ctx.runMutation(internal.coach.failBuild, { lessonId, error: e instanceof Error ? e.message : String(e) });

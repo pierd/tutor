@@ -157,7 +157,7 @@ export const write = internalAction({
         known: c.known,
         avoidTitles: c.avoidTitles,
         withImages: c.withImages,
-      }, createAiContext({ distinctId: c.profile.userId }));
+      }, createAiContext({ scheduler: ctx.scheduler, distinctId: c.profile.userId }));
       await ctx.runMutation(internal.reading.save, { readingId, ...reading, illustrations: reading.illustrations ?? [] });
     } catch (e) {
       await ctx.runMutation(internal.reading.fail, { readingId, error: e instanceof Error ? e.message : String(e) });
@@ -211,9 +211,8 @@ export const draw = internalAction({
     const illustration = await ctx.runQuery(internal.reading.illustrationPrompt, { readingId, index });
     if (illustration === null) return null;
     try {
-      const storageId = await ctx.storage.store(
-        await drawIllustration(illustration.prompt, createAiContext({ distinctId: illustration.userId })),
-      );
+      const aiContext = createAiContext({ scheduler: ctx.scheduler, distinctId: illustration.userId });
+      const storageId = await ctx.storage.store(await drawIllustration(illustration.prompt, aiContext));
       await ctx.runMutation(internal.reading.saveIllustration, { readingId, index, storageId });
     } catch (e) {
       console.warn("Illustration failed", e);

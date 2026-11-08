@@ -80,7 +80,7 @@ Learner's known vocabulary (sample): ${input.known.length ? input.known.join(", 
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Recent sentences (avoid repeating): ${input.recentPrompts.length ? input.recentPrompts.map((p) => `"${p}"`).join("; ") : "(none)"}`,
   });
   if (context) {
-    captureAiGeneration({
+    await captureAiGeneration({
       context,
       model: GENERATE_MODEL,
       input: [{ role: "user", content: JSON.stringify(input) }],
@@ -159,7 +159,7 @@ ${input.items.map((i) => `- key "${i.key}": ${i.text}${i.gloss ? ` (${i.gloss})`
 Learner's answer (${input.mode}): "${input.answer}"`,
   });
   if (context) {
-    captureAiGeneration({
+    await captureAiGeneration({
       context,
       model: GRADE_MODEL,
       input: [{ role: "user", content: JSON.stringify(input) }],

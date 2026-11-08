@@ -77,7 +77,7 @@ Known words (sample): ${input.known.join(", ") || "(beginner)"}
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Avoid repeating these earlier texts: ${input.avoidTitles.join("; ") || "(none)"}`,
   });
   if (context) {
-    captureAiGeneration({
+    await captureAiGeneration({
       context,
       model: COACH_MODEL,
       input: [{ role: "user", content: JSON.stringify(input) }],
@@ -105,7 +105,7 @@ export async function drawIllustration(prompt: string, context?: AiContext) {
     size: "1024x1024",
   });
   if (context) {
-    captureAiGeneration({
+    await captureAiGeneration({
       context,
       model: IMAGE_MODEL,
       input: [{ role: "user", content: prompt }],

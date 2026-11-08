@@ -164,13 +164,16 @@ reschedule.
   Custom events go through `track(event, props)`; `App.tsx` identifies the
   user by Convex user id (+ email), `SignOut` resets. Event names are
   snake_case (`flashcard_answered`, `coach_proposal_accepted`, ...).
-- Backend LLM analytics: `convex/lib/posthogAi.ts` sends `$ai_generation` /
+- Backend LLM analytics: `convex/lib/posthogAi.ts` builds `$ai_generation` /
   `$ai_span` events (model, tokens, latency, full prompt and output:
   `privacyMode` is deliberately off). AI functions in `convex/ai/` take an
-  optional `AiContext` (`createAiContext({ distinctId: userId })`); pass one
-  from any new AI call. Uses `posthog-node/edge` because the Node build
-  doesn't run in Convex's default runtime. Flushes aren't awaited, so
-  analytics never delays the learner (an event may occasionally be lost).
+  optional `AiContext`
+  (`createAiContext({ scheduler: ctx.scheduler, distinctId: userId })`); pass
+  one from any new AI call. Capturing only schedules `analytics.capture`,
+  which sends the event in its own action: a fire-and-forget fetch is dropped
+  when the calling function returns, and awaiting PostHog there would delay
+  the learner. Uses `posthog-node/edge` because the Node build doesn't run in
+  Convex's default runtime.
 - Server keys `POSTHOG_PROJECT_TOKEN` / `POSTHOG_HOST` live in the Convex
   deployment env (`npx convex env set`), not `.env.local`.
 

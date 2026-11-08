@@ -1,31 +1,20 @@
 // Node types only for process.env typings; this file does not run in Node.
 /// <reference types="node" />
 
-import { PostHog } from "posthog-node/edge";
+import type { Scheduler } from "convex/server";
+import { internal } from "../_generated/api";
 
-// Server-side LLM analytics. The edge build runs in Convex's default runtime
-// (the Node build needs node:* modules). Needs POSTHOG_PROJECT_TOKEN and
-// POSTHOG_HOST in the Convex deployment env; without them nothing is sent.
+// Server-side LLM analytics. Events are sent by the scheduled
+// `analytics.capture` action, so capturing only costs a scheduler call. Needs
+// POSTHOG_PROJECT_TOKEN and POSTHOG_HOST in the Convex deployment env; without
+// them nothing is scheduled.
 
-const posthogProjectToken = process.env.POSTHOG_PROJECT_TOKEN;
-const posthogHost = process.env.POSTHOG_HOST;
-
-const posthog =
-  posthogProjectToken && posthogHost
-    ? new PostHog(posthogProjectToken, {
-        host: posthogHost,
-        privacyMode: false,
-        enableExceptionAutocapture: false,
-        flushAt: 1,
-        flushInterval: 0,
-        requestTimeout: 2000,
-        fetchRetryCount: 0,
-      })
-    : null;
+const isEnabled = Boolean(process.env.POSTHOG_PROJECT_TOKEN && process.env.POSTHOG_HOST);
 
 const aiIdentifier = (value: string) => value.replace(/[^A-Za-z0-9\-_~.@()!':|]/g, "-");
 
 export type AiContext = {
+  scheduler: Scheduler;
   distinctId: string;
   sessionId: string | null;
   traceId: string;
@@ -37,22 +26,39 @@ type AiUsage = {
 };
 
 export function createAiContext({
+  scheduler,
   distinctId,
   sessionId,
   traceId = crypto.randomUUID(),
 }: {
+  scheduler: Scheduler;
   distinctId: string;
   sessionId?: string | null;
   traceId?: string;
 }): AiContext {
   return {
+    scheduler,
     distinctId,
     sessionId: sessionId ? aiIdentifier(sessionId) : null,
     traceId: aiIdentifier(traceId),
   };
 }
 
-export function captureAiGeneration({
+async function capture(context: AiContext, event: string, properties: Record<string, unknown>) {
+  if (!isEnabled) return;
+
+  try {
+    await context.scheduler.runAfter(0, internal.analytics.capture, {
+      distinctId: context.distinctId,
+      event,
+      properties: JSON.stringify(properties),
+    });
+  } catch {
+    // Analytics must not change the result of a completed AI request.
+  }
+}
+
+export async function captureAiGeneration({
   context,
   model,
   input,
@@ -67,34 +73,20 @@ export function captureAiGeneration({
   latencyMs: number;
   usage?: AiUsage;
 }) {
-  if (!posthog) return;
-
-  try {
-    posthog.capture({
-      distinctId: context.distinctId,
-      event: "$ai_generation",
-      properties: {
-        $ai_trace_id: context.traceId,
-        $ai_session_id: context.sessionId,
-        $ai_model: model,
-        $ai_provider: model.split("/", 1)[0],
-        $ai_input: input,
-        $ai_output_choices: output,
-        $ai_latency: latencyMs / 1000,
-        ...(usage?.inputTokens !== undefined && { $ai_input_tokens: usage.inputTokens }),
-        ...(usage?.outputTokens !== undefined && { $ai_output_tokens: usage.outputTokens }),
-      },
-    });
-
-    // Not awaited so analytics never delays the learner; an event can be lost
-    // if the action finishes before the request goes out.
-    void posthog.flush().catch(() => undefined);
-  } catch {
-    // Analytics must not change the result of a completed AI request.
-  }
+  await capture(context, "$ai_generation", {
+    $ai_trace_id: context.traceId,
+    $ai_session_id: context.sessionId,
+    $ai_model: model,
+    $ai_provider: model.split("/", 1)[0],
+    $ai_input: input,
+    $ai_output_choices: output,
+    $ai_latency: latencyMs / 1000,
+    ...(usage?.inputTokens !== undefined && { $ai_input_tokens: usage.inputTokens }),
+    ...(usage?.outputTokens !== undefined && { $ai_output_tokens: usage.outputTokens }),
+  });
 }
 
-export function captureAiToolSpan({
+export async function captureAiToolSpan({
   context,
   name,
   input,
@@ -107,26 +99,14 @@ export function captureAiToolSpan({
   output: unknown;
   latencyMs: number;
 }) {
-  if (!posthog) return;
-
-  try {
-    posthog.capture({
-      distinctId: context.distinctId,
-      event: "$ai_span",
-      properties: {
-        $ai_trace_id: context.traceId,
-        $ai_session_id: context.sessionId,
-        $ai_span_id: crypto.randomUUID(),
-        $ai_span_name: name,
-        $ai_parent_id: context.traceId,
-        $ai_input_state: input,
-        $ai_output_state: output,
-        $ai_latency: latencyMs / 1000,
-      },
-    });
-
-    void posthog.flush().catch(() => undefined);
-  } catch {
-    // Analytics must not change the result of a completed tool run.
-  }
+  await capture(context, "$ai_span", {
+    $ai_trace_id: context.traceId,
+    $ai_session_id: context.sessionId,
+    $ai_span_id: crypto.randomUUID(),
+    $ai_span_name: name,
+    $ai_parent_id: context.traceId,
+    $ai_input_state: input,
+    $ai_output_state: output,
+    $ai_latency: latencyMs / 1000,
+  });
 }

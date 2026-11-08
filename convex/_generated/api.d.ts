@@ -14,6 +14,7 @@ import type * as ai_models from "../ai/models.js";
 import type * as ai_readingAi from "../ai/readingAi.js";
 import type * as ai_translationAi from "../ai/translationAi.js";
 import type * as ai_voice from "../ai/voice.js";
+import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
 import type * as coach from "../coach.js";
 import type * as http from "../http.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   "ai/readingAi": typeof ai_readingAi;
   "ai/translationAi": typeof ai_translationAi;
   "ai/voice": typeof ai_voice;
+  analytics: typeof analytics;
   auth: typeof auth;
   coach: typeof coach;
   http: typeof http;
