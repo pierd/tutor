@@ -1,0 +1,65 @@
+{
+  "app": {
+    "title": "Tutor",
+    "authenticating": "Uwierzytelnianie…"
+  },
+  "auth": {
+    "email": "E-mail",
+    "password": "Hasło",
+    "signIn": "Zaloguj się",
+    "signUp": "Zarejestruj się",
+    "signInInstead": "Masz już konto? Zaloguj się",
+    "signUpInstead": "Nie masz konta? Zarejestruj się",
+    "signOut": "Wyloguj się"
+  },
+  "locale": {
+    "label": "Język interfejsu"
+  },
+  "nav": {
+    "progress": "Postępy",
+    "classic": "Klasyczne gry"
+  },
+  "profile": {
+    "setupTitle": "Utwórz swój pierwszy profil nauki",
+    "setupIntro": "Profil to jeden język, którego się uczysz, z osobnymi postępami. Kolejne możesz dodać później.",
+    "newTitle": "Nowy profil nauki",
+    "name": "Nazwa",
+    "namePlaceholder": "np. Francuski na wakacje",
+    "baseLang": "Język wyjaśnień",
+    "targetLang": "Język, którego się uczę",
+    "goal": "Cel (opcjonalnie)",
+    "goalPlaceholder": "np. przeczytać Małego Księcia po francusku",
+    "create": "Utwórz profil",
+    "cancel": "Anuluj",
+    "newProfile": "Nowy profil…",
+    "switchLabel": "Profil",
+    "sameLanguage": "Wybierz dwa różne języki."
+  },
+  "progress": {
+    "itemCount_one": "{{count}} element",
+    "itemCount_few": "{{count}} elementy",
+    "itemCount_many": "{{count}} elementów",
+    "itemCount_other": "{{count}} elementu",
+    "dueCount_one": "{{count}} do powtórki",
+    "dueCount_few": "{{count}} do powtórki",
+    "dueCount_many": "{{count}} do powtórki",
+    "dueCount_other": "{{count}} do powtórki",
+    "empty": "Na razie nic tu nie ma. Lekcje będą dodawać słowa i gramatykę w miarę ćwiczenia.",
+    "addStarter_one": "Dodaj {{count}} element na start",
+    "addStarter_few": "Dodaj {{count}} elementy na start",
+    "addStarter_many": "Dodaj {{count}} elementów na start",
+    "addStarter_other": "Dodaj {{count}} elementu na start",
+    "kinds": {
+      "lemma": "Słowa",
+      "chunk": "Wyrażenia",
+      "grammar": "Gramatyka",
+      "glyph": "Znaki"
+    },
+    "new": "nowe",
+    "dueNow": "do powtórki teraz",
+    "dueIn": "powtórka {{when}}",
+    "strength": "Opanowanie",
+    "knewIt": "Znam to",
+    "didNot": "Jeszcze nie"
+  }
+}

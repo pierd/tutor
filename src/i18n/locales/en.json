@@ -1,0 +1,59 @@
+{
+  "app": {
+    "title": "Tutor",
+    "authenticating": "Authenticating…"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signInInstead": "Sign in instead",
+    "signUpInstead": "Sign up instead",
+    "signOut": "Sign out"
+  },
+  "locale": {
+    "label": "Interface language"
+  },
+  "nav": {
+    "progress": "Progress",
+    "classic": "Classic games"
+  },
+  "profile": {
+    "setupTitle": "Create your first learning profile",
+    "setupIntro": "A profile is one language you're learning, with its own progress. You can add more later.",
+    "newTitle": "New learning profile",
+    "name": "Name",
+    "namePlaceholder": "e.g. French for travel",
+    "baseLang": "Explanations in",
+    "targetLang": "I want to learn",
+    "goal": "Goal (optional)",
+    "goalPlaceholder": "e.g. read Le Petit Prince in French",
+    "create": "Create profile",
+    "cancel": "Cancel",
+    "newProfile": "New profile…",
+    "switchLabel": "Profile",
+    "sameLanguage": "Pick two different languages."
+  },
+  "progress": {
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "dueCount_one": "{{count}} due for review",
+    "dueCount_other": "{{count}} due for review",
+    "empty": "Nothing tracked yet. Lessons will add words and grammar here as you practise.",
+    "addStarter_one": "Add {{count}} starter item",
+    "addStarter_other": "Add {{count}} starter items",
+    "kinds": {
+      "lemma": "Words",
+      "chunk": "Phrases",
+      "grammar": "Grammar",
+      "glyph": "Characters"
+    },
+    "new": "new",
+    "dueNow": "due now",
+    "dueIn": "due {{when}}",
+    "strength": "Strength",
+    "knewIt": "I knew it",
+    "didNot": "I didn't"
+  }
+}

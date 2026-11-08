@@ -1,11 +1,14 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { LocalePicker } from "./i18n/LocalePicker";
 
 export function SignIn() {
   const { signIn } = useAuthActions();
+  const { t } = useTranslation();
   const [step, setStep] = useState<"signUp" | "signIn">("signIn");
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 px-4">
       <form
         className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 shadow-sm"
         onSubmit={(event) => {
@@ -15,18 +18,18 @@ export function SignIn() {
         }}
       >
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
-          Tutor
+          {t("app.title")}
         </h1>
         <div className="space-y-4">
           <input
             name="email"
-            placeholder="Email"
+            placeholder={t("auth.email")}
             type="text"
             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
           />
           <input
             name="password"
-            placeholder="Password"
+            placeholder={t("auth.password")}
             type="password"
             className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
           />
@@ -35,7 +38,7 @@ export function SignIn() {
             type="submit"
             className="w-full rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
           >
-            {step === "signIn" ? "Sign in" : "Sign up"}
+            {step === "signIn" ? t("auth.signIn") : t("auth.signUp")}
           </button>
         </div>
         <div className="mt-6 text-center">
@@ -46,10 +49,11 @@ export function SignIn() {
               setStep(step === "signIn" ? "signUp" : "signIn");
             }}
           >
-            {step === "signIn" ? "Sign up instead" : "Sign in instead"}
+            {step === "signIn" ? t("auth.signUpInstead") : t("auth.signInInstead")}
           </button>
         </div>
       </form>
+      <LocalePicker />
     </div>
   );
 }

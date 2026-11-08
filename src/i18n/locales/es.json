@@ -1,0 +1,62 @@
+{
+  "app": {
+    "title": "Tutor",
+    "authenticating": "Autenticando…"
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signInInstead": "¿Ya tienes cuenta? Inicia sesión",
+    "signUpInstead": "¿No tienes cuenta? Regístrate",
+    "signOut": "Cerrar sesión"
+  },
+  "locale": {
+    "label": "Idioma de la interfaz"
+  },
+  "nav": {
+    "progress": "Progreso",
+    "classic": "Juegos clásicos"
+  },
+  "profile": {
+    "setupTitle": "Crea tu primer perfil de aprendizaje",
+    "setupIntro": "Un perfil es un idioma que estás aprendiendo, con su propio progreso. Puedes añadir más después.",
+    "newTitle": "Nuevo perfil de aprendizaje",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. Francés para viajar",
+    "baseLang": "Idioma de las explicaciones",
+    "targetLang": "Idioma que quiero aprender",
+    "goal": "Objetivo (opcional)",
+    "goalPlaceholder": "p. ej. leer El Principito en francés",
+    "create": "Crear perfil",
+    "cancel": "Cancelar",
+    "newProfile": "Nuevo perfil…",
+    "switchLabel": "Perfil",
+    "sameLanguage": "Elige dos idiomas distintos."
+  },
+  "progress": {
+    "itemCount_one": "{{count}} elemento",
+    "itemCount_many": "{{count}} elementos",
+    "itemCount_other": "{{count}} elementos",
+    "dueCount_one": "{{count}} pendiente de repaso",
+    "dueCount_many": "{{count}} pendientes de repaso",
+    "dueCount_other": "{{count}} pendientes de repaso",
+    "empty": "Aún no hay nada registrado. Las lecciones irán añadiendo aquí palabras y gramática a medida que practiques.",
+    "addStarter_one": "Añadir {{count}} elemento inicial",
+    "addStarter_many": "Añadir {{count}} elementos iniciales",
+    "addStarter_other": "Añadir {{count}} elementos iniciales",
+    "kinds": {
+      "lemma": "Palabras",
+      "chunk": "Expresiones",
+      "grammar": "Gramática",
+      "glyph": "Caracteres"
+    },
+    "new": "nuevo",
+    "dueNow": "para repasar ya",
+    "dueIn": "repaso {{when}}",
+    "strength": "Dominio",
+    "knewIt": "Lo sabía",
+    "didNot": "No lo sabía"
+  }
+}

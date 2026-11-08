@@ -10,6 +10,13 @@
 
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
+import type * as items from "../items.js";
+import type * as lib_auth from "../lib/auth.js";
+import type * as lib_languages from "../lib/languages.js";
+import type * as lib_srs from "../lib/srs.js";
+import type * as profiles from "../profiles.js";
+import type * as seeds_frEs from "../seeds/frEs.js";
+import type * as settings from "../settings.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +27,13 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
+  items: typeof items;
+  "lib/auth": typeof lib_auth;
+  "lib/languages": typeof lib_languages;
+  "lib/srs": typeof lib_srs;
+  profiles: typeof profiles;
+  "seeds/frEs": typeof seeds_frEs;
+  settings: typeof settings;
 }>;
 
 /**
