@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CheckCircle2, Loader2, Mic, Square, XCircle } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import { track } from "../lib/posthog";
 import { uploadRecording } from "../voice/upload";
 import { useRecorder } from "../voice/useRecorder";
 import { CardPrompt, ListenButton, RoundSummary } from "./deck";
@@ -44,6 +45,10 @@ export function SayWord({ profileId, lessonId }: { profileId: Id<"profiles">; le
         card={card}
         onDone={(correct, given) => {
           if (correct) setScore((s) => s + 1);
+          track("spoken_answer_submitted", {
+            answer_method: given ? "recorded" : "skipped",
+            correct,
+          });
           void answerCard({ cardId: card._id, correct, mode: "spoken", given });
           setIndex((i) => i + 1);
         }}

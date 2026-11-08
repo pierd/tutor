@@ -9,6 +9,7 @@ import { speak } from "./ai/voice";
 import { drawIllustration, generateReading } from "./ai/readingAi";
 import { recordEvidence } from "./items";
 import { lessonItemIds } from "./units";
+import { createAiContext } from "./lib/posthogAi";
 
 // Reading comprehension: one AI-written text per lesson, reused until the
 // learner asks for a new one. Questions are graded locally; tapping a word
@@ -156,7 +157,7 @@ export const write = internalAction({
         known: c.known,
         avoidTitles: c.avoidTitles,
         withImages: c.withImages,
-      });
+      }, createAiContext({ distinctId: c.profile.userId }));
       await ctx.runMutation(internal.reading.save, { readingId, ...reading, illustrations: reading.illustrations ?? [] });
     } catch (e) {
       await ctx.runMutation(internal.reading.fail, { readingId, error: e instanceof Error ? e.message : String(e) });
@@ -197,17 +198,22 @@ export const illustrationPrompt = internalQuery({
   args: { readingId: v.id("readings"), index: v.number() },
   handler: async (ctx, { readingId, index }) => {
     const reading = await ctx.db.get("readings", readingId);
-    return reading?.illustrations?.[index]?.prompt ?? null;
+    const prompt = reading?.illustrations?.[index]?.prompt;
+    if (!reading || !prompt) return null;
+    const profile = await ctx.db.get("profiles", reading.profileId);
+    return profile ? { prompt, userId: profile.userId } : null;
   },
 });
 
 export const draw = internalAction({
   args: { readingId: v.id("readings"), index: v.number() },
   handler: async (ctx, { readingId, index }) => {
-    const prompt = await ctx.runQuery(internal.reading.illustrationPrompt, { readingId, index });
-    if (prompt === null) return null;
+    const illustration = await ctx.runQuery(internal.reading.illustrationPrompt, { readingId, index });
+    if (illustration === null) return null;
     try {
-      const storageId = await ctx.storage.store(await drawIllustration(prompt));
+      const storageId = await ctx.storage.store(
+        await drawIllustration(illustration.prompt, createAiContext({ distinctId: illustration.userId })),
+      );
       await ctx.runMutation(internal.reading.saveIllustration, { readingId, index, storageId });
     } catch (e) {
       console.warn("Illustration failed", e);

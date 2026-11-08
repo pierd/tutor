@@ -9,6 +9,7 @@ import { lessonItemIds } from "./units";
 import { DEFAULT_STT_MODEL, ttsVoicesFor } from "./lib/voices";
 import { speak, transcribe } from "./ai/voice";
 import { generateExercise, gradeAnswer, type Graded } from "./ai/translationAi";
+import { createAiContext } from "./lib/posthogAi";
 
 // Translation challenge: the database picks what to practise, the AI writes
 // a sentence around it and grades the answer, and results feed the learner
@@ -230,7 +231,7 @@ export const generate = internalAction({
         known: context.known,
         recentPrompts: context.recentPrompts,
         allowNewItem: exercise.allowNewItem,
-      });
+      }, createAiContext({ distinctId: profile.userId, traceId: exerciseId }));
       // Pre-render the model answer so feedback can play it instantly.
       let audioStorageId: Id<"_storage"> | undefined;
       const voice = ttsVoicesFor(profile.targetLang)[0];
@@ -342,7 +343,7 @@ async function gradeAndSave(
     items: items.map(({ key, kind, text, gloss }) => ({ key, kind, text, gloss })),
     mode: args.mode,
     answer: args.answer,
-  });
+  }, createAiContext({ distinctId: profile.userId }));
   const byKey = new Map(graded.items.map((r) => [r.key.trim().toLowerCase(), r]));
   const itemResults = items.map((item) => {
     const result = byKey.get(item.key);

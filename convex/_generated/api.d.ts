@@ -20,6 +20,7 @@ import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_languages from "../lib/languages.js";
+import type * as lib_posthogAi from "../lib/posthogAi.js";
 import type * as lib_srs from "../lib/srs.js";
 import type * as lib_text from "../lib/text.js";
 import type * as lib_voices from "../lib/voices.js";
@@ -55,6 +56,7 @@ declare const fullApi: ApiFromModules<{
   items: typeof items;
   "lib/auth": typeof lib_auth;
   "lib/languages": typeof lib_languages;
+  "lib/posthogAi": typeof lib_posthogAi;
   "lib/srs": typeof lib_srs;
   "lib/text": typeof lib_text;
   "lib/voices": typeof lib_voices;

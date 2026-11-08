@@ -7,6 +7,7 @@ import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { languageName } from "../i18n";
 import { ListenControls } from "../lib/ListenControls";
+import { track } from "../lib/posthog";
 import { uploadRecording } from "../voice/upload";
 import { useRecorder } from "../voice/useRecorder";
 import { diffWords } from "../voice/wordDiff";
@@ -154,11 +155,16 @@ function ExerciseCard({
     void run(async () => {
       const recordingId = await uploadRecording(blob, generateUploadUrl, saveRecording);
       await submitSpeech({ exerciseId: exercise._id, recordingId });
+      track("translation_answer_submitted", { answer_method: "speech" });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recorder.recording]);
 
-  const sendText = (text: string) => run(() => submitText({ exerciseId: exercise._id, text }));
+  const sendText = (text: string) =>
+    run(async () => {
+      await submitText({ exerciseId: exercise._id, text });
+      track("translation_answer_submitted", { answer_method: "typed" });
+    });
 
   return (
     <div className="space-y-4">

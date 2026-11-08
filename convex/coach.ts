@@ -13,6 +13,7 @@ import { languageLabel } from "./ai/translationAi";
 import { requireProfile } from "./lib/auth";
 import { lessonOutlineValidator, seedCardValidator, seedItemValidator } from "./seeds/validators";
 import { addLessonContent, createUnit, lessonItemIds, nextLessonOrder } from "./units";
+import { captureAiGeneration, captureAiToolSpan, createAiContext } from "./lib/posthogAi";
 
 // Coach chat: the learner and the coach shape lessons and units together.
 // The coach only *proposes* (tools write to `proposals`); content is created
@@ -55,7 +56,7 @@ export const send = mutation({
       await ctx.db.insert("coachThreads", { profileId, threadId });
     }
     const { messageId } = await saveMessage(ctx, components.agent, { threadId, prompt: text });
-    await ctx.scheduler.runAfter(0, internal.coach.respond, { profileId, threadId, promptMessageId: messageId });
+    await ctx.scheduler.runAfter(0, internal.coach.respond, { profileId, threadId, promptMessageId: messageId, prompt: text });
     return threadId;
   },
 });
@@ -155,9 +156,15 @@ ${contentRules(c.profile.baseLang, c.profile.targetLang)}`;
 }
 
 export const respond = internalAction({
-  args: { profileId: v.id("profiles"), threadId: v.string(), promptMessageId: v.string() },
-  handler: async (ctx, { profileId, threadId, promptMessageId }) => {
+  // `prompt` is only for analytics; optional so already-scheduled runs still validate.
+  args: { profileId: v.id("profiles"), threadId: v.string(), promptMessageId: v.string(), prompt: v.optional(v.string()) },
+  handler: async (ctx, { profileId, threadId, promptMessageId, prompt }) => {
     const c = await ctx.runQuery(internal.coach.context, { profileId });
+    const aiContext = createAiContext({
+      distinctId: c.profile.userId,
+      sessionId: threadId,
+      traceId: promptMessageId,
+    });
     const save = (proposal: ProposalInput) =>
       ctx.runMutation(internal.coach.saveProposal, { profileId, threadId, proposal });
 
@@ -178,6 +185,7 @@ export const respond = internalAction({
             cards: z.array(cardSchema).min(1).max(120),
           }),
           execute: async (_ctx, input): Promise<{ proposalId: string; summary: string }> => {
+            const started = Date.now();
             const { items, cards } = cleanContent(input);
             const unitId = c.curriculum.find((u) => u.unitId === input.unitId)?.unitId as Id<"units"> | undefined;
             const proposalId = await save({
@@ -189,7 +197,15 @@ export const respond = internalAction({
               items,
               cards,
             });
-            return { proposalId, summary: `Proposed lesson "${input.title}" with ${items.length} items and ${cards.length} cards.` };
+            const output = { proposalId, summary: `Proposed lesson "${input.title}" with ${items.length} items and ${cards.length} cards.` };
+            captureAiToolSpan({
+              context: aiContext,
+              name: "propose_lesson",
+              input,
+              output,
+              latencyMs: Date.now() - started,
+            });
+            return output;
           },
         }),
         proposeUnit: createTool({
@@ -209,14 +225,33 @@ export const respond = internalAction({
               .max(12),
           }),
           execute: async (_ctx, input): Promise<{ proposalId: string; summary: string }> => {
+            const started = Date.now();
             const proposalId = await save({ kind: "unit", ...input });
-            return { proposalId, summary: `Proposed unit "${input.title}" with ${input.lessons.length} lessons.` };
+            const output = { proposalId, summary: `Proposed unit "${input.title}" with ${input.lessons.length} lessons.` };
+            captureAiToolSpan({
+              context: aiContext,
+              name: "propose_unit",
+              input,
+              output,
+              latencyMs: Date.now() - started,
+            });
+            return output;
           },
         }),
       },
     });
+    const started = Date.now();
     const result = await coach.streamText(ctx, { threadId }, { promptMessageId }, { saveStreamDeltas: true });
     await result.consumeStream();
+    // Latency covers all steps, including tool calls (each also has its own span).
+    captureAiGeneration({
+      context: aiContext,
+      model: COACH_MODEL,
+      input: [{ role: "user", content: prompt ?? "" }],
+      output: [{ role: "assistant", content: await result.text }],
+      latencyMs: Date.now() - started,
+      usage: await result.totalUsage,
+    });
     return null;
   },
 });
@@ -361,7 +396,7 @@ export const buildLesson = internalAction({
         title: c.lesson.title,
         focus: c.lesson.buildFocus ?? c.lesson.description ?? c.lesson.title,
         existingKeys: c.existingKeys,
-      });
+      }, createAiContext({ distinctId: c.profile.userId }));
       await ctx.runMutation(internal.coach.finishBuild, { lessonId, ...content });
     } catch (e) {
       await ctx.runMutation(internal.coach.failBuild, { lessonId, error: e instanceof Error ? e.message : String(e) });

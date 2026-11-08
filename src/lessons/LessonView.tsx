@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, BookOpen, Layers, Loader2, Mic, Sparkles } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { track } from "../lib/posthog";
 import { useMinuteClock } from "../lib/useMinuteClock";
 import { Flashcards } from "./Flashcards";
 import { ItemList } from "./ItemList";
@@ -75,7 +76,10 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
             {MODES.map(({ mode: m, icon: Icon, ai }) => (
               <button
                 key={m}
-                onClick={() => setMode(m)}
+                onClick={() => {
+                  track("lesson_mode_selected", { lesson_mode: m });
+                  setMode(m);
+                }}
                 className="rounded-xl border border-gray-200 bg-white p-4 text-left transition-colors hover:border-gray-900"
               >
                 <div className="flex items-center gap-2 font-semibold text-gray-900">

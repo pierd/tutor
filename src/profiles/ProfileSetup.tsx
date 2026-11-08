@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import { BASE_LANGUAGES, TARGET_LANGUAGES } from "../../convex/lib/languages";
 import { currentLocale, languageName } from "../i18n";
+import { track } from "../lib/posthog";
 
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900";
@@ -36,7 +37,10 @@ export function ProfileSetup({ onDone }: { onDone?: () => void }) {
           baseLang,
           targetLang,
         })
-          .then(() => onDone?.())
+          .then(() => {
+            track("profile_created", { base_language: baseLang, target_language: targetLang, is_first_profile: isFirst });
+            onDone?.();
+          })
           .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
           .finally(() => setBusy(false));
       }}

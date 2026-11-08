@@ -4,6 +4,7 @@ import { z } from "zod";
 import { COACH_MODEL } from "./models";
 import { languageLabel } from "./translationAi";
 import type { SeedCard, SeedItem } from "../seeds/types";
+import { captureAiGeneration, type AiContext } from "../lib/posthogAi";
 
 // Schemas and rules for AI-written lesson content (items + cards), shared by
 // the coach's proposeLesson tool and the background lesson builder.
@@ -75,8 +76,9 @@ export async function buildLessonContent(input: {
   title: string;
   focus: string;
   existingKeys: string[];
-}) {
-  const { output } = await generateText({
+}, context?: AiContext) {
+  const started = Date.now();
+  const { output, usage } = await generateText({
     model: convexGateway(COACH_MODEL),
     output: Output.object({ schema: lessonContentSchema }),
     system: `You write the content of one lesson in a language-learning app.\n${contentRules(input.baseLang, input.targetLang)}`,
@@ -85,5 +87,15 @@ Lesson: ${input.title}
 What it should cover: ${input.focus}
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Already tracked item keys: ${input.existingKeys.join(", ") || "(none)"}`,
   });
+  if (context) {
+    captureAiGeneration({
+      context,
+      model: COACH_MODEL,
+      input: [{ role: "user", content: JSON.stringify(input) }],
+      output: [{ role: "assistant", content: JSON.stringify(output) }],
+      latencyMs: Date.now() - started,
+      usage,
+    });
+  }
   return cleanContent(output);
 }

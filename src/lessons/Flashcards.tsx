@@ -5,6 +5,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { checkTyped, normalize } from "../../convex/lib/text";
+import { track } from "../lib/posthog";
 import { CardPrompt, ListenButton, RoundSummary } from "./deck";
 import { useDeck, type DeckCard } from "./useDeck";
 
@@ -37,8 +38,14 @@ export function Flashcards({ profileId, lessonId }: { profileId: Id<"profiles">;
 
   const card = cards[index];
   const record = (result: Result) => {
+    const answerMode = typed ? "typed" : "choice";
     if (result.correct) setScore((s) => s + 1);
-    void answerCard({ cardId: card._id, correct: result.correct, mode: typed ? "typed" : "choice", given: result.given });
+    track("flashcard_answered", {
+      answer_mode: answerMode,
+      correct: result.correct,
+      accent_slip: result.accentSlip,
+    });
+    void answerCard({ cardId: card._id, correct: result.correct, mode: answerMode, given: result.given });
   };
 
   return (

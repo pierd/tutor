@@ -3,6 +3,7 @@ import { convexGateway } from "@convex-dev/ai-sdk-provider";
 import { z } from "zod";
 import { COACH_MODEL, IMAGE_MODEL } from "./models";
 import { languageLabel } from "./translationAi";
+import { captureAiGeneration, type AiContext } from "../lib/posthogAi";
 
 // Writes a short reading text with glossary and comprehension questions.
 
@@ -57,10 +58,11 @@ export async function generateReading(input: {
   known: string[];
   avoidTitles: string[];
   withImages?: boolean;
-}): Promise<Reading> {
+}, context?: AiContext): Promise<Reading> {
   const base = languageLabel(input.baseLang);
   const target = languageLabel(input.targetLang);
-  const { output } = await generateText({
+  const started = Date.now();
+  const { output, usage } = await generateText({
     model: convexGateway(COACH_MODEL),
     output: Output.object({ schema: readingSchema }),
     system: `You write graded reading practice for a learner who speaks ${base} and learns ${target}.
@@ -74,6 +76,16 @@ ${input.targets.map((t) => `- key "${t.key}": ${t.text}${t.gloss ? ` (${t.gloss}
 Known words (sample): ${input.known.join(", ") || "(beginner)"}
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Avoid repeating these earlier texts: ${input.avoidTitles.join("; ") || "(none)"}`,
   });
+  if (context) {
+    captureAiGeneration({
+      context,
+      model: COACH_MODEL,
+      input: [{ role: "user", content: JSON.stringify(input) }],
+      output: [{ role: "assistant", content: JSON.stringify(output) }],
+      latencyMs: Date.now() - started,
+      usage,
+    });
+  }
   return {
     ...output,
     glossary: output.glossary.map((g) => ({ ...g, surface: g.surface.trim().toLowerCase() })),
@@ -85,11 +97,21 @@ ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Avoid repeating these earl
 }
 
 // One illustration in a consistent, friendly style. Returns a PNG/JPEG blob.
-export async function drawIllustration(prompt: string) {
+export async function drawIllustration(prompt: string, context?: AiContext) {
+  const started = Date.now();
   const { image } = await generateImage({
     model: convexGateway.imageModel(IMAGE_MODEL),
     prompt: `Warm, simple storybook illustration, soft colours, no text, no letters, no captions. ${prompt}`,
     size: "1024x1024",
   });
+  if (context) {
+    captureAiGeneration({
+      context,
+      model: IMAGE_MODEL,
+      input: [{ role: "user", content: prompt }],
+      output: [{ role: "assistant", content: "Image generated" }],
+      latencyMs: Date.now() - started,
+    });
+  }
   return new Blob([image.uint8Array as Uint8Array<ArrayBuffer>], { type: image.mediaType });
 }

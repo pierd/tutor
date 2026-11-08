@@ -2,6 +2,7 @@ import { generateText, Output } from "ai";
 import { convexGateway } from "@convex-dev/ai-sdk-provider";
 import { z } from "zod";
 import { GENERATE_MODEL, GRADE_MODEL } from "./models";
+import { captureAiGeneration, type AiContext } from "../lib/posthogAi";
 
 // LLM side of the translation challenge. Pure functions (no ctx) so they can
 // be exercised from a smoke test.
@@ -51,13 +52,14 @@ const generatedSchema = z.object({
 
 export type Generated = z.infer<typeof generatedSchema>;
 
-export async function generateExercise(input: GenerationInput): Promise<Generated> {
+export async function generateExercise(input: GenerationInput, context?: AiContext): Promise<Generated> {
   const base = languageLabel(input.baseLang);
   const target = languageLabel(input.targetLang);
   const targetsText = input.targets.length
     ? input.targets.map((t) => `- key "${t.key}" (${t.kind}): ${t.text}${t.gloss ? ` — ${t.gloss}` : ""}`).join("\n")
     : "(none)";
-  const { output } = await generateText({
+  const started = Date.now();
+  const { output, usage } = await generateText({
     model: convexGateway(GENERATE_MODEL),
     output: Output.object({ schema: generatedSchema }),
     system: `You are a patient language tutor. The learner speaks ${base} and is learning ${target}.
@@ -77,6 +79,16 @@ ${targetsText}
 Learner's known vocabulary (sample): ${input.known.length ? input.known.join(", ") : "(nothing yet — complete beginner)"}
 ${input.goal ? `Learner's goal: ${input.goal}\n` : ""}Recent sentences (avoid repeating): ${input.recentPrompts.length ? input.recentPrompts.map((p) => `"${p}"`).join("; ") : "(none)"}`,
   });
+  if (context) {
+    captureAiGeneration({
+      context,
+      model: GENERATE_MODEL,
+      input: [{ role: "user", content: JSON.stringify(input) }],
+      output: [{ role: "assistant", content: JSON.stringify(output) }],
+      latencyMs: Date.now() - started,
+      usage,
+    });
+  }
   return output;
 }
 
@@ -122,7 +134,7 @@ const gradedSchema = z.object({
 
 export type Graded = z.infer<typeof gradedSchema>;
 
-export async function gradeAnswer(input: GradingInput): Promise<Graded> {
+export async function gradeAnswer(input: GradingInput, context?: AiContext): Promise<Graded> {
   const base = languageLabel(input.baseLang);
   const target = languageLabel(input.targetLang);
   const speechRules = `The answer was SPOKEN and then transcribed by a speech-to-text model. Therefore:
@@ -131,7 +143,8 @@ export async function gradeAnswer(input: GradingInput): Promise<Graded> {
 - The transcriber may have guessed between homophones; judge only what is audible in the transcript.
 - Contracted or informal spoken forms that are correct in speech are fine.`;
   const textRules = `The answer was TYPED. Spelling and accents count: a missing or wrong accent or a small typo makes the verdict at most "almost" (mention it), unless it changes the word. needsTypedCheck must be false.`;
-  const { output } = await generateText({
+  const started = Date.now();
+  const { output, usage } = await generateText({
     model: convexGateway(GRADE_MODEL),
     output: Output.object({ schema: gradedSchema }),
     system: `You grade a language learner's translation from ${base} into ${target}. Be fair and precise, not pedantic: any natural, correct translation of the meaning is acceptable even if it isn't in the reference list.
@@ -145,5 +158,15 @@ ${input.items.map((i) => `- key "${i.key}": ${i.text}${i.gloss ? ` (${i.gloss})`
 
 Learner's answer (${input.mode}): "${input.answer}"`,
   });
+  if (context) {
+    captureAiGeneration({
+      context,
+      model: GRADE_MODEL,
+      input: [{ role: "user", content: JSON.stringify(input) }],
+      output: [{ role: "assistant", content: JSON.stringify(output) }],
+      latencyMs: Date.now() - started,
+      usage,
+    });
+  }
   return output;
 }

@@ -7,6 +7,7 @@ import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { TARGET_LANGUAGES } from "../../convex/lib/languages";
 import { ListenControls } from "../lib/ListenControls";
+import { track } from "../lib/posthog";
 import { tokenize, type Entry } from "./glossaryTokens";
 
 type ReadingDoc = NonNullable<FunctionReturnType<typeof api.reading.current>>;
@@ -30,7 +31,9 @@ export function Reading({ profile, lessonId }: { profile: Doc<"profiles">; lesso
 
   const newText = () => {
     setViewingId(null);
-    void generate({ profileId: profile._id, lessonId, withImages });
+    void generate({ profileId: profile._id, lessonId, withImages }).then(() => {
+      track("reading_generated", { with_images: withImages });
+    });
   };
   const generating = current?.status === "generating";
   const shown = viewingId ? viewed : current;
@@ -248,7 +251,13 @@ function ReadingView({ reading, targetLang }: { reading: ReadingDoc; targetLang:
                   readingId: reading._id,
                   answers: answers.map((a) => a ?? -1),
                   lookedUp: [...lookedUp],
-                }).then(setScore)
+                }).then((result) => {
+                  setScore(result);
+                  track("reading_completed", {
+                    question_count: reading.questions.length,
+                    score: result,
+                  });
+                })
               }
               className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >

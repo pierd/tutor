@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Authenticated, Unauthenticated, AuthLoading, useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../convex/_generated/api";
@@ -14,6 +14,7 @@ import { LessonView } from "./lessons/LessonView";
 import { CoachChat } from "./coach/CoachChat";
 import { WishlistPending } from "./wishlist/WishlistPending";
 import { WishlistAdmin } from "./wishlist/WishlistAdmin";
+import { identify, resetAnalytics } from "./lib/posthog";
 
 export function App() {
   const { t } = useTranslation();
@@ -49,6 +50,18 @@ function useSyncedLocale() {
 function Gate() {
   const setUiLocale = useSyncedLocale();
   const status = useQuery(api.wishlist.status);
+  const statusUserId = status?.userId;
+  const statusEmail = status?.email;
+  const identifiedUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!statusUserId || identifiedUserId.current === statusUserId) return;
+
+    if (identifiedUserId.current) resetAnalytics();
+    identify(statusUserId, statusEmail ?? null);
+    identifiedUserId.current = statusUserId;
+  }, [statusUserId, statusEmail]);
+
   if (status === undefined) return null;
   if (status === null || !status.hasAccess) {
     return (

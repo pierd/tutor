@@ -154,6 +154,23 @@ reschedule.
 - Starter content per language pair: `convex/seeds/` (`STARTER_SETS`, keyed
   like `fr-es` = target-base), added via `items.addStarterSet`; idempotent.
 
+## Analytics (PostHog)
+
+- Frontend: `src/lib/posthog.ts` inits `posthog-js` (autocapture, pageviews,
+  unhandled errors) when `VITE_POSTHOG_KEY` + `VITE_POSTHOG_HOST` are set.
+  Custom events go through `track(event, props)`; `App.tsx` identifies the
+  user by Convex user id (+ email), `SignOut` resets. Event names are
+  snake_case (`flashcard_answered`, `coach_proposal_accepted`, ...).
+- Backend LLM analytics: `convex/lib/posthogAi.ts` sends `$ai_generation` /
+  `$ai_span` events (model, tokens, latency, full prompt and output:
+  `privacyMode` is deliberately off). AI functions in `convex/ai/` take an
+  optional `AiContext` (`createAiContext({ distinctId: userId })`); pass one
+  from any new AI call. Uses `posthog-node/edge` because the Node build
+  doesn't run in Convex's default runtime. Flushes aren't awaited, so
+  analytics never delays the learner (an event may occasionally be lost).
+- Server keys `POSTHOG_PROJECT_TOKEN` / `POSTHOG_HOST` live in the Convex
+  deployment env (`npx convex env set`), not `.env.local`.
+
 ## Deployments
 
 - Convex dev: `tangible-armadillo-223` (used by `npx convex dev` and
@@ -164,7 +181,8 @@ reschedule.
   so each deploy pushes functions to prod and injects the prod
   `VITE_CONVEX_URL`. Never set `VITE_CONVEX_URL` by hand in Vercel.
 - Prod Convex env: `JWT_PRIVATE_KEY`, `JWKS` (own keys, not dev's) and
-  `SITE_URL=https://tutor.lessismore.studio`.
+  `SITE_URL=https://tutor.lessismore.studio`, plus `POSTHOG_PROJECT_TOKEN` /
+  `POSTHOG_HOST`. Vercel needs `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST`.
 
 ## Languages and localization
 

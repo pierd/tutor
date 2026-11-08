@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Loader2, RotateCcw, Send } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { track } from "../lib/posthog";
 import { ProposalCard } from "./ProposalCard";
 
 // Chat with the coach to shape lessons and units. Proposals appear as cards;
@@ -25,6 +26,8 @@ export function CoachChat({
 
   const submit = (text: string) => {
     if (!text.trim() || sending) return;
+    const messageSource = suggestions.includes(text) ? "suggestion" : "typed";
+    track("coach_message_sent", { message_source: messageSource });
     setSending(true);
     void send({ profileId: profile._id, prompt: text })
       .then(() => setDraft(""))

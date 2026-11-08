@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Check, Layers, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
+import { track } from "../lib/posthog";
 import { useMinuteClock } from "../lib/useMinuteClock";
 
 const MAX_ITEMS_SHOWN = 24;
@@ -81,7 +82,10 @@ export function ProposalCard({
             onClick={() => {
               setBusy(true);
               void accept({ proposalId: proposal._id })
-                .then((lessonId) => lessonId && onOpenLesson(lessonId))
+                .then((lessonId) => {
+                  track("coach_proposal_accepted", { proposal_kind: p.kind });
+                  if (lessonId) onOpenLesson(lessonId);
+                })
                 .finally(() => setBusy(false));
             }}
             className="inline-flex items-center gap-1 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"

@@ -13,7 +13,7 @@ export const status = query({
     if (userId === null) return null;
     const user = await ctx.db.get("users", userId);
     if (user === null) return null;
-    return { email: user.email ?? null, hasAccess: await hasAccess(ctx, userId) };
+    return { userId, email: user.email ?? null, hasAccess: await hasAccess(ctx, userId) };
   },
 });
 

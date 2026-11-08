@@ -7,6 +7,7 @@ import { api } from "../../convex/_generated/api";
 import type { Doc } from "../../convex/_generated/dataModel";
 import { DEFAULT_STT_MODEL, STT_MODELS, ttsVoicesFor } from "../../convex/lib/voices";
 import { playAudio } from "../lib/audioPlayer";
+import { track } from "../lib/posthog";
 import { uploadRecording } from "./upload";
 import { useRecorder } from "./useRecorder";
 import { diffWords } from "./wordDiff";
@@ -73,7 +74,13 @@ export function VoiceLab({ profile }: { profile: Doc<"profiles"> }) {
       if (!recorder.recording) return;
       const recordingId = await uploadRecording(recorder.recording.blob, generateUploadUrl, saveRecording);
       try {
-        setResults(await transcribe({ recordingId, models, language: languageHint ? lang : undefined }));
+        const transcriptionResults = await transcribe({ recordingId, models, language: languageHint ? lang : undefined });
+        setResults(transcriptionResults);
+        track("voice_comparison_completed", {
+          language_hint_enabled: languageHint,
+          model_count: models.length,
+          successful_model_count: transcriptionResults.filter((result) => result.ok).length,
+        });
       } finally {
         await deleteRecording({ recordingId });
       }
