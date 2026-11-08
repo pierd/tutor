@@ -9,6 +9,7 @@ export const isPostHogEnabled = Boolean(posthogKey && posthogHost)
 if (posthogKey && posthogHost) {
   posthog.init(posthogKey, {
     api_host: posthogHost,
+    ui_host: 'https://eu.posthog.com',
     capture_exceptions: {
       capture_unhandled_errors: true,
       capture_unhandled_rejections: true,

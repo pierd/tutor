@@ -158,6 +158,9 @@ reschedule.
 
 - Frontend: `src/lib/posthog.ts` inits `posthog-js` (autocapture, pageviews,
   unhandled errors) when `VITE_POSTHOG_KEY` + `VITE_POSTHOG_HOST` are set.
+  The project is on PostHog EU; `VITE_POSTHOG_HOST` is the shared lessismore
+  reverse proxy `https://wieprz.lessismore.studio/eu` (gets past ad blockers),
+  and `ui_host` is pinned to `https://eu.posthog.com`.
   Custom events go through `track(event, props)`; `App.tsx` identifies the
   user by Convex user id (+ email), `SignOut` resets. Event names are
   snake_case (`flashcard_answered`, `coach_proposal_accepted`, ...).
