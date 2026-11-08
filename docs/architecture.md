@@ -154,6 +154,18 @@ reschedule.
 - Starter content per language pair: `convex/seeds/` (`STARTER_SETS`, keyed
   like `fr-es` = target-base), added via `items.addStarterSet`; idempotent.
 
+## Deployments
+
+- Convex dev: `tangible-armadillo-223` (used by `npx convex dev` and
+  `.env.local`). Convex prod: `optimistic-flamingo-906`.
+- Frontend: Vercel (configured in the Vercel dashboard, not in the repo),
+  serving tutor.lessismore.studio. Its Production build command is
+  `npx convex deploy --cmd 'npm run build'` with a prod `CONVEX_DEPLOY_KEY`,
+  so each deploy pushes functions to prod and injects the prod
+  `VITE_CONVEX_URL`. Never set `VITE_CONVEX_URL` by hand in Vercel.
+- Prod Convex env: `JWT_PRIVATE_KEY`, `JWKS` (own keys, not dev's) and
+  `SITE_URL=https://tutor.lessismore.studio`.
+
 ## Languages and localization
 
 - `convex/lib/languages.ts` is the single list, imported by both backend and
