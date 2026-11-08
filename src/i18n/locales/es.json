@@ -1,0 +1,219 @@
+{
+  "app": {
+    "title": "Tutor",
+    "authenticating": "Autenticando…"
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signUp": "Unirse a la lista de espera",
+    "signInInstead": "¿Ya tienes cuenta? Inicia sesión",
+    "signUpInstead": "¿No tienes cuenta? Únete a la lista de espera",
+    "signOut": "Cerrar sesión",
+    "wishlistIntro": "Por ahora Tutor es solo por invitación. Crea una cuenta para unirte a la lista de espera y te avisaremos cuando puedas entrar."
+  },
+  "locale": {
+    "label": "Idioma de la interfaz"
+  },
+  "nav": {
+    "everything": "Todo",
+    "due_one": "{{count}} pendiente",
+    "due_many": "{{count}} pendientes",
+    "due_other": "{{count}} pendientes",
+    "addStarter": "+ Añadir unidad inicial «{{title}}»",
+    "lab": "Laboratorio de voz",
+    "coach": "Coach · nuevas lecciones",
+    "wishlist": "Lista de espera"
+  },
+  "profile": {
+    "setupTitle": "Crea tu primer perfil de aprendizaje",
+    "setupIntro": "Un perfil es un idioma que estás aprendiendo, con su propio progreso. Puedes añadir más después.",
+    "newTitle": "Nuevo perfil de aprendizaje",
+    "name": "Nombre",
+    "namePlaceholder": "p. ej. Francés para viajar",
+    "baseLang": "Idioma de las explicaciones",
+    "targetLang": "Idioma que quiero aprender",
+    "goal": "Objetivo (opcional)",
+    "goalPlaceholder": "p. ej. leer El Principito en francés",
+    "create": "Crear perfil",
+    "cancel": "Cancelar",
+    "newProfile": "Nuevo perfil…",
+    "switchLabel": "Perfil",
+    "sameLanguage": "Elige dos idiomas distintos."
+  },
+  "progress": {
+    "itemCount_one": "{{count}} elemento",
+    "itemCount_many": "{{count}} elementos",
+    "itemCount_other": "{{count}} elementos",
+    "dueCount_one": "{{count}} pendiente de repaso",
+    "dueCount_many": "{{count}} pendientes de repaso",
+    "dueCount_other": "{{count}} pendientes de repaso",
+    "empty": "Aún no hay nada registrado. Las lecciones irán añadiendo aquí palabras y gramática a medida que practiques.",
+    "kinds": {
+      "lemma": "Palabras",
+      "chunk": "Expresiones",
+      "grammar": "Gramática",
+      "glyph": "Caracteres"
+    },
+    "new": "nuevo",
+    "dueNow": "para repasar ya",
+    "dueIn": "repaso {{when}}",
+    "strength": "Dominio",
+    "knewIt": "Lo sabía",
+    "didNot": "No lo sabía"
+  },
+  "lab": {
+    "title": "Laboratorio de voz",
+    "intro": "Compara modelos de voz con tu propia voz antes de elegirlos para las lecciones. Nada de esto afecta a tu progreso.",
+    "reference": "Frase para decir",
+    "hear": "Escuchar",
+    "recordHint": "Grábate diciendo la frase. Prueba también a decirla mal a propósito: un buen modelo escribe lo que dijiste de verdad, no lo que querías decir.",
+    "record": "Grabar",
+    "recordAgain": "Grabar de nuevo",
+    "stop": "Detener",
+    "models": "Modelos de transcripción",
+    "languageHint": "Indicar el idioma a los modelos ({{lang}})",
+    "compare": "Transcribir con los modelos elegidos",
+    "transcribing": "Transcribiendo…",
+    "diffLegend": "Las palabras resaltadas difieren de la frase de arriba (sin contar mayúsculas ni puntuación; los acentos sí cuentan)."
+  },
+  "lesson": {
+    "preparing": "Preparando tu frase…",
+    "failed": "No se pudo preparar esta frase.",
+    "tryAnother": "Probar otra",
+    "instruction": "Dilo en {{lang}}",
+    "showHint": "Ver pista",
+    "grading": "Comprobando…",
+    "speak": "Hablar",
+    "stop": "Detener",
+    "typeInstead": "Escribir en su lugar",
+    "typePlaceholder": "Escribe tu respuesta…",
+    "check": "Comprobar",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "verdict": {
+      "correct": "Correcto",
+      "almost": "Casi",
+      "incorrect": "No del todo"
+    },
+    "contested": "Contado como correcto",
+    "youSaid": "Hemos oído",
+    "youWrote": "Has escrito",
+    "correctVersion": "Versión correcta",
+    "alsoAccepted": "También vale",
+    "inaudible": "no se distingue al oído",
+    "typedCheckIntro": "Parte de esto no se oye, solo se ve al escribir. Escribe la frase para comprobar la ortografía.",
+    "typedCheck": "Comprobación escrita",
+    "contest": "Creo que mi respuesta era correcta",
+    "history_one": "Frases recientes ({{count}})",
+    "history_many": "Frases recientes ({{count}})",
+    "history_other": "Frases recientes ({{count}})"
+  },
+  "modes": {
+    "back": "Todos los modos",
+    "flashcards": {
+      "title": "Tarjetas",
+      "description": "Elige o escribe la palabra correcta. Rápido, sin IA."
+    },
+    "say": {
+      "title": "Di la palabra",
+      "description": "Di palabras y frases cortas en voz alta."
+    },
+    "sentences": {
+      "title": "Frases",
+      "description": "Traduce y di frases completas, corregidas por IA."
+    },
+    "reading": {
+      "title": "Lectura",
+      "description": "Un texto corto con palabras traducibles al tocarlas y preguntas rápidas.",
+      "count_one": "{{count}} texto",
+      "count_many": "{{count}} textos",
+      "count_other": "{{count}} textos"
+    }
+  },
+  "cards": {
+    "meaningPrompt": "¿Cómo se dice?",
+    "formPrompt": "Completa el hueco",
+    "roundDone": "Ronda terminada.",
+    "again": "Otra ronda",
+    "empty": "Esta lección aún no tiene tarjetas.",
+    "typeAnswers": "Escribir respuestas",
+    "accentSlip": "Correcto — ojo con los acentos: {{answer}}",
+    "wasAnswer": "Era: {{answer}}",
+    "sayAgain": "Repetir",
+    "dontKnow": "No lo sé",
+    "expected": "Se esperaba: {{expected}}",
+    "saidItRight": "Lo dije bien"
+  },
+  "lessonStatus": {
+    "failed": "error",
+    "building": "El coach está preparando esta lección…",
+    "buildFailed": "No se pudo preparar esta lección.",
+    "retry": "Reintentar"
+  },
+  "coach": {
+    "title": "Coach",
+    "intro": "Describe lo que quieres aprender o pide un plan. El coach propone lecciones; tú decides qué se añade.",
+    "newChat": "Nueva conversación",
+    "placeholder": "p. ej. una lección sobre los números del 1 al 20…",
+    "send": "Enviar",
+    "suggestPlan": "Propón un plan para mi objetivo",
+    "suggestNumbers": "Una lección sobre los números del 1 al 20",
+    "suggestCafe": "Una lección para pedir en una cafetería",
+    "preparing": "Preparando una propuesta…",
+    "lessonProposal": "Propuesta de lección",
+    "unitProposal": "Propuesta de unidad",
+    "newUnit": "unidad nueva «{{title}}»",
+    "cardCount_one": "{{count}} tarjeta de práctica",
+    "cardCount_many": "{{count}} tarjetas de práctica",
+    "cardCount_other": "{{count}} tarjetas de práctica",
+    "acceptLesson": "Añadir lección",
+    "acceptUnit": "Añadir unidad",
+    "dismiss": "Descartar",
+    "accepted": "Añadida",
+    "open": "Abrir",
+    "dismissed": "Descartada"
+  },
+  "reading": {
+    "intro": "Un texto corto escrito para esta lección, con preguntas. Se escribe una vez y se guarda hasta que pidas otro.",
+    "generate": "Escribir un texto",
+    "writing": "Escribiendo tu texto…",
+    "failed": "No se pudo escribir el texto.",
+    "tapHint": "Toca cualquier palabra subrayada para ver qué significa.",
+    "questions": "Preguntas",
+    "true": "Verdadero",
+    "false": "Falso",
+    "score": "{{score}} de {{total}} correctas",
+    "newText": "Texto nuevo",
+    "withImages": "Con ilustraciones",
+    "history": "Tus textos",
+    "tryAgain": "Repetir las preguntas",
+    "drawing": "Dibujando…"
+  },
+  "audio": {
+    "listen": "Escuchar",
+    "slower": "Más lento",
+    "rewind": "Atrás 5 segundos",
+    "pause": "Pausa",
+    "resume": "Reanudar",
+    "stop": "Detener"
+  },
+  "wishlist": {
+    "pendingTitle": "Estás en la lista de espera",
+    "pendingBody": "¡Gracias por tu interés en Tutor! Estamos dando acceso poco a poco y te avisaremos en cuanto aprobemos tu cuenta.",
+    "pendingEmail": "Te escribiremos a {{email}}.",
+    "title": "Lista de espera",
+    "intro": "Personas que se registraron y esperan acceso. Solo los usuarios aprobados y los administradores pueden usar la app.",
+    "waiting": "En espera",
+    "approved": "Aprobados",
+    "noneWaiting": "No hay nadie esperando.",
+    "noneApproved": "Todavía no hay usuarios aprobados.",
+    "noEmail": "(sin correo)",
+    "joined": "Se unió el {{date}}",
+    "approvedAt": "Aprobado el {{date}}",
+    "approve": "Aprobar",
+    "revoke": "Retirar acceso",
+    "confirmRevoke": "¿Retirar el acceso a {{email}}?"
+  }
+}

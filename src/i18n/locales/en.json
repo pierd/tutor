@@ -1,0 +1,213 @@
+{
+  "app": {
+    "title": "Tutor",
+    "authenticating": "Authenticating…"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Join the wishlist",
+    "signInInstead": "Already have an account? Sign in",
+    "signUpInstead": "No account? Join the wishlist",
+    "signOut": "Sign out",
+    "wishlistIntro": "Tutor is invite-only for now. Create an account to join the wishlist and we'll let you know when you're in."
+  },
+  "locale": {
+    "label": "Interface language"
+  },
+  "nav": {
+    "everything": "Everything",
+    "due_one": "{{count}} due",
+    "due_other": "{{count}} due",
+    "addStarter": "+ Add starter unit “{{title}}”",
+    "lab": "Voice lab",
+    "coach": "Coach · new lessons",
+    "wishlist": "Wishlist"
+  },
+  "profile": {
+    "setupTitle": "Create your first learning profile",
+    "setupIntro": "A profile is one language you're learning, with its own progress. You can add more later.",
+    "newTitle": "New learning profile",
+    "name": "Name",
+    "namePlaceholder": "e.g. French for travel",
+    "baseLang": "Explanations in",
+    "targetLang": "I want to learn",
+    "goal": "Goal (optional)",
+    "goalPlaceholder": "e.g. read Le Petit Prince in French",
+    "create": "Create profile",
+    "cancel": "Cancel",
+    "newProfile": "New profile…",
+    "switchLabel": "Profile",
+    "sameLanguage": "Pick two different languages."
+  },
+  "progress": {
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "dueCount_one": "{{count}} due for review",
+    "dueCount_other": "{{count}} due for review",
+    "empty": "Nothing tracked yet. Lessons will add words and grammar here as you practise.",
+    "kinds": {
+      "lemma": "Words",
+      "chunk": "Phrases",
+      "grammar": "Grammar",
+      "glyph": "Characters"
+    },
+    "new": "new",
+    "dueNow": "due now",
+    "dueIn": "due {{when}}",
+    "strength": "Strength",
+    "knewIt": "I knew it",
+    "didNot": "I didn't"
+  },
+  "lab": {
+    "title": "Voice lab",
+    "intro": "Compare speech models on your own voice before we pick them for lessons. Nothing here affects your progress.",
+    "reference": "Sentence to say",
+    "hear": "Hear it",
+    "recordHint": "Record yourself saying the sentence. Also try saying it wrong on purpose: a good model writes what you actually said, not what you meant.",
+    "record": "Record",
+    "recordAgain": "Record again",
+    "stop": "Stop",
+    "models": "Transcription models",
+    "languageHint": "Tell the models the language ({{lang}})",
+    "compare": "Transcribe with selected models",
+    "transcribing": "Transcribing…",
+    "diffLegend": "Highlighted words differ from the sentence above (case and punctuation ignored, accents count)."
+  },
+  "lesson": {
+    "preparing": "Preparing your sentence…",
+    "failed": "Couldn't prepare this sentence.",
+    "tryAnother": "Try another",
+    "instruction": "Say this in {{lang}}",
+    "showHint": "Show hint",
+    "grading": "Checking…",
+    "speak": "Speak",
+    "stop": "Stop",
+    "typeInstead": "Type instead",
+    "typePlaceholder": "Type your answer…",
+    "check": "Check",
+    "skip": "Skip",
+    "next": "Next",
+    "verdict": {
+      "correct": "Correct",
+      "almost": "Almost",
+      "incorrect": "Not quite"
+    },
+    "contested": "Counted as correct",
+    "youSaid": "We heard",
+    "youWrote": "You wrote",
+    "correctVersion": "Correct version",
+    "alsoAccepted": "Also accepted",
+    "inaudible": "can't tell from audio",
+    "typedCheckIntro": "Some of this can't be heard, only seen in writing. Type the sentence to check the spelling.",
+    "typedCheck": "Typed check",
+    "contest": "I think my answer was right",
+    "history_one": "Recent sentences ({{count}})",
+    "history_other": "Recent sentences ({{count}})"
+  },
+  "modes": {
+    "back": "All practice modes",
+    "flashcards": {
+      "title": "Flashcards",
+      "description": "Pick or type the right word. Quick, no AI."
+    },
+    "say": {
+      "title": "Say the word",
+      "description": "Say words and short phrases out loud."
+    },
+    "sentences": {
+      "title": "Sentences",
+      "description": "Translate and speak full sentences, graded by AI."
+    },
+    "reading": {
+      "title": "Reading",
+      "description": "A short text with tap-to-translate words and quick questions.",
+      "count_one": "{{count}} text",
+      "count_other": "{{count}} texts"
+    }
+  },
+  "cards": {
+    "meaningPrompt": "How do you say",
+    "formPrompt": "Fill the gap",
+    "roundDone": "Round finished.",
+    "again": "Another round",
+    "empty": "No cards in this lesson yet.",
+    "typeAnswers": "Type answers",
+    "accentSlip": "Correct — mind the accents: {{answer}}",
+    "wasAnswer": "It was: {{answer}}",
+    "sayAgain": "Try again",
+    "dontKnow": "I don't know",
+    "expected": "Expected: {{expected}}",
+    "saidItRight": "I said it right"
+  },
+  "lessonStatus": {
+    "failed": "failed",
+    "building": "The coach is building this lesson…",
+    "buildFailed": "Building this lesson failed.",
+    "retry": "Try again"
+  },
+  "coach": {
+    "title": "Coach",
+    "intro": "Describe what you want to learn, or ask for a plan. The coach proposes lessons; you decide what gets added.",
+    "newChat": "New conversation",
+    "placeholder": "e.g. a lesson about numbers 1–20…",
+    "send": "Send",
+    "suggestPlan": "Propose a plan for my goal",
+    "suggestNumbers": "A lesson about numbers 1–20",
+    "suggestCafe": "A lesson for ordering at a café",
+    "preparing": "Preparing a proposal…",
+    "lessonProposal": "Lesson proposal",
+    "unitProposal": "Unit proposal",
+    "newUnit": "new unit “{{title}}”",
+    "cardCount_one": "{{count}} practice card",
+    "cardCount_other": "{{count}} practice cards",
+    "acceptLesson": "Add lesson",
+    "acceptUnit": "Add unit",
+    "dismiss": "Dismiss",
+    "accepted": "Added",
+    "open": "Open",
+    "dismissed": "Dismissed"
+  },
+  "reading": {
+    "intro": "A short text written for this lesson, with questions. It's written once and kept until you ask for a new one.",
+    "generate": "Write a text",
+    "writing": "Writing your text…",
+    "failed": "Couldn't write the text.",
+    "tapHint": "Tap any underlined word to see what it means.",
+    "questions": "Questions",
+    "true": "True",
+    "false": "False",
+    "score": "{{score}} of {{total}} correct",
+    "newText": "New text",
+    "withImages": "With illustrations",
+    "history": "Your texts",
+    "tryAgain": "Try the questions again",
+    "drawing": "Drawing…"
+  },
+  "audio": {
+    "listen": "Listen",
+    "slower": "Slower",
+    "rewind": "Back 5 seconds",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop"
+  },
+  "wishlist": {
+    "pendingTitle": "You're on the wishlist",
+    "pendingBody": "Thanks for your interest in Tutor! We're letting people in gradually and will let you know as soon as your account is approved.",
+    "pendingEmail": "We'll write to {{email}}.",
+    "title": "Wishlist",
+    "intro": "People who signed up and are waiting to be let in. Only approved users and admins can use the app.",
+    "waiting": "Waiting",
+    "approved": "Approved",
+    "noneWaiting": "Nobody is waiting.",
+    "noneApproved": "No approved users yet.",
+    "noEmail": "(no email)",
+    "joined": "Joined {{date}}",
+    "approvedAt": "Approved {{date}}",
+    "approve": "Approve",
+    "revoke": "Revoke",
+    "confirmRevoke": "Revoke access for {{email}}?"
+  }
+}
