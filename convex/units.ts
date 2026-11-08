@@ -17,24 +17,16 @@ const MAX_ITEMS_PER_PROFILE = 2000;
 
 // ---- Writing content --------------------------------------------------------
 
-// Adds a lesson with its items and cards. Items and cards that already exist
-// in the profile are reused, so content can overlap between lessons.
-export async function insertLesson(
+// Adds items and cards to a lesson. Items and cards that already exist in the
+// profile are reused, so content can overlap between lessons.
+export async function addLessonContent(
   ctx: MutationCtx,
   profileId: Id<"profiles">,
-  unitId: Id<"units">,
-  order: number,
-  lesson: SeedLesson,
+  lessonId: Id<"lessons">,
+  content: Pick<SeedLesson, "items" | "cards">,
 ) {
-  const lessonId = await ctx.db.insert("lessons", {
-    profileId,
-    unitId,
-    title: lesson.title,
-    description: lesson.description,
-    order,
-  });
   const itemIds = new Map<string, Id<"items">>();
-  for (const item of lesson.items) {
+  for (const item of content.items) {
     const { itemId } = await upsertItem(ctx, profileId, item);
     itemIds.set(item.key.normalize("NFC").trim().toLowerCase(), itemId);
     const linked = await ctx.db
@@ -43,7 +35,7 @@ export async function insertLesson(
       .unique();
     if (!linked) await ctx.db.insert("lessonItems", { profileId, lessonId, itemId });
   }
-  for (const card of lesson.cards) {
+  for (const card of content.cards) {
     const ids = card.itemKeys.flatMap((key) => {
       const id = itemIds.get(key.normalize("NFC").trim().toLowerCase());
       return id ? [id] : [];
@@ -64,6 +56,32 @@ export async function insertLesson(
       accepted: card.accepted.length ? card.accepted : [card.answer],
     });
   }
+}
+
+export async function nextLessonOrder(ctx: QueryCtx, unitId: Id<"units">) {
+  const last = await ctx.db
+    .query("lessons")
+    .withIndex("by_unitId_and_order", (q) => q.eq("unitId", unitId))
+    .order("desc")
+    .first();
+  return (last?.order ?? 0) + 1;
+}
+
+export async function insertLesson(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  unitId: Id<"units">,
+  order: number,
+  lesson: SeedLesson,
+) {
+  const lessonId = await ctx.db.insert("lessons", {
+    profileId,
+    unitId,
+    title: lesson.title,
+    description: lesson.description,
+    order,
+  });
+  await addLessonContent(ctx, profileId, lessonId, lesson);
   return lessonId;
 }
 
@@ -76,17 +94,25 @@ async function nextUnitOrder(ctx: MutationCtx, profileId: Id<"profiles">) {
   return (last?.order ?? 0) + 1;
 }
 
-export async function insertUnit(
+export async function createUnit(
   ctx: MutationCtx,
   profileId: Id<"profiles">,
-  unit: { title: string; description?: string; lessons: SeedLesson[] },
+  unit: { title: string; description?: string },
 ) {
-  const unitId = await ctx.db.insert("units", {
+  return await ctx.db.insert("units", {
     profileId,
     title: unit.title,
     description: unit.description,
     order: await nextUnitOrder(ctx, profileId),
   });
+}
+
+export async function insertUnit(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  unit: { title: string; description?: string; lessons: SeedLesson[] },
+) {
+  const unitId = await createUnit(ctx, profileId, unit);
   for (const [index, lesson] of unit.lessons.entries()) {
     await insertLesson(ctx, profileId, unitId, index + 1, lesson);
   }
@@ -176,7 +202,13 @@ export const tree = query({
           return item ? [item] : [];
         });
         items.forEach((item) => unitItems.set(item._id, item));
-        lessonRows.push({ _id: lesson._id, title: lesson.title, description: lesson.description, progress: summarize(items, now) });
+        lessonRows.push({
+          _id: lesson._id,
+          title: lesson.title,
+          description: lesson.description,
+          status: lesson.status,
+          progress: summarize(items, now),
+        });
       }
       result.push({
         _id: unit._id,

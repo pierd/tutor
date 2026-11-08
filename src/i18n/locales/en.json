@@ -20,7 +20,8 @@
     "due_one": "{{count}} due",
     "due_other": "{{count}} due",
     "addStarter": "+ Add starter unit “{{title}}”",
-    "lab": "Voice lab"
+    "lab": "Voice lab",
+    "coach": "Coach · new lessons"
   },
   "profile": {
     "setupTitle": "Create your first learning profile",
@@ -135,5 +136,33 @@
     "dontKnow": "I don't know",
     "expected": "Expected: {{expected}}",
     "saidItRight": "I said it right"
+  },
+  "lessonStatus": {
+    "failed": "failed",
+    "building": "The coach is building this lesson…",
+    "buildFailed": "Building this lesson failed.",
+    "retry": "Try again"
+  },
+  "coach": {
+    "title": "Coach",
+    "intro": "Describe what you want to learn, or ask for a plan. The coach proposes lessons; you decide what gets added.",
+    "newChat": "New conversation",
+    "placeholder": "e.g. a lesson about numbers 1–20…",
+    "send": "Send",
+    "suggestPlan": "Propose a plan for my goal",
+    "suggestNumbers": "A lesson about numbers 1–20",
+    "suggestCafe": "A lesson for ordering at a café",
+    "preparing": "Preparing a proposal…",
+    "lessonProposal": "Lesson proposal",
+    "unitProposal": "Unit proposal",
+    "newUnit": "new unit “{{title}}”",
+    "cardCount_one": "{{count}} practice card",
+    "cardCount_other": "{{count}} practice cards",
+    "acceptLesson": "Add lesson",
+    "acceptUnit": "Add unit",
+    "dismiss": "Dismiss",
+    "accepted": "Added",
+    "open": "Open",
+    "dismissed": "Dismissed"
   }
 }

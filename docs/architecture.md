@@ -22,6 +22,8 @@ separate progress.
 | `units` / `lessons` | Curriculum per profile: ordered units containing ordered lessons. A unit has the learner's own `definitionOfDone` and is only closed by them. |
 | `lessonItems` | Many-to-many lesson ↔ item. Progress lives on items, so an item practised anywhere counts in every lesson containing it. Lesson progress = mean item strength + due count; unit = over the distinct items of its lessons (`units.tree`). The virtual **Everything** lesson covers all items. |
 | `cards` | Ready-made practice material for cheap modes: `meaning` (base-language gloss → target word) or `form` (prompt with `___` gap + `cue`, e.g. conjugation). Answering credits every item in `itemIds`. Created once (seed or AI lesson builder), then free to practise. |
+| `coachThreads` | One `@convex-dev/agent` thread per profile for the coach chat (`coach.reset` starts a new one). |
+| `proposals` | Lessons (full items + cards) or unit outlines the coach proposed in chat; `pending → accepted/dismissed`. Content is created only on accept. |
 | `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
 | `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). |
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
@@ -54,6 +56,32 @@ Spaced repetition: a `correct` answer only reschedules an item when it's due
 Starter content: `convex/seeds/` (`StarterUnit` shape in `seeds/types.ts`),
 inserted with `units.insertUnit` / `insertLesson`, which reuse existing items
 and cards. Spanish→French: unit "Lo básico" (5 lessons, ~92 items, ~808 cards).
+
+### Coach chat (`convex/coach.ts`, `src/coach/`)
+
+Iterative chat built on the `@convex-dev/agent` component (mounted in
+`convex/convex.config.ts`; needs convex ≥ 1.46). The learner describes a lesson
+or asks for a plan; the coach (`COACH_MODEL`) replies in the base language and
+calls one of two tools, which only write a `proposals` row:
+
+- `proposeLesson` — complete lesson: items + cards (cleaned by
+  `cleanContent`), into an existing unit or a new one.
+- `proposeUnit` — outline of lessons with a `focus` each.
+
+The chat renders tool results as proposal cards (Accept/Dismiss). `coach.accept`
+creates the lesson (via `addLessonContent`) or the unit; unit lessons are
+created with `status: "building"` and filled by `coach.buildLesson`
+(`buildLessonContent` in `convex/ai/lessonContent.ts`), retryable via
+`rebuildLesson`. Accept/dismiss leave a `[note]` user message in the thread so
+the coach knows what happened. The coach's system prompt includes the profile,
+the current curriculum (with unit ids) and existing item keys so it extends
+rather than duplicates. Content rules (meaning cards for every word, form cards
+with one `___` gap crediting word + grammar item) live in `contentRules`.
+
+Messages stream via `saveStreamDeltas` + `syncStreams`; the client uses
+`useUIMessages(..., { stream: true })`. Prompt checks without UI:
+`npx convex run coach:smokeTest '{"baseLang":"es","targetLang":"fr","prompt":"…"}'`
+and `coach:smokeBuild`.
 
 ### Translation challenge (`convex/translation.ts`, `src/lessons/TranslationLesson.tsx`)
 

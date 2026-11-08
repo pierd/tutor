@@ -28,12 +28,12 @@ Product vision (from the owner's notes): two pillars —
   the word (no AI); Sentences scoped per lesson; French starter unit with real
   conjugation cards.
 
+- **Step 3b — Coach chat**: iterative lesson/unit builder on the agent
+  component; proposals as Accept/Dismiss cards; unit lessons built in the
+  background. Convex upgraded to 1.49.
+
 ## In progress
 
-- **Step 3b — Lesson builder / coach chat**: iterative chat where the learner
-  describes a lesson ("numbers 1–20") or asks the coach to propose units and
-  lessons (e.g. from the goal). The AI proposes; nothing is created until the
-  learner accepts a proposal (items + cards via `units.insertLesson`).
 - **Step 3c — Reading comprehension**: per-lesson text with true/false and
   multiple-choice questions, generated once and reused, graded locally.
 
@@ -63,6 +63,15 @@ Product vision (from the owner's notes): two pillars —
    targeting tracked vocabulary.
 7. Pronunciation: minimal-pair drills, per-word confidence from STT if the
    gateway exposes it, shadowing with side-by-side playback.
+
+## Known gaps in step 3
+
+- No editing of lessons/units/cards after creation (rename, reorder, delete,
+  fix a card) — the coach can only propose new ones.
+- Units' learner-written definition of done and closing a unit have a schema
+  but no UI yet.
+- A proposeLesson call takes ~25 s (the model writes all cards in the tool
+  call); the chat shows "Preparing a proposal…" meanwhile.
 
 ## Open questions
 

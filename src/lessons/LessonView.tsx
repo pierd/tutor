@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, BookOpen, Layers, Mic, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, Layers, Loader2, Mic, Sparkles } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { useMinuteClock } from "../lib/useMinuteClock";
@@ -26,6 +26,7 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
   const [mode, setMode] = useState<Mode | null>(null);
   const lesson = useQuery(api.units.getLesson, lessonId ? { lessonId } : "skip");
   const tree = useQuery(api.units.tree, { profileId: profile._id, now });
+  const rebuild = useMutation(api.coach.rebuildLesson);
 
   const progress = lessonId
     ? tree?.units.flatMap((u) => u.lessons).find((l) => l._id === lessonId)?.progress
@@ -50,7 +51,22 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
         )}
       </header>
 
-      {mode === null ? (
+      {lesson?.status === "building" ? (
+        <p className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-6 text-gray-500">
+          <Loader2 size={18} className="animate-spin" /> {t("lessonStatus.building")}
+        </p>
+      ) : lesson?.status === "failed" ? (
+        <div className="space-y-3 rounded-xl border border-red-200 bg-red-50 p-6">
+          <p className="text-sm text-red-700">{t("lessonStatus.buildFailed")}</p>
+          {lesson.error && <p className="text-xs text-red-500">{lesson.error}</p>}
+          <button
+            onClick={() => void rebuild({ lessonId: lesson._id })}
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm"
+          >
+            {t("lessonStatus.retry")}
+          </button>
+        </div>
+      ) : mode === null ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
             {MODES.map(({ mode: m, icon: Icon, ai }) => (

@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { uiLocaleValidator } from "./lib/languages";
+import { lessonOutlineValidator, seedCardValidator, seedItemValidator } from "./seeds/validators";
 
 export const itemKindValidator = v.union(
   v.literal("lemma"),
@@ -54,6 +55,10 @@ const schema = defineSchema({
     title: v.string(),
     description: v.optional(v.string()),
     order: v.number(),
+    // Set while the AI builds a lesson accepted from a unit outline.
+    status: v.optional(v.union(v.literal("building"), v.literal("failed"))),
+    buildFocus: v.optional(v.string()),
+    error: v.optional(v.string()),
   })
     .index("by_unitId_and_order", ["unitId", "order"])
     .index("by_profileId", ["profileId"]),
@@ -81,6 +86,41 @@ const schema = defineSchema({
   })
     .index("by_profileId", ["profileId"])
     .index("by_profileId_and_prompt", ["profileId", "prompt"]),
+
+  // Coach chat: one agent-component thread per profile.
+  coachThreads: defineTable({
+    profileId: v.id("profiles"),
+    threadId: v.string(),
+  })
+    .index("by_profileId", ["profileId"])
+    .index("by_threadId", ["threadId"]),
+
+  // Content the coach proposed in chat; created only when the learner accepts.
+  proposals: defineTable({
+    profileId: v.id("profiles"),
+    threadId: v.string(),
+    status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("dismissed")),
+    proposal: v.union(
+      v.object({
+        kind: v.literal("lesson"),
+        // Existing unit, or the title of a new one.
+        unitId: v.optional(v.id("units")),
+        unitTitle: v.optional(v.string()),
+        title: v.string(),
+        description: v.optional(v.string()),
+        items: v.array(seedItemValidator),
+        cards: v.array(seedCardValidator),
+      }),
+      v.object({
+        kind: v.literal("unit"),
+        title: v.string(),
+        description: v.optional(v.string()),
+        lessons: v.array(lessonOutlineValidator),
+      }),
+    ),
+    createdUnitId: v.optional(v.id("units")),
+    createdLessonId: v.optional(v.id("lessons")),
+  }).index("by_threadId", ["threadId"]),
 
   // Text-to-speech results reused across learners' sessions.
   ttsCache: defineTable({

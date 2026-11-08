@@ -6,3 +6,6 @@ export const GENERATE_MODEL = "anthropic/claude-haiku-5.5";
 
 // Grades answers: linguistic judgement matters more than speed.
 export const GRADE_MODEL = "anthropic/claude-sonnet-5.5";
+
+// Coach chat and lesson building: proposes curriculum and writes cards.
+export const COACH_MODEL = "anthropic/claude-sonnet-5.5";

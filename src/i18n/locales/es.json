@@ -21,7 +21,8 @@
     "due_many": "{{count}} pendientes",
     "due_other": "{{count}} pendientes",
     "addStarter": "+ Añadir unidad inicial «{{title}}»",
-    "lab": "Laboratorio de voz"
+    "lab": "Laboratorio de voz",
+    "coach": "Coach · nuevas lecciones"
   },
   "profile": {
     "setupTitle": "Crea tu primer perfil de aprendizaje",
@@ -138,5 +139,34 @@
     "dontKnow": "No lo sé",
     "expected": "Se esperaba: {{expected}}",
     "saidItRight": "Lo dije bien"
+  },
+  "lessonStatus": {
+    "failed": "error",
+    "building": "El coach está preparando esta lección…",
+    "buildFailed": "No se pudo preparar esta lección.",
+    "retry": "Reintentar"
+  },
+  "coach": {
+    "title": "Coach",
+    "intro": "Describe lo que quieres aprender o pide un plan. El coach propone lecciones; tú decides qué se añade.",
+    "newChat": "Nueva conversación",
+    "placeholder": "p. ej. una lección sobre los números del 1 al 20…",
+    "send": "Enviar",
+    "suggestPlan": "Propón un plan para mi objetivo",
+    "suggestNumbers": "Una lección sobre los números del 1 al 20",
+    "suggestCafe": "Una lección para pedir en una cafetería",
+    "preparing": "Preparando una propuesta…",
+    "lessonProposal": "Propuesta de lección",
+    "unitProposal": "Propuesta de unidad",
+    "newUnit": "unidad nueva «{{title}}»",
+    "cardCount_one": "{{count}} tarjeta de práctica",
+    "cardCount_many": "{{count}} tarjetas de práctica",
+    "cardCount_other": "{{count}} tarjetas de práctica",
+    "acceptLesson": "Añadir lección",
+    "acceptUnit": "Añadir unidad",
+    "dismiss": "Descartar",
+    "accepted": "Añadida",
+    "open": "Abrir",
+    "dismissed": "Descartada"
   }
 }

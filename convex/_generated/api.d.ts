@@ -9,10 +9,12 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as ai_lessonContent from "../ai/lessonContent.js";
 import type * as ai_models from "../ai/models.js";
 import type * as ai_translationAi from "../ai/translationAi.js";
 import type * as ai_voice from "../ai/voice.js";
 import type * as auth from "../auth.js";
+import type * as coach from "../coach.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -25,6 +27,7 @@ import type * as profiles from "../profiles.js";
 import type * as recordings from "../recordings.js";
 import type * as seeds_frEs from "../seeds/frEs.js";
 import type * as seeds_types from "../seeds/types.js";
+import type * as seeds_validators from "../seeds/validators.js";
 import type * as settings from "../settings.js";
 import type * as translation from "../translation.js";
 import type * as units from "../units.js";
@@ -38,10 +41,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  "ai/lessonContent": typeof ai_lessonContent;
   "ai/models": typeof ai_models;
   "ai/translationAi": typeof ai_translationAi;
   "ai/voice": typeof ai_voice;
   auth: typeof auth;
+  coach: typeof coach;
   http: typeof http;
   items: typeof items;
   "lib/auth": typeof lib_auth;
@@ -54,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   recordings: typeof recordings;
   "seeds/frEs": typeof seeds_frEs;
   "seeds/types": typeof seeds_types;
+  "seeds/validators": typeof seeds_validators;
   settings: typeof settings;
   translation: typeof translation;
   units: typeof units;
@@ -86,4 +92,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  agent: import("@convex-dev/agent/_generated/component.js").ComponentApi<"agent">;
+};

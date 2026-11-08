@@ -1,11 +1,15 @@
 import { useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
-import { FlaskConical, Layers } from "lucide-react";
+import { FlaskConical, Layers, Loader2, MessageCircle } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { useMinuteClock } from "../lib/useMinuteClock";
 
-export type Selection = { kind: "everything" } | { kind: "lesson"; lessonId: Id<"lessons"> } | { kind: "lab" };
+export type Selection =
+  | { kind: "everything" }
+  | { kind: "lesson"; lessonId: Id<"lessons"> }
+  | { kind: "coach" }
+  | { kind: "lab" };
 
 type Progress = { items: number; strength: number; due: number };
 
@@ -26,12 +30,14 @@ function Row({
   active,
   onClick,
   indent = false,
+  status,
 }: {
   title: string;
   progress: Progress;
   active: boolean;
   onClick: () => void;
   indent?: boolean;
+  status?: "building" | "failed";
 }) {
   const { t } = useTranslation();
   return (
@@ -43,7 +49,11 @@ function Row({
     >
       <div className="flex items-baseline justify-between gap-2">
         <span className="truncate text-sm font-medium">{title}</span>
-        {progress.due > 0 && (
+        {status === "building" ? (
+          <Loader2 size={12} className="shrink-0 animate-spin" />
+        ) : status === "failed" ? (
+          <span className={`shrink-0 text-xs ${active ? "text-red-200" : "text-red-600"}`}>{t("lessonStatus.failed")}</span>
+        ) : progress.due > 0 && (
           <span className={`shrink-0 text-xs ${active ? "text-gray-300" : "text-amber-700"}`}>
             {t("nav.due", { count: progress.due })}
           </span>
@@ -81,6 +91,16 @@ export function LessonNav({
         active={selection.kind === "everything"}
         onClick={() => onSelect({ kind: "everything" })}
       />
+      <button
+        onClick={() => onSelect({ kind: "coach" })}
+        className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium ${
+          selection.kind === "coach"
+            ? "border-gray-900 bg-gray-900 text-white"
+            : "border-gray-300 bg-white text-gray-800 hover:border-gray-900"
+        }`}
+      >
+        <MessageCircle size={16} /> {t("nav.coach")}
+      </button>
       {tree.units.map((unit) => (
         <div key={unit._id} className="space-y-1">
           <div className="px-3">
@@ -96,6 +116,7 @@ export function LessonNav({
               indent
               title={lesson.title}
               progress={lesson.progress}
+              status={lesson.status}
               active={selection.kind === "lesson" && selection.lessonId === lesson._id}
               onClick={() => onSelect({ kind: "lesson", lessonId: lesson._id })}
             />

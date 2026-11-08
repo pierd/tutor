@@ -22,7 +22,8 @@
     "due_many": "{{count}} do powtórki",
     "due_other": "{{count}} do powtórki",
     "addStarter": "+ Dodaj jednostkę startową „{{title}}”",
-    "lab": "Laboratorium głosu"
+    "lab": "Laboratorium głosu",
+    "coach": "Coach · nowe lekcje"
   },
   "profile": {
     "setupTitle": "Utwórz swój pierwszy profil nauki",
@@ -141,5 +142,35 @@
     "dontKnow": "Nie wiem",
     "expected": "Oczekiwano: {{expected}}",
     "saidItRight": "To było dobrze"
+  },
+  "lessonStatus": {
+    "failed": "błąd",
+    "building": "Coach przygotowuje tę lekcję…",
+    "buildFailed": "Nie udało się przygotować tej lekcji.",
+    "retry": "Spróbuj ponownie"
+  },
+  "coach": {
+    "title": "Coach",
+    "intro": "Opisz, czego chcesz się nauczyć, albo poproś o plan. Coach proponuje lekcje; to Ty decydujesz, co zostanie dodane.",
+    "newChat": "Nowa rozmowa",
+    "placeholder": "np. lekcja o liczbach od 1 do 20…",
+    "send": "Wyślij",
+    "suggestPlan": "Zaproponuj plan do mojego celu",
+    "suggestNumbers": "Lekcja o liczbach od 1 do 20",
+    "suggestCafe": "Lekcja: zamawianie w kawiarni",
+    "preparing": "Przygotowuję propozycję…",
+    "lessonProposal": "Propozycja lekcji",
+    "unitProposal": "Propozycja jednostki",
+    "newUnit": "nowa jednostka „{{title}}”",
+    "cardCount_one": "{{count}} fiszka",
+    "cardCount_few": "{{count}} fiszki",
+    "cardCount_many": "{{count}} fiszek",
+    "cardCount_other": "{{count}} fiszki",
+    "acceptLesson": "Dodaj lekcję",
+    "acceptUnit": "Dodaj jednostkę",
+    "dismiss": "Odrzuć",
+    "accepted": "Dodano",
+    "open": "Otwórz",
+    "dismissed": "Odrzucono"
   }
 }

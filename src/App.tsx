@@ -11,6 +11,7 @@ import { ProfileSwitcher } from "./profiles/ProfileSwitcher";
 import { VoiceLab } from "./voice/VoiceLab";
 import { LessonNav, type Selection } from "./lessons/LessonNav";
 import { LessonView } from "./lessons/LessonView";
+import { CoachChat } from "./coach/CoachChat";
 
 export function App() {
   const { t } = useTranslation();
@@ -94,6 +95,12 @@ function Content() {
         <main className="flex-1 p-6">
           {creatingProfile ? (
             <ProfileSetup onDone={() => setCreatingProfile(false)} />
+          ) : selection.kind === "coach" ? (
+            <CoachChat
+              key={profile._id}
+              profile={profile}
+              onOpenLesson={(lessonId) => setPicked({ profileId: profile._id, selection: { kind: "lesson", lessonId } })}
+            />
           ) : selection.kind === "lab" && isAdmin ? (
             <VoiceLab key={profile._id} profile={profile} />
           ) : (
