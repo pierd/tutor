@@ -4,8 +4,9 @@ import type { FunctionReturnType } from "convex/server";
 import { useTranslation } from "react-i18next";
 import { Mic, Square, Volume2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
-import type { Doc, Id } from "../../convex/_generated/dataModel";
+import type { Doc } from "../../convex/_generated/dataModel";
 import { DEFAULT_STT_MODEL, STT_MODELS, ttsVoicesFor } from "../../convex/lib/voices";
+import { uploadRecording } from "./upload";
 import { useRecorder } from "./useRecorder";
 import { diffWords } from "./wordDiff";
 
@@ -69,11 +70,7 @@ export function VoiceLab({ profile }: { profile: Doc<"profiles"> }) {
   const compare = () =>
     run("stt", async () => {
       if (!recorder.recording) return;
-      const { blob } = recorder.recording;
-      const uploadUrl = await generateUploadUrl();
-      const upload = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": blob.type }, body: blob });
-      const { storageId } = (await upload.json()) as { storageId: Id<"_storage"> };
-      const recordingId = await saveRecording({ storageId, mediaType: blob.type });
+      const recordingId = await uploadRecording(recorder.recording.blob, generateUploadUrl, saveRecording);
       try {
         setResults(await transcribe({ recordingId, models, language: languageHint ? lang : undefined }));
       } finally {

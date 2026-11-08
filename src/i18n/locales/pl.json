@@ -16,6 +16,7 @@
     "label": "Język interfejsu"
   },
   "nav": {
+    "practice": "Ćwiczenia",
     "progress": "Postępy",
     "lab": "Laboratorium głosu"
   },
@@ -76,5 +77,36 @@
     "compare": "Transkrybuj wybranymi modelami",
     "transcribing": "Transkrypcja…",
     "diffLegend": "Wyróżnione słowa różnią się od zdania powyżej (wielkość liter i interpunkcja pomijane, znaki diakrytyczne się liczą)."
+  },
+  "lesson": {
+    "title": "Mów: {{lang}}",
+    "preparing": "Przygotowuję zdanie…",
+    "failed": "Nie udało się przygotować tego zdania.",
+    "tryAnother": "Spróbuj innego",
+    "instruction": "Powiedz to w języku: {{lang}}",
+    "showHint": "Pokaż podpowiedź",
+    "grading": "Sprawdzam…",
+    "speak": "Mów",
+    "stop": "Zatrzymaj",
+    "typeInstead": "Wpisz zamiast tego",
+    "typePlaceholder": "Wpisz odpowiedź…",
+    "check": "Sprawdź",
+    "skip": "Pomiń",
+    "next": "Dalej",
+    "verdict": {
+      "correct": "Dobrze",
+      "almost": "Prawie",
+      "incorrect": "Nie całkiem"
+    },
+    "contested": "Uznane za poprawne",
+    "youSaid": "Usłyszeliśmy",
+    "youWrote": "Wpisana odpowiedź",
+    "correctVersion": "Poprawna wersja",
+    "listen": "Odsłuchaj",
+    "alsoAccepted": "Też poprawnie",
+    "inaudible": "nie do rozróżnienia na słuch",
+    "typedCheckIntro": "Części tego nie słychać, widać ją tylko w piśmie. Wpisz zdanie, żeby sprawdzić pisownię.",
+    "typedCheck": "Sprawdzenie pisemne",
+    "contest": "Moim zdaniem odpowiedź była poprawna"
   }
 }

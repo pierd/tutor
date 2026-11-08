@@ -10,6 +10,7 @@ import { ProfileSetup } from "./profiles/ProfileSetup";
 import { ProfileSwitcher } from "./profiles/ProfileSwitcher";
 import { ProgressView } from "./progress/ProgressView";
 import { VoiceLab } from "./voice/VoiceLab";
+import { TranslationLesson } from "./lessons/TranslationLesson";
 
 export function App() {
   const { t } = useTranslation();
@@ -40,20 +41,20 @@ function useSyncedLocale() {
   return useMutation(api.settings.setUiLocale);
 }
 
-type Tab = "progress" | "lab";
+type Tab = "practice" | "progress" | "lab";
 
 function Content() {
   const { t } = useTranslation();
   const setUiLocale = useSyncedLocale();
   const profile = useQuery(api.profiles.getActive);
   const isAdmin = useQuery(api.admin.me)?.isAdmin ?? false;
-  const [tab, setTab] = useState<Tab>("progress");
+  const [tab, setTab] = useState<Tab>("practice");
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   if (profile === undefined) return null;
   // Admin-only tabs are also enforced server-side.
-  const tabs: Tab[] = isAdmin ? ["progress", "lab"] : ["progress"];
-  const activeTab = tabs.includes(tab) ? tab : "progress";
+  const tabs: Tab[] = isAdmin ? ["practice", "progress", "lab"] : ["practice", "progress"];
+  const activeTab = tabs.includes(tab) ? tab : "practice";
 
   if (profile === null) {
     return (
@@ -100,8 +101,10 @@ function Content() {
           <ProfileSetup onDone={() => setCreatingProfile(false)} />
         ) : activeTab === "lab" ? (
           <VoiceLab key={profile._id} profile={profile} />
-        ) : (
+        ) : activeTab === "progress" ? (
           <ProgressView profile={profile} />
+        ) : (
+          <TranslationLesson key={profile._id} profile={profile} />
         )}
       </main>
     </div>

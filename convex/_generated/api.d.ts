@@ -9,6 +9,8 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as ai_models from "../ai/models.js";
+import type * as ai_translationAi from "../ai/translationAi.js";
 import type * as ai_voice from "../ai/voice.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
@@ -21,6 +23,7 @@ import type * as profiles from "../profiles.js";
 import type * as recordings from "../recordings.js";
 import type * as seeds_frEs from "../seeds/frEs.js";
 import type * as settings from "../settings.js";
+import type * as translation from "../translation.js";
 import type * as voiceLab from "../voiceLab.js";
 
 import type {
@@ -31,6 +34,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  "ai/models": typeof ai_models;
+  "ai/translationAi": typeof ai_translationAi;
   "ai/voice": typeof ai_voice;
   auth: typeof auth;
   http: typeof http;
@@ -43,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   recordings: typeof recordings;
   "seeds/frEs": typeof seeds_frEs;
   settings: typeof settings;
+  translation: typeof translation;
   voiceLab: typeof voiceLab;
 }>;
 

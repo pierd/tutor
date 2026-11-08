@@ -23,10 +23,36 @@ separate progress.
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
 | `roles` | Admin role per user. Granted only from the CLI to an existing account: `npx convex run admin:grant '{"email":"…"}'` (`admin:revoke` to undo). |
 | `recordings` | Learner audio in file storage, owned by a user; upload via `convex/recordings.ts`, actions check ownership with `recordings.getOwned`. |
+| `exercises` | Translation challenge queue: one generated sentence (`prompt` in base language, accepted `answers`, `itemIds`, pre-rendered TTS of the model answer). Status `generating → ready → answered` (or `skipped`/`failed`). One pending exercise per profile. |
+| `attempts` | An answer to an exercise (`speech` transcript or `text`), with verdict, minimal correction, feedback, per-item outcome (`correct`/`incorrect`/`inaudible`), mistakes, `contested`. |
 | `mistakes` | Recurring error patterns (`pattern` tag like `aux:avoir-for-etre`), counted, optionally linked to an item. Write via `recordMistake`. |
 
 Lesson types are meant to be plugins: generator (AI action) + UI + grader that
 writes evidence/mistakes. Progress views are derived from items + evidence.
+
+### Translation challenge (`convex/translation.ts`, `src/lessons/TranslationLesson.tsx`)
+
+1. `translation.next` returns the pending exercise or creates one: picks up to
+   2 due items (previously reviewed first, then new ones shuffled) and decides
+   whether the AI may introduce one new item (no targets, or few targets and
+   ≥80% recent accuracy). Empty profiles bootstrap this way for any language
+   pair.
+2. `generate` (internal action) asks `GENERATE_MODEL` for the sentence
+   (`convex/ai/translationAi.ts`), pre-renders TTS of the model answer, then
+   `saveGenerated` keeps only target items the sentence really uses and upserts
+   the new item.
+3. Learner speaks (upload → `submitSpeech` → STT with `DEFAULT_STT_MODEL`) or
+   types (`submitText`). `GRADE_MODEL` grades; speech rules say inaudible
+   differences are never penalised (outcome `inaudible`, `needsTypedCheck`).
+4. `saveAttempt` records evidence (inaudible → `exposure`), mistakes, marks the
+   exercise answered and immediately creates the next pending exercise. A typed
+   follow-up only settles items that were inaudible.
+5. `contest` undoes a grade's negative effects (adds `correct` evidence for
+   failed items, decrements mistake counts).
+
+LLM choices live in `convex/ai/models.ts`. Prompt checks without the UI:
+`npx convex run translation:smokeTest '{"baseLang":"es","targetLang":"fr"}'`
+(add `"answer"`, `"mode"`, `"prompt"`/`"answers"` or `"empty":true`).
 
 Spaced repetition lives in `convex/lib/srs.ts` (small SM-2 variant, pure
 functions, swappable for FSRS). `lookup` is a soft fail, `exposure` doesn't

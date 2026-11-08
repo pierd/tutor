@@ -17,20 +17,21 @@ Product vision (from the owner's notes): two pillars —
   [voice.md](voice.md). Default STT model: `openai/gpt-4o-mini-transcribe`.
 - Admin role (CLI-granted) gating the Voice lab; classic games removed
   (content kept in `docs/suggested-lessons/`).
+- **Step 2 — Translation challenge** ("Practice" tab): DB picks due items, AI
+  writes a sentence, learner speaks or types, AI grades per item (inaudible
+  differences never penalised, typed follow-up), evidence + mistakes recorded,
+  model answer played via TTS, next exercise pre-generated, skip and contest.
+  See architecture.md.
+
+## Known gaps in step 2
+
+- "Why?" follow-up questions about a correction aren't built yet.
+- Learner recordings and TTS audio of skipped exercises are never cleaned up.
+- No session summary / daily goal yet; mistakes are recorded but not yet used
+  to choose what to drill (only item due dates are).
 
 ## Next
 
-2. **Translation challenge** (first AI lesson type; voice plumbing done, see voice.md):
-   pick due/weak items (+ at most one new item if recent accuracy is high) →
-   LLM writes a sentence in the base language using exactly those items
-   (structured output: sentence, accepted target answers, items used) →
-   learner speaks (MediaRecorder → Convex storage → transcription with
-   language set to target) or types → LLM grades per item, tags mistakes,
-   flags inaudible items for a typed follow-up → `recordEvidence` /
-   `recordMistake` → TTS plays the correct sentence (cache audio in storage).
-   Pre-generate the next exercise while the learner answers. Learner can
-   skip, contest a grade, ask "why?". Keep all voice calls in one module
-   (alpha API).
 3. **Reading lesson**: generated or pasted text (story/dialogue/article);
    glosses generated with the text so tap-to-lookup is instant; each lookup →
    `lookup` evidence. TTS read-aloud.

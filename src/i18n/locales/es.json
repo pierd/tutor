@@ -16,6 +16,7 @@
     "label": "Idioma de la interfaz"
   },
   "nav": {
+    "practice": "Practicar",
     "progress": "Progreso",
     "lab": "Laboratorio de voz"
   },
@@ -73,5 +74,36 @@
     "compare": "Transcribir con los modelos elegidos",
     "transcribing": "Transcribiendo…",
     "diffLegend": "Las palabras resaltadas difieren de la frase de arriba (sin contar mayúsculas ni puntuación; los acentos sí cuentan)."
+  },
+  "lesson": {
+    "title": "Habla {{lang}}",
+    "preparing": "Preparando tu frase…",
+    "failed": "No se pudo preparar esta frase.",
+    "tryAnother": "Probar otra",
+    "instruction": "Dilo en {{lang}}",
+    "showHint": "Ver pista",
+    "grading": "Comprobando…",
+    "speak": "Hablar",
+    "stop": "Detener",
+    "typeInstead": "Escribir en su lugar",
+    "typePlaceholder": "Escribe tu respuesta…",
+    "check": "Comprobar",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "verdict": {
+      "correct": "Correcto",
+      "almost": "Casi",
+      "incorrect": "No del todo"
+    },
+    "contested": "Contado como correcto",
+    "youSaid": "Hemos oído",
+    "youWrote": "Has escrito",
+    "correctVersion": "Versión correcta",
+    "listen": "Escuchar",
+    "alsoAccepted": "También vale",
+    "inaudible": "no se distingue al oído",
+    "typedCheckIntro": "Parte de esto no se oye, solo se ve al escribir. Escribe la frase para comprobar la ortografía.",
+    "typedCheck": "Comprobación escrita",
+    "contest": "Creo que mi respuesta era correcta"
   }
 }

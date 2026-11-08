@@ -80,6 +80,49 @@ const schema = defineSchema({
     mediaType: v.string(),
   }).index("by_userId", ["userId"]),
 
+  // Translation challenge: one generated sentence to translate. The server
+  // keeps one pending exercise per profile so "next" is instant.
+  exercises: defineTable({
+    profileId: v.id("profiles"),
+    status: v.union(
+      v.literal("generating"),
+      v.literal("ready"),
+      v.literal("answered"),
+      v.literal("skipped"),
+      v.literal("failed"),
+    ),
+    itemIds: v.array(v.id("items")),
+    allowNewItem: v.boolean(),
+    prompt: v.optional(v.string()),
+    answers: v.array(v.string()),
+    hint: v.optional(v.string()),
+    audioStorageId: v.optional(v.id("_storage")),
+    error: v.optional(v.string()),
+  }).index("by_profileId_and_status", ["profileId", "status"]),
+
+  attempts: defineTable({
+    exerciseId: v.id("exercises"),
+    profileId: v.id("profiles"),
+    mode: v.union(v.literal("speech"), v.literal("text")),
+    answer: v.string(),
+    recordingId: v.optional(v.id("recordings")),
+    verdict: v.union(v.literal("correct"), v.literal("almost"), v.literal("incorrect")),
+    corrected: v.string(),
+    feedback: v.string(),
+    itemResults: v.array(
+      v.object({
+        itemId: v.id("items"),
+        outcome: v.union(v.literal("correct"), v.literal("incorrect"), v.literal("inaudible")),
+        note: v.optional(v.string()),
+      }),
+    ),
+    mistakes: v.array(v.object({ pattern: v.string(), description: v.string() })),
+    needsTypedCheck: v.boolean(),
+    contested: v.boolean(),
+  })
+    .index("by_exerciseId", ["exerciseId"])
+    .index("by_profileId", ["profileId"]),
+
   // Recurring error patterns, e.g. "aux:avoir-for-etre".
   mistakes: defineTable({
     profileId: v.id("profiles"),

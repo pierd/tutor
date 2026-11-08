@@ -16,6 +16,7 @@
     "label": "Interface language"
   },
   "nav": {
+    "practice": "Practice",
     "progress": "Progress",
     "lab": "Voice lab"
   },
@@ -70,5 +71,36 @@
     "compare": "Transcribe with selected models",
     "transcribing": "Transcribing…",
     "diffLegend": "Highlighted words differ from the sentence above (case and punctuation ignored, accents count)."
+  },
+  "lesson": {
+    "title": "Speak {{lang}}",
+    "preparing": "Preparing your sentence…",
+    "failed": "Couldn't prepare this sentence.",
+    "tryAnother": "Try another",
+    "instruction": "Say this in {{lang}}",
+    "showHint": "Show hint",
+    "grading": "Checking…",
+    "speak": "Speak",
+    "stop": "Stop",
+    "typeInstead": "Type instead",
+    "typePlaceholder": "Type your answer…",
+    "check": "Check",
+    "skip": "Skip",
+    "next": "Next",
+    "verdict": {
+      "correct": "Correct",
+      "almost": "Almost",
+      "incorrect": "Not quite"
+    },
+    "contested": "Counted as correct",
+    "youSaid": "We heard",
+    "youWrote": "You wrote",
+    "correctVersion": "Correct version",
+    "listen": "Listen",
+    "alsoAccepted": "Also accepted",
+    "inaudible": "can't tell from audio",
+    "typedCheckIntro": "Some of this can't be heard, only seen in writing. Type the sentence to check the spelling.",
+    "typedCheck": "Typed check",
+    "contest": "I think my answer was right"
   }
 }
