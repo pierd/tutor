@@ -87,6 +87,48 @@ const schema = defineSchema({
     .index("by_profileId", ["profileId"])
     .index("by_profileId_and_prompt", ["profileId", "prompt"]),
 
+  // Reading comprehension: a generated text per lesson (absent lessonId =
+  // Everything), reused until the learner asks for a new one.
+  readings: defineTable({
+    profileId: v.id("profiles"),
+    lessonId: v.optional(v.id("lessons")),
+    status: v.union(v.literal("generating"), v.literal("ready"), v.literal("failed")),
+    title: v.optional(v.string()),
+    text: v.optional(v.string()),
+    // Every word form in the text with its meaning, for instant tap-to-lookup.
+    glossary: v.array(
+      v.object({ surface: v.string(), gloss: v.string(), itemKey: v.optional(v.string()) }),
+    ),
+    questions: v.array(
+      v.object({
+        kind: v.union(v.literal("truefalse"), v.literal("choice")),
+        question: v.string(),
+        // truefalse: ["true", "false"]; choice: 3–4 options.
+        options: v.array(v.string()),
+        answerIndex: v.number(),
+        explanation: v.optional(v.string()),
+        itemKeys: v.array(v.string()),
+      }),
+    ),
+    audioStorageId: v.optional(v.id("_storage")),
+    // Optional illustrations: scene prompts written with the text, drawn in
+    // the background and attached to paragraphs.
+    withImages: v.optional(v.boolean()),
+    illustrations: v.optional(
+      v.array(
+        v.object({
+          paragraph: v.number(),
+          prompt: v.string(),
+          storageId: v.optional(v.id("_storage")),
+          failed: v.optional(v.boolean()),
+        }),
+      ),
+    ),
+    lastScore: v.optional(v.number()),
+    lastAnswers: v.optional(v.array(v.number())),
+    error: v.optional(v.string()),
+  }).index("by_profileId", ["profileId"]),
+
   // Coach chat: one agent-component thread per profile.
   coachThreads: defineTable({
     profileId: v.id("profiles"),

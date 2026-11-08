@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { useTranslation } from "react-i18next";
-import { Keyboard, Loader2, Mic, Square, Volume2 } from "lucide-react";
+import { Keyboard, Loader2, Mic, Square } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { languageName } from "../i18n";
+import { ListenControls } from "../lib/ListenControls";
 import { uploadRecording } from "../voice/upload";
 import { useRecorder } from "../voice/useRecorder";
 import { diffWords } from "../voice/wordDiff";
@@ -56,7 +57,53 @@ export function TranslationLesson({ profile, lessonId }: { profile: Doc<"profile
           onSkip={doSkip}
         />
       )}
+      <SentenceHistory profileId={profile._id} lessonId={lessonId} currentId={exerciseId} />
     </div>
+  );
+}
+
+// Earlier sentences with the learner's answer, the correction and audio.
+function SentenceHistory({
+  profileId,
+  lessonId,
+  currentId,
+}: {
+  profileId: Id<"profiles">;
+  lessonId?: Id<"lessons">;
+  currentId: Id<"exercises"> | null;
+}) {
+  const { t } = useTranslation();
+  const history = useQuery(api.translation.history, { profileId, lessonId });
+  const rows = (history ?? []).filter((row) => row._id !== currentId);
+  if (rows.length === 0) return null;
+  return (
+    <details className="rounded-xl border border-gray-200 bg-white p-4">
+      <summary className="cursor-pointer text-sm font-semibold uppercase tracking-wide text-gray-500">
+        {t("lesson.history", { count: rows.length })}
+      </summary>
+      <ul className="mt-3 divide-y divide-gray-100">
+        {rows.map((row) => (
+          <li key={row._id} className="space-y-1 py-3 text-sm">
+            <p className="text-gray-500">{row.prompt}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium text-gray-900">{row.answer}</span>
+              {row.audioUrl && <ListenControls getUrl={async () => row.audioUrl} size={14} />}
+            </div>
+            {row.attempt && (
+              <p className="flex flex-wrap items-center gap-2 text-gray-600">
+                <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${VERDICT_STYLE[row.attempt.verdict]}`}>
+                  {t(`lesson.verdict.${row.attempt.verdict}`)}
+                </span>
+                {row.attempt.answer}
+                {row.attempt.corrected !== row.attempt.answer && (
+                  <span className="text-gray-400">→ {row.attempt.corrected}</span>
+                )}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 
@@ -110,15 +157,6 @@ function ExerciseCard({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recorder.recording]);
-
-  // Play the model answer once, right after the first grade arrives.
-  const played = useRef(false);
-  useEffect(() => {
-    if (answered && exercise.audioUrl && !played.current) {
-      played.current = true;
-      void new Audio(exercise.audioUrl).play().catch(() => {});
-    }
-  }, [answered, exercise.audioUrl]);
 
   const sendText = (text: string) => run(() => submitText({ exerciseId: exercise._id, text }));
 
@@ -280,16 +318,9 @@ function Feedback({
         <p className="mt-1 text-lg font-medium text-gray-900">{attempt.corrected}</p>
         {modelAnswer && (
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
-            {exercise.audioUrl && (
-              <button
-                onClick={() => void new Audio(exercise.audioUrl!).play()}
-                className={`${buttonClass} px-2 py-1 text-gray-600 hover:bg-gray-100`}
-                aria-label={t("lesson.listen")}
-              >
-                <Volume2 size={16} />
-              </button>
-            )}
             <span>{modelAnswer}</span>
+            {/* Plays the model answer as soon as the grade appears. */}
+            {exercise.audioUrl && <ListenControls getUrl={async () => exercise.audioUrl} autoPlay />}
           </div>
         )}
         {exercise.answers.length > 1 && (

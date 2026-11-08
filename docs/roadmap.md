@@ -32,10 +32,11 @@ Product vision (from the owner's notes): two pillars —
   component; proposals as Accept/Dismiss cards; unit lessons built in the
   background. Convex upgraded to 1.49.
 
-## In progress
-
-- **Step 3c — Reading comprehension**: per-lesson text with true/false and
-  multiple-choice questions, generated once and reused, graded locally.
+- **Step 3c — Reading comprehension**: per-lesson AI text, reused until
+  "New text"; tap-to-look-up glossary (lookup evidence), true/false and
+  multiple-choice questions graded locally, read-aloud TTS.
+- History of generated content (reading texts, answered sentences), slower
+  playback for all audio, optional AI illustrations for reading texts.
 
 ## Known gaps in step 2
 
@@ -46,16 +47,16 @@ Product vision (from the owner's notes): two pillars —
 
 ## Next
 
-3. **Reading lesson**: generated or pasted text (story/dialogue/article);
-   glosses generated with the text so tap-to-lookup is instant; each lookup →
-   `lookup` evidence. TTS read-aloud.
-4. **Goals, units, coach**: unit = goal + learner-written definition of done
-   (+ optional milestones). Coach generates lessons from due items + the
-   goal's target items. For "read this book": extract its vocabulary and show
-   % of running words known per chapter (≈95–98% = comfortable reading).
+3. **Reading from your own text**: paste a text (or a chapter of the book in
+   the goal) instead of generating one; glossary + questions generated for it.
+4. **Curriculum editing + definition of done**: rename/reorder/delete lessons
+   and units, fix or add cards; unit "definition of done" written by the
+   learner (coach may suggest) and learner-controlled closing. For "read this
+   book": extract its vocabulary and show % of running words known per chapter
+   (≈95–98% = comfortable reading).
 5. More lesson types: listening dictation, role-play audio chat (turn-based:
    record → transcribe → reply → TTS; gateway has no live duplex audio),
-   flashcards, grammar quiz, alphabet game (uses `glyph` items + language
+   grammar quiz, alphabet game (uses `glyph` items + language
    `script`).
 6. **Woven text** (diglot weave): text that gradually shifts from base to
    target language (or from one script to another), switching the learner's
@@ -65,6 +66,10 @@ Product vision (from the owner's notes): two pillars —
    gateway exposes it, shadowing with side-by-side playback.
 
 ## Known gaps in step 3
+
+- Storage isn't cleaned up (recordings, TTS of skipped sentences, images).
+
+- Mistake patterns are recorded but not yet used to pick what to drill.
 
 - No editing of lessons/units/cards after creation (rename, reorder, delete,
   fix a card) — the coach can only propose new ones.

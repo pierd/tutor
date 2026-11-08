@@ -11,6 +11,7 @@
 import type * as admin from "../admin.js";
 import type * as ai_lessonContent from "../ai/lessonContent.js";
 import type * as ai_models from "../ai/models.js";
+import type * as ai_readingAi from "../ai/readingAi.js";
 import type * as ai_translationAi from "../ai/translationAi.js";
 import type * as ai_voice from "../ai/voice.js";
 import type * as auth from "../auth.js";
@@ -24,6 +25,7 @@ import type * as lib_text from "../lib/text.js";
 import type * as lib_voices from "../lib/voices.js";
 import type * as practice from "../practice.js";
 import type * as profiles from "../profiles.js";
+import type * as reading from "../reading.js";
 import type * as recordings from "../recordings.js";
 import type * as seeds_frEs from "../seeds/frEs.js";
 import type * as seeds_types from "../seeds/types.js";
@@ -43,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   "ai/lessonContent": typeof ai_lessonContent;
   "ai/models": typeof ai_models;
+  "ai/readingAi": typeof ai_readingAi;
   "ai/translationAi": typeof ai_translationAi;
   "ai/voice": typeof ai_voice;
   auth: typeof auth;
@@ -56,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   "lib/voices": typeof lib_voices;
   practice: typeof practice;
   profiles: typeof profiles;
+  reading: typeof reading;
   recordings: typeof recordings;
   "seeds/frEs": typeof seeds_frEs;
   "seeds/types": typeof seeds_types;

@@ -8,14 +8,16 @@ import { useMinuteClock } from "../lib/useMinuteClock";
 import { Flashcards } from "./Flashcards";
 import { ItemList } from "./ItemList";
 import { ProgressBar } from "./LessonNav";
+import { Reading } from "./Reading";
 import { SayWord } from "./SayWord";
 import { TranslationLesson } from "./TranslationLesson";
 
-type Mode = "flashcards" | "say" | "sentences";
+type Mode = "flashcards" | "say" | "reading" | "sentences";
 
 const MODES: { mode: Mode; icon: typeof Layers; ai: boolean }[] = [
   { mode: "flashcards", icon: Layers, ai: false },
   { mode: "say", icon: Mic, ai: false },
+  { mode: "reading", icon: BookOpen, ai: true },
   { mode: "sentences", icon: Sparkles, ai: true },
 ];
 
@@ -26,6 +28,7 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
   const [mode, setMode] = useState<Mode | null>(null);
   const lesson = useQuery(api.units.getLesson, lessonId ? { lessonId } : "skip");
   const tree = useQuery(api.units.tree, { profileId: profile._id, now });
+  const readings = useQuery(api.reading.history, { profileId: profile._id, lessonId });
   const rebuild = useMutation(api.coach.rebuildLesson);
 
   const progress = lessonId
@@ -78,16 +81,15 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
                 <div className="flex items-center gap-2 font-semibold text-gray-900">
                   <Icon size={18} /> {t(`modes.${m}.title`)}
                   {ai && <span className="rounded bg-violet-100 px-1.5 py-0.5 text-xs font-medium text-violet-700">AI</span>}
+                  {m === "reading" && readings && readings.length > 0 && (
+                    <span className="ml-auto text-xs font-normal text-gray-500">
+                      {t("modes.reading.count", { count: readings.length })}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 text-sm text-gray-500">{t(`modes.${m}.description`)}</p>
               </button>
             ))}
-            <div className="rounded-xl border border-dashed border-gray-200 p-4 text-left text-gray-400">
-              <div className="flex items-center gap-2 font-semibold">
-                <BookOpen size={18} /> {t("modes.reading.title")}
-              </div>
-              <p className="mt-1 text-sm">{t("modes.reading.soon")}</p>
-            </div>
           </div>
           <ItemList profileId={profile._id} lessonId={lessonId} />
         </>
@@ -100,6 +102,8 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
             <Flashcards profileId={profile._id} lessonId={lessonId} />
           ) : mode === "say" ? (
             <SayWord profileId={profile._id} lessonId={lessonId} />
+          ) : mode === "reading" ? (
+            <Reading profile={profile} lessonId={lessonId} />
           ) : (
             <TranslationLesson profile={profile} lessonId={lessonId} />
           )}

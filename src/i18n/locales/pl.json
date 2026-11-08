@@ -102,12 +102,15 @@
     "youSaid": "Usłyszeliśmy",
     "youWrote": "Wpisana odpowiedź",
     "correctVersion": "Poprawna wersja",
-    "listen": "Odsłuchaj",
     "alsoAccepted": "Też poprawnie",
     "inaudible": "nie do rozróżnienia na słuch",
     "typedCheckIntro": "Części tego nie słychać, widać ją tylko w piśmie. Wpisz zdanie, żeby sprawdzić pisownię.",
     "typedCheck": "Sprawdzenie pisemne",
-    "contest": "Moim zdaniem odpowiedź była poprawna"
+    "contest": "Moim zdaniem odpowiedź była poprawna",
+    "history_one": "Ostatnie zdania ({{count}})",
+    "history_few": "Ostatnie zdania ({{count}})",
+    "history_many": "Ostatnie zdania ({{count}})",
+    "history_other": "Ostatnie zdania ({{count}})"
   },
   "modes": {
     "back": "Wszystkie tryby",
@@ -125,13 +128,16 @@
     },
     "reading": {
       "title": "Czytanie",
-      "soon": "Krótkie teksty z pytaniami — wkrótce."
+      "description": "Krótki tekst ze słowami do sprawdzenia po dotknięciu i szybkimi pytaniami.",
+      "count_one": "{{count}} tekst",
+      "count_few": "{{count}} teksty",
+      "count_many": "{{count}} tekstów",
+      "count_other": "{{count}} tekstu"
     }
   },
   "cards": {
     "meaningPrompt": "Jak powiedzieć",
     "formPrompt": "Uzupełnij lukę",
-    "listen": "Odsłuchaj",
     "roundDone": "Runda zakończona.",
     "again": "Kolejna runda",
     "empty": "Ta lekcja nie ma jeszcze fiszek.",
@@ -172,5 +178,29 @@
     "accepted": "Dodano",
     "open": "Otwórz",
     "dismissed": "Odrzucono"
+  },
+  "reading": {
+    "intro": "Krótki tekst napisany do tej lekcji, z pytaniami. Powstaje raz i zostaje, dopóki nie poprosisz o nowy.",
+    "generate": "Napisz tekst",
+    "writing": "Piszę tekst…",
+    "failed": "Nie udało się napisać tekstu.",
+    "tapHint": "Dotknij podkreślonego słowa, żeby zobaczyć znaczenie.",
+    "questions": "Pytania",
+    "true": "Prawda",
+    "false": "Fałsz",
+    "score": "{{score}} z {{total}} poprawnie",
+    "newText": "Nowy tekst",
+    "withImages": "Z ilustracjami",
+    "history": "Twoje teksty",
+    "tryAgain": "Odpowiedz jeszcze raz",
+    "drawing": "Rysuję…"
+  },
+  "audio": {
+    "listen": "Odsłuchaj",
+    "slower": "Wolniej",
+    "rewind": "5 sekund wstecz",
+    "pause": "Pauza",
+    "resume": "Wznów",
+    "stop": "Zatrzymaj"
   }
 }

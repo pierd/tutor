@@ -145,6 +145,41 @@ export const get = query({
   },
 });
 
+// Answered sentences for the lesson, newest first, to look back at.
+export const history = query({
+  args: { profileId: v.id("profiles"), lessonId: v.optional(v.id("lessons")) },
+  handler: async (ctx, { profileId, lessonId }) => {
+    await requireProfile(ctx, profileId);
+    const answered = await ctx.db
+      .query("exercises")
+      .withIndex("by_profileId_and_status", (q) => q.eq("profileId", profileId).eq("status", "answered"))
+      .order("desc")
+      .take(200);
+    const rows = answered.filter((e) => e.lessonId === lessonId).slice(0, 30);
+    return await Promise.all(
+      rows.map(async (exercise) => {
+        const attempt = await ctx.db
+          .query("attempts")
+          .withIndex("by_exerciseId", (q) => q.eq("exerciseId", exercise._id))
+          .first();
+        return {
+          _id: exercise._id,
+          _creationTime: exercise._creationTime,
+          prompt: exercise.prompt ?? "",
+          answer: exercise.answers[0] ?? "",
+          audioUrl: exercise.audioStorageId ? await ctx.storage.getUrl(exercise.audioStorageId) : null,
+          attempt: attempt && {
+            mode: attempt.mode,
+            answer: attempt.answer,
+            corrected: attempt.corrected,
+            verdict: attempt.contested ? ("correct" as const) : attempt.verdict,
+          },
+        };
+      }),
+    );
+  },
+});
+
 // ---- Generation -----------------------------------------------------------
 
 export const generationContext = internalQuery({

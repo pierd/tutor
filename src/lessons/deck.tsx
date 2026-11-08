@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { useAction } from "convex/react";
 import { useTranslation } from "react-i18next";
-import { Volume2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
+import { ListenControls } from "../lib/ListenControls";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { DeckCard } from "./useDeck";
 
@@ -34,25 +33,8 @@ export function CardPrompt({ card, revealed }: { card: DeckCard; revealed?: bool
 
 // Plays the card's correct pronunciation (rendered once, then cached).
 export function ListenButton({ cardId }: { cardId: Id<"cards"> }) {
-  const { t } = useTranslation();
   const pronounce = useAction(api.practice.pronounce);
-  const [loading, setLoading] = useState(false);
-  return (
-    <button
-      onClick={() => {
-        setLoading(true);
-        void pronounce({ cardId })
-          .then((url) => {
-            if (url) void new Audio(url).play();
-          })
-          .finally(() => setLoading(false));
-      }}
-      disabled={loading}
-      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-    >
-      <Volume2 size={16} /> {t("cards.listen")}
-    </button>
-  );
+  return <ListenControls getUrl={() => pronounce({ cardId })} />;
 }
 
 export function RoundSummary({ correct, total, onAgain }: { correct: number; total: number; onAgain: () => void }) {

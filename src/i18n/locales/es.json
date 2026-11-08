@@ -99,12 +99,14 @@
     "youSaid": "Hemos oído",
     "youWrote": "Has escrito",
     "correctVersion": "Versión correcta",
-    "listen": "Escuchar",
     "alsoAccepted": "También vale",
     "inaudible": "no se distingue al oído",
     "typedCheckIntro": "Parte de esto no se oye, solo se ve al escribir. Escribe la frase para comprobar la ortografía.",
     "typedCheck": "Comprobación escrita",
-    "contest": "Creo que mi respuesta era correcta"
+    "contest": "Creo que mi respuesta era correcta",
+    "history_one": "Frases recientes ({{count}})",
+    "history_many": "Frases recientes ({{count}})",
+    "history_other": "Frases recientes ({{count}})"
   },
   "modes": {
     "back": "Todos los modos",
@@ -122,13 +124,15 @@
     },
     "reading": {
       "title": "Lectura",
-      "soon": "Textos cortos con preguntas — muy pronto."
+      "description": "Un texto corto con palabras traducibles al tocarlas y preguntas rápidas.",
+      "count_one": "{{count}} texto",
+      "count_many": "{{count}} textos",
+      "count_other": "{{count}} textos"
     }
   },
   "cards": {
     "meaningPrompt": "¿Cómo se dice?",
     "formPrompt": "Completa el hueco",
-    "listen": "Escuchar",
     "roundDone": "Ronda terminada.",
     "again": "Otra ronda",
     "empty": "Esta lección aún no tiene tarjetas.",
@@ -168,5 +172,29 @@
     "accepted": "Añadida",
     "open": "Abrir",
     "dismissed": "Descartada"
+  },
+  "reading": {
+    "intro": "Un texto corto escrito para esta lección, con preguntas. Se escribe una vez y se guarda hasta que pidas otro.",
+    "generate": "Escribir un texto",
+    "writing": "Escribiendo tu texto…",
+    "failed": "No se pudo escribir el texto.",
+    "tapHint": "Toca cualquier palabra subrayada para ver qué significa.",
+    "questions": "Preguntas",
+    "true": "Verdadero",
+    "false": "Falso",
+    "score": "{{score}} de {{total}} correctas",
+    "newText": "Texto nuevo",
+    "withImages": "Con ilustraciones",
+    "history": "Tus textos",
+    "tryAgain": "Repetir las preguntas",
+    "drawing": "Dibujando…"
+  },
+  "audio": {
+    "listen": "Escuchar",
+    "slower": "Más lento",
+    "rewind": "Atrás 5 segundos",
+    "pause": "Pausa",
+    "resume": "Reanudar",
+    "stop": "Detener"
   }
 }

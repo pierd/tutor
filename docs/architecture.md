@@ -22,6 +22,7 @@ separate progress.
 | `units` / `lessons` | Curriculum per profile: ordered units containing ordered lessons. A unit has the learner's own `definitionOfDone` and is only closed by them. |
 | `lessonItems` | Many-to-many lesson ↔ item. Progress lives on items, so an item practised anywhere counts in every lesson containing it. Lesson progress = mean item strength + due count; unit = over the distinct items of its lessons (`units.tree`). The virtual **Everything** lesson covers all items. |
 | `cards` | Ready-made practice material for cheap modes: `meaning` (base-language gloss → target word) or `form` (prompt with `___` gap + `cue`, e.g. conjugation). Answering credits every item in `itemIds`. Created once (seed or AI lesson builder), then free to practise. |
+| `readings` | Reading comprehension text per lesson (absent `lessonId` = Everything): title, text, `glossary` (every word form → gloss, optional `itemKey`), questions (true/false or choice, `itemKeys`), cached read-aloud audio, `lastScore` + `lastAnswers`, optional `illustrations` (scene prompt per paragraph + image). All texts are kept as history (`reading.history`, `reading.get`). |
 | `coachThreads` | One `@convex-dev/agent` thread per profile for the coach chat (`coach.reset` starts a new one). |
 | `proposals` | Lessons (full items + cards) or unit outlines the coach proposed in chat; `pending → accepted/dismissed`. Content is created only on accept. |
 | `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
@@ -43,7 +44,26 @@ writes evidence/mistakes. Progress views are derived from items + evidence.
 | Flashcards (multiple choice / typed) | free | `practice.drawCards` + `practice.answerCard`, `src/lessons/Flashcards.tsx` |
 | Say the word | 1 STT call (~$0.0001) | `practice.checkSpoken` (local match via `convex/lib/text.ts`), learner can overrule, `src/lessons/SayWord.tsx` |
 | Sentences | LLM generate + grade | translation challenge below, scoped by `lessonId` |
-| Reading | planned (Phase C) | |
+| Reading | 1 LLM call per text (reused), TTS on request | `convex/reading.ts`, `convex/ai/readingAi.ts`, `src/lessons/Reading.tsx` |
+
+Generated content is kept for revisiting: earlier reading texts (with saved
+answers, retakeable) and answered sentences (`translation.history`: prompt,
+model answer + audio, learner's answer and correction).
+
+Illustrations (opt-in checkbox): the text writer adds up to 3 English scene
+prompts tied to paragraphs; `reading.draw` renders each with `IMAGE_MODEL`
+(alpha image API, ~30 s and a few cents per image) in the background, so the
+text is readable immediately and pictures fill in.
+
+Audio playback goes through `src/lib/ListenControls.tsx`: "Listen" and
+"Slower" (same audio at 0.7× with pitch preserved, no extra TTS).
+
+Reading: tapping a word shows its gloss instantly (glossary generated with the
+text; `src/lessons/glossaryTokens.ts` does longest-match tokenizing, without
+word boundaries for Japanese). On submit, looked-up items get `lookup`
+evidence, items of correctly answered questions get `correct`, wrong answers
+only `exposure` (a comprehension slip doesn't pin down a word). Check prompts
+with `npx convex run reading:smokeTest '{"baseLang":"es","targetLang":"fr"}'`.
 
 `drawCards` ranks cards by due items then weak items, max two per item, with
 seeded shuffling (the client passes `seed`) and distractors from sibling

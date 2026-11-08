@@ -96,12 +96,13 @@
     "youSaid": "We heard",
     "youWrote": "You wrote",
     "correctVersion": "Correct version",
-    "listen": "Listen",
     "alsoAccepted": "Also accepted",
     "inaudible": "can't tell from audio",
     "typedCheckIntro": "Some of this can't be heard, only seen in writing. Type the sentence to check the spelling.",
     "typedCheck": "Typed check",
-    "contest": "I think my answer was right"
+    "contest": "I think my answer was right",
+    "history_one": "Recent sentences ({{count}})",
+    "history_other": "Recent sentences ({{count}})"
   },
   "modes": {
     "back": "All practice modes",
@@ -119,13 +120,14 @@
     },
     "reading": {
       "title": "Reading",
-      "soon": "Short texts with questions — coming soon."
+      "description": "A short text with tap-to-translate words and quick questions.",
+      "count_one": "{{count}} text",
+      "count_other": "{{count}} texts"
     }
   },
   "cards": {
     "meaningPrompt": "How do you say",
     "formPrompt": "Fill the gap",
-    "listen": "Listen",
     "roundDone": "Round finished.",
     "again": "Another round",
     "empty": "No cards in this lesson yet.",
@@ -164,5 +166,29 @@
     "accepted": "Added",
     "open": "Open",
     "dismissed": "Dismissed"
+  },
+  "reading": {
+    "intro": "A short text written for this lesson, with questions. It's written once and kept until you ask for a new one.",
+    "generate": "Write a text",
+    "writing": "Writing your text…",
+    "failed": "Couldn't write the text.",
+    "tapHint": "Tap any underlined word to see what it means.",
+    "questions": "Questions",
+    "true": "True",
+    "false": "False",
+    "score": "{{score}} of {{total}} correct",
+    "newText": "New text",
+    "withImages": "With illustrations",
+    "history": "Your texts",
+    "tryAgain": "Try the questions again",
+    "drawing": "Drawing…"
+  },
+  "audio": {
+    "listen": "Listen",
+    "slower": "Slower",
+    "rewind": "Back 5 seconds",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop"
   }
 }

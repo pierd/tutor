@@ -6,6 +6,7 @@ import { Mic, Square, Volume2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc } from "../../convex/_generated/dataModel";
 import { DEFAULT_STT_MODEL, STT_MODELS, ttsVoicesFor } from "../../convex/lib/voices";
+import { playAudio } from "../lib/audioPlayer";
 import { uploadRecording } from "./upload";
 import { useRecorder } from "./useRecorder";
 import { diffWords } from "./wordDiff";
@@ -64,7 +65,7 @@ export function VoiceLab({ profile }: { profile: Doc<"profiles"> }) {
       const voice = voices[voiceIndex];
       const { url, ms } = await speak({ text: reference, model: voice.model, voice: voice.voice });
       setTtsInfo(`${voice.label} · ${ms} ms`);
-      await new Audio(url).play();
+      playAudio(url, { owner: "voice-lab" });
     });
 
   const compare = () =>
