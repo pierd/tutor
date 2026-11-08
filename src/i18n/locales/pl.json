@@ -16,8 +16,12 @@
     "label": "Język interfejsu"
   },
   "nav": {
-    "practice": "Ćwiczenia",
-    "progress": "Postępy",
+    "everything": "Wszystko",
+    "due_one": "{{count}} do powtórki",
+    "due_few": "{{count}} do powtórki",
+    "due_many": "{{count}} do powtórki",
+    "due_other": "{{count}} do powtórki",
+    "addStarter": "+ Dodaj jednostkę startową „{{title}}”",
     "lab": "Laboratorium głosu"
   },
   "profile": {
@@ -46,10 +50,6 @@
     "dueCount_many": "{{count}} do powtórki",
     "dueCount_other": "{{count}} do powtórki",
     "empty": "Na razie nic tu nie ma. Lekcje będą dodawać słowa i gramatykę w miarę ćwiczenia.",
-    "addStarter_one": "Dodaj {{count}} element na start",
-    "addStarter_few": "Dodaj {{count}} elementy na start",
-    "addStarter_many": "Dodaj {{count}} elementów na start",
-    "addStarter_other": "Dodaj {{count}} elementu na start",
     "kinds": {
       "lemma": "Słowa",
       "chunk": "Wyrażenia",
@@ -79,7 +79,6 @@
     "diffLegend": "Wyróżnione słowa różnią się od zdania powyżej (wielkość liter i interpunkcja pomijane, znaki diakrytyczne się liczą)."
   },
   "lesson": {
-    "title": "Mów: {{lang}}",
     "preparing": "Przygotowuję zdanie…",
     "failed": "Nie udało się przygotować tego zdania.",
     "tryAnother": "Spróbuj innego",
@@ -108,5 +107,39 @@
     "typedCheckIntro": "Części tego nie słychać, widać ją tylko w piśmie. Wpisz zdanie, żeby sprawdzić pisownię.",
     "typedCheck": "Sprawdzenie pisemne",
     "contest": "Moim zdaniem odpowiedź była poprawna"
+  },
+  "modes": {
+    "back": "Wszystkie tryby",
+    "flashcards": {
+      "title": "Fiszki",
+      "description": "Wybierz lub wpisz właściwe słowo. Szybko, bez AI."
+    },
+    "say": {
+      "title": "Powiedz słowo",
+      "description": "Mów na głos słowa i krótkie zwroty."
+    },
+    "sentences": {
+      "title": "Zdania",
+      "description": "Tłumacz i mów całe zdania, oceniane przez AI."
+    },
+    "reading": {
+      "title": "Czytanie",
+      "soon": "Krótkie teksty z pytaniami — wkrótce."
+    }
+  },
+  "cards": {
+    "meaningPrompt": "Jak powiedzieć",
+    "formPrompt": "Uzupełnij lukę",
+    "listen": "Odsłuchaj",
+    "roundDone": "Runda zakończona.",
+    "again": "Kolejna runda",
+    "empty": "Ta lekcja nie ma jeszcze fiszek.",
+    "typeAnswers": "Wpisuj odpowiedzi",
+    "accentSlip": "Dobrze — uwaga na akcenty: {{answer}}",
+    "wasAnswer": "Poprawnie: {{answer}}",
+    "sayAgain": "Jeszcze raz",
+    "dontKnow": "Nie wiem",
+    "expected": "Oczekiwano: {{expected}}",
+    "saidItRight": "To było dobrze"
   }
 }

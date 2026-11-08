@@ -23,6 +23,20 @@ Product vision (from the owner's notes): two pillars —
   model answer played via TTS, next exercise pre-generated, skip and contest.
   See architecture.md.
 
+- **Step 3a — Curriculum structure**: units → lessons → items in a left
+  panel with aggregated progress; Everything lesson; cards; Flashcards and Say
+  the word (no AI); Sentences scoped per lesson; French starter unit with real
+  conjugation cards.
+
+## In progress
+
+- **Step 3b — Lesson builder / coach chat**: iterative chat where the learner
+  describes a lesson ("numbers 1–20") or asks the coach to propose units and
+  lessons (e.g. from the goal). The AI proposes; nothing is created until the
+  learner accepts a proposal (items + cards via `units.insertLesson`).
+- **Step 3c — Reading comprehension**: per-lesson text with true/false and
+  multiple-choice questions, generated once and reused, graded locally.
+
 ## Known gaps in step 2
 
 - "Why?" follow-up questions about a correction aren't built yet.

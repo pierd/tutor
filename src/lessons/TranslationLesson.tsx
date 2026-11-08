@@ -19,7 +19,7 @@ const primary = `${buttonClass} bg-gray-900 text-white hover:bg-gray-800`;
 const secondary = `${buttonClass} border border-gray-300 bg-white text-gray-700 hover:bg-gray-100`;
 const quiet = `${buttonClass} text-gray-500 hover:bg-gray-100 hover:text-gray-900`;
 
-export function TranslationLesson({ profile }: { profile: Doc<"profiles"> }) {
+export function TranslationLesson({ profile, lessonId }: { profile: Doc<"profiles">; lessonId?: Id<"lessons"> }) {
   const { t } = useTranslation();
   const next = useMutation(api.translation.next);
   const skip = useMutation(api.translation.skip);
@@ -27,17 +27,14 @@ export function TranslationLesson({ profile }: { profile: Doc<"profiles"> }) {
   const exercise = useQuery(api.translation.get, exerciseId ? { exerciseId } : "skip");
 
   useEffect(() => {
-    void next({ profileId: profile._id }).then(setExerciseId);
-  }, [next, profile._id]);
+    void next({ profileId: profile._id, lessonId }).then(setExerciseId);
+  }, [next, profile._id, lessonId]);
 
-  const goNext = () => void next({ profileId: profile._id }).then(setExerciseId);
+  const goNext = () => void next({ profileId: profile._id, lessonId }).then(setExerciseId);
   const doSkip = () => exerciseId && void skip({ exerciseId }).then(setExerciseId);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <p className="text-sm font-medium uppercase tracking-wide text-gray-500">
-        {t("lesson.title", { lang: languageName(profile.targetLang) })}
-      </p>
+    <div className="space-y-4">
       {!exercise || exercise.status === "generating" ? (
         <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-8 text-gray-500">
           <Loader2 size={18} className="animate-spin" /> {t("lesson.preparing")}

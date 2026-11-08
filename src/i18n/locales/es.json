@@ -16,8 +16,11 @@
     "label": "Idioma de la interfaz"
   },
   "nav": {
-    "practice": "Practicar",
-    "progress": "Progreso",
+    "everything": "Todo",
+    "due_one": "{{count}} pendiente",
+    "due_many": "{{count}} pendientes",
+    "due_other": "{{count}} pendientes",
+    "addStarter": "+ Añadir unidad inicial «{{title}}»",
     "lab": "Laboratorio de voz"
   },
   "profile": {
@@ -44,9 +47,6 @@
     "dueCount_many": "{{count}} pendientes de repaso",
     "dueCount_other": "{{count}} pendientes de repaso",
     "empty": "Aún no hay nada registrado. Las lecciones irán añadiendo aquí palabras y gramática a medida que practiques.",
-    "addStarter_one": "Añadir {{count}} elemento inicial",
-    "addStarter_many": "Añadir {{count}} elementos iniciales",
-    "addStarter_other": "Añadir {{count}} elementos iniciales",
     "kinds": {
       "lemma": "Palabras",
       "chunk": "Expresiones",
@@ -76,7 +76,6 @@
     "diffLegend": "Las palabras resaltadas difieren de la frase de arriba (sin contar mayúsculas ni puntuación; los acentos sí cuentan)."
   },
   "lesson": {
-    "title": "Habla {{lang}}",
     "preparing": "Preparando tu frase…",
     "failed": "No se pudo preparar esta frase.",
     "tryAnother": "Probar otra",
@@ -105,5 +104,39 @@
     "typedCheckIntro": "Parte de esto no se oye, solo se ve al escribir. Escribe la frase para comprobar la ortografía.",
     "typedCheck": "Comprobación escrita",
     "contest": "Creo que mi respuesta era correcta"
+  },
+  "modes": {
+    "back": "Todos los modos",
+    "flashcards": {
+      "title": "Tarjetas",
+      "description": "Elige o escribe la palabra correcta. Rápido, sin IA."
+    },
+    "say": {
+      "title": "Di la palabra",
+      "description": "Di palabras y frases cortas en voz alta."
+    },
+    "sentences": {
+      "title": "Frases",
+      "description": "Traduce y di frases completas, corregidas por IA."
+    },
+    "reading": {
+      "title": "Lectura",
+      "soon": "Textos cortos con preguntas — muy pronto."
+    }
+  },
+  "cards": {
+    "meaningPrompt": "¿Cómo se dice?",
+    "formPrompt": "Completa el hueco",
+    "listen": "Escuchar",
+    "roundDone": "Ronda terminada.",
+    "again": "Otra ronda",
+    "empty": "Esta lección aún no tiene tarjetas.",
+    "typeAnswers": "Escribir respuestas",
+    "accentSlip": "Correcto — ojo con los acentos: {{answer}}",
+    "wasAnswer": "Era: {{answer}}",
+    "sayAgain": "Repetir",
+    "dontKnow": "No lo sé",
+    "expected": "Se esperaba: {{expected}}",
+    "saidItRight": "Lo dije bien"
   }
 }

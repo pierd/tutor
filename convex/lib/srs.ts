@@ -22,6 +22,9 @@ export function initialState(now: number): SrsState {
 export function applyOutcome(state: SrsState, outcome: Outcome, now: number): SrsState {
   switch (outcome) {
     case "correct": {
+      // Extra correct answers before the item is due (e.g. drilling flashcards)
+      // don't push it further out; only a review at the due time does.
+      if (state.lastReviewedAt !== undefined && now < state.due) return state;
       const intervalDays =
         state.reps === 0 ? 1 : state.reps === 1 ? 3 : Math.round(state.intervalDays * state.ease);
       return {

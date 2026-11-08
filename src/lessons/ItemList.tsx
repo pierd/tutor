@@ -1,22 +1,12 @@
-import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
-import type { Doc } from "../../convex/_generated/dataModel";
+import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { strength } from "../../convex/lib/srs";
+import { useMinuteClock } from "../lib/useMinuteClock";
 
 const KINDS = ["lemma", "chunk", "grammar", "glyph"] as const;
 const MINUTE = 60 * 1000;
-
-// Current time rounded to the minute, so time-based queries stay cacheable.
-function useMinuteClock() {
-  const [now, setNow] = useState(() => Math.floor(Date.now() / MINUTE) * MINUTE);
-  useEffect(() => {
-    const id = setInterval(() => setNow(Math.floor(Date.now() / MINUTE) * MINUTE), MINUTE);
-    return () => clearInterval(id);
-  }, []);
-  return now;
-}
 
 function useRelativeDue(now: number) {
   const { t, i18n } = useTranslation();
@@ -31,39 +21,18 @@ function useRelativeDue(now: number) {
   };
 }
 
-export function ProgressView({ profile }: { profile: Doc<"profiles"> }) {
+// Items of a lesson (or all items), grouped by kind, with manual review.
+export function ItemList({ profileId, lessonId }: { profileId: Id<"profiles">; lessonId?: Id<"lessons"> }) {
   const { t } = useTranslation();
   const now = useMinuteClock();
-  const items = useQuery(api.items.list, { profileId: profile._id });
-  const due = useQuery(api.items.due, { profileId: profile._id, now });
-  const starter = useQuery(api.items.starterSetFor, { profileId: profile._id });
-  const addStarterSet = useMutation(api.items.addStarterSet);
+  const items = useQuery(api.items.list, { profileId, lessonId });
   const review = useMutation(api.items.review);
   const relativeDue = useRelativeDue(now);
 
   if (items === undefined) return null;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{profile.name}</h1>
-          {profile.goal && <p className="mt-1 text-sm text-gray-500">{profile.goal}</p>}
-          <p className="mt-1 text-sm text-gray-600">
-            {t("progress.itemCount", { count: items.length })}
-            {due !== undefined && due.length > 0 && <> · {t("progress.dueCount", { count: due.length })}</>}
-          </p>
-        </div>
-        {starter && (
-          <button
-            onClick={() => void addStarterSet({ profileId: profile._id, set: starter.set })}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
-          >
-            {t("progress.addStarter", { count: starter.count })}
-          </button>
-        )}
-      </div>
-
+    <div className="space-y-6">
       {items.length === 0 && (
         <p className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
           {t("progress.empty")}

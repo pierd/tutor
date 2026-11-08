@@ -8,9 +8,9 @@ import { changeLocale, currentLocale } from "./i18n";
 import { LocalePicker } from "./i18n/LocalePicker";
 import { ProfileSetup } from "./profiles/ProfileSetup";
 import { ProfileSwitcher } from "./profiles/ProfileSwitcher";
-import { ProgressView } from "./progress/ProgressView";
 import { VoiceLab } from "./voice/VoiceLab";
-import { TranslationLesson } from "./lessons/TranslationLesson";
+import { LessonNav, type Selection } from "./lessons/LessonNav";
+import { LessonView } from "./lessons/LessonView";
 
 export function App() {
   const { t } = useTranslation();
@@ -41,20 +41,18 @@ function useSyncedLocale() {
   return useMutation(api.settings.setUiLocale);
 }
 
-type Tab = "practice" | "progress" | "lab";
-
 function Content() {
   const { t } = useTranslation();
   const setUiLocale = useSyncedLocale();
   const profile = useQuery(api.profiles.getActive);
   const isAdmin = useQuery(api.admin.me)?.isAdmin ?? false;
-  const [tab, setTab] = useState<Tab>("practice");
+  // Remembered per profile so switching profiles doesn't keep a foreign lesson.
+  const [picked, setPicked] = useState<{ profileId: string; selection: Selection } | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   if (profile === undefined) return null;
-  // Admin-only tabs are also enforced server-side.
-  const tabs: Tab[] = isAdmin ? ["practice", "progress", "lab"] : ["practice", "progress"];
-  const activeTab = tabs.includes(tab) ? tab : "practice";
+  const selection: Selection =
+    profile && picked?.profileId === profile._id ? picked.selection : { kind: "everything" };
 
   if (profile === null) {
     return (
@@ -75,38 +73,38 @@ function Content() {
           <div className="text-xl font-bold text-gray-900">{t("app.title")}</div>
           <ProfileSwitcher active={profile} onNewProfile={() => setCreatingProfile(true)} />
         </div>
-        {tabs.length > 1 && (
-          <div className="inline-flex rounded-lg bg-gray-100 p-1">
-            {tabs.map((key) => (
-              <button
-                key={key}
-                type="button"
-                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === key ? "bg-gray-900 text-white shadow-sm" : "text-gray-700 hover:bg-gray-200"
-                }`}
-                onClick={() => setTab(key)}
-              >
-                {t(`nav.${key}`)}
-              </button>
-            ))}
-          </div>
-        )}
         <div className="flex items-center gap-3">
           <LocalePicker onChange={(uiLocale) => void setUiLocale({ uiLocale })} />
           <SignOut />
         </div>
       </header>
-      <main className="flex-1 bg-gray-50 p-6">
-        {creatingProfile ? (
-          <ProfileSetup onDone={() => setCreatingProfile(false)} />
-        ) : activeTab === "lab" ? (
-          <VoiceLab key={profile._id} profile={profile} />
-        ) : activeTab === "progress" ? (
-          <ProgressView profile={profile} />
-        ) : (
-          <TranslationLesson key={profile._id} profile={profile} />
-        )}
-      </main>
+      <div className="flex flex-1 flex-col bg-gray-50 md:flex-row">
+        <aside className="border-b border-gray-200 p-4 md:w-72 md:shrink-0 md:border-r md:border-b-0">
+          <LessonNav
+            key={profile._id}
+            profile={profile}
+            selection={selection}
+            onSelect={(s) => {
+              setCreatingProfile(false);
+              setPicked({ profileId: profile._id, selection: s });
+            }}
+            isAdmin={isAdmin}
+          />
+        </aside>
+        <main className="flex-1 p-6">
+          {creatingProfile ? (
+            <ProfileSetup onDone={() => setCreatingProfile(false)} />
+          ) : selection.kind === "lab" && isAdmin ? (
+            <VoiceLab key={profile._id} profile={profile} />
+          ) : (
+            <LessonView
+              key={`${profile._id}:${selection.kind === "lesson" ? selection.lessonId : "all"}`}
+              profile={profile}
+              lessonId={selection.kind === "lesson" ? selection.lessonId : undefined}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

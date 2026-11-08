@@ -16,8 +16,10 @@
     "label": "Interface language"
   },
   "nav": {
-    "practice": "Practice",
-    "progress": "Progress",
+    "everything": "Everything",
+    "due_one": "{{count}} due",
+    "due_other": "{{count}} due",
+    "addStarter": "+ Add starter unit “{{title}}”",
     "lab": "Voice lab"
   },
   "profile": {
@@ -42,8 +44,6 @@
     "dueCount_one": "{{count}} due for review",
     "dueCount_other": "{{count}} due for review",
     "empty": "Nothing tracked yet. Lessons will add words and grammar here as you practise.",
-    "addStarter_one": "Add {{count}} starter item",
-    "addStarter_other": "Add {{count}} starter items",
     "kinds": {
       "lemma": "Words",
       "chunk": "Phrases",
@@ -73,7 +73,6 @@
     "diffLegend": "Highlighted words differ from the sentence above (case and punctuation ignored, accents count)."
   },
   "lesson": {
-    "title": "Speak {{lang}}",
     "preparing": "Preparing your sentence…",
     "failed": "Couldn't prepare this sentence.",
     "tryAnother": "Try another",
@@ -102,5 +101,39 @@
     "typedCheckIntro": "Some of this can't be heard, only seen in writing. Type the sentence to check the spelling.",
     "typedCheck": "Typed check",
     "contest": "I think my answer was right"
+  },
+  "modes": {
+    "back": "All practice modes",
+    "flashcards": {
+      "title": "Flashcards",
+      "description": "Pick or type the right word. Quick, no AI."
+    },
+    "say": {
+      "title": "Say the word",
+      "description": "Say words and short phrases out loud."
+    },
+    "sentences": {
+      "title": "Sentences",
+      "description": "Translate and speak full sentences, graded by AI."
+    },
+    "reading": {
+      "title": "Reading",
+      "soon": "Short texts with questions — coming soon."
+    }
+  },
+  "cards": {
+    "meaningPrompt": "How do you say",
+    "formPrompt": "Fill the gap",
+    "listen": "Listen",
+    "roundDone": "Round finished.",
+    "again": "Another round",
+    "empty": "No cards in this lesson yet.",
+    "typeAnswers": "Type answers",
+    "accentSlip": "Correct — mind the accents: {{answer}}",
+    "wasAnswer": "It was: {{answer}}",
+    "sayAgain": "Try again",
+    "dontKnow": "I don't know",
+    "expected": "Expected: {{expected}}",
+    "saidItRight": "I said it right"
   }
 }

@@ -36,6 +36,58 @@ const schema = defineSchema({
     uiLocale: v.optional(uiLocaleValidator),
   }).index("by_userId", ["userId"]),
 
+  // Curriculum: units contain ordered lessons; a lesson is a named set of
+  // items (many-to-many, so progress on an item counts in every lesson).
+  units: defineTable({
+    profileId: v.id("profiles"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    order: v.number(),
+    // The learner's own definition of "finished"; only they close a unit.
+    definitionOfDone: v.optional(v.string()),
+    closedAt: v.optional(v.number()),
+  }).index("by_profileId_and_order", ["profileId", "order"]),
+
+  lessons: defineTable({
+    profileId: v.id("profiles"),
+    unitId: v.id("units"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    order: v.number(),
+  })
+    .index("by_unitId_and_order", ["unitId", "order"])
+    .index("by_profileId", ["profileId"]),
+
+  lessonItems: defineTable({
+    profileId: v.id("profiles"),
+    lessonId: v.id("lessons"),
+    itemId: v.id("items"),
+  })
+    .index("by_lessonId_and_itemId", ["lessonId", "itemId"])
+    .index("by_itemId", ["itemId"]),
+
+  // Ready-made practice material for cheap modes (flashcards, say the word).
+  // `prompt` may contain "___" for a gap; answering credits every item in
+  // `itemIds` (e.g. the verb and the grammar point).
+  cards: defineTable({
+    profileId: v.id("profiles"),
+    itemIds: v.array(v.id("items")),
+    kind: v.union(v.literal("meaning"), v.literal("form")),
+    prompt: v.string(),
+    // Shown next to a gap, e.g. the infinitive.
+    cue: v.optional(v.string()),
+    answer: v.string(),
+    accepted: v.array(v.string()),
+  })
+    .index("by_profileId", ["profileId"])
+    .index("by_profileId_and_prompt", ["profileId", "prompt"]),
+
+  // Text-to-speech results reused across learners' sessions.
+  ttsCache: defineTable({
+    key: v.string(),
+    storageId: v.id("_storage"),
+  }).index("by_key", ["key"]),
+
   // A unit of knowledge being learned, with its spaced-repetition state.
   items: defineTable({
     profileId: v.id("profiles"),
@@ -84,6 +136,8 @@ const schema = defineSchema({
   // keeps one pending exercise per profile so "next" is instant.
   exercises: defineTable({
     profileId: v.id("profiles"),
+    // Absent = the "Everything" lesson (all items, may introduce new ones).
+    lessonId: v.optional(v.id("lessons")),
     status: v.union(
       v.literal("generating"),
       v.literal("ready"),
@@ -119,6 +173,20 @@ const schema = defineSchema({
     mistakes: v.array(v.object({ pattern: v.string(), description: v.string() })),
     needsTypedCheck: v.boolean(),
     contested: v.boolean(),
+    // Item schedules before this attempt, so contesting can restore them.
+    srsBefore: v.optional(
+      v.array(
+        v.object({
+          itemId: v.id("items"),
+          due: v.number(),
+          intervalDays: v.number(),
+          ease: v.number(),
+          reps: v.number(),
+          lapses: v.number(),
+          lastReviewedAt: v.optional(v.number()),
+        }),
+      ),
+    ),
   })
     .index("by_exerciseId", ["exerciseId"])
     .index("by_profileId", ["profileId"]),

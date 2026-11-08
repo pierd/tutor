@@ -6,6 +6,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { requireProfile } from "./lib/auth";
 import { recordEvidence, recordMistake, upsertItem } from "./items";
+import { lessonItemIds } from "./units";
 import { DEFAULT_STT_MODEL, ttsVoicesFor } from "./lib/voices";
 import { speak, transcribe } from "./ai/voice";
 import { generateExercise, gradeAnswer, type Graded } from "./ai/translationAi";
@@ -18,18 +19,31 @@ const TARGETS_PER_EXERCISE = 2;
 const KNOWN_SAMPLE = 40;
 const NEW_ITEM_ACCURACY = 0.8;
 
-async function pendingExercise(ctx: MutationCtx, profileId: Id<"profiles">) {
+async function pendingExercise(ctx: MutationCtx, profileId: Id<"profiles">, lessonId?: Id<"lessons">) {
   for (const status of ["ready", "generating"] as const) {
-    const exercise = await ctx.db
+    const pending = await ctx.db
       .query("exercises")
       .withIndex("by_profileId_and_status", (q) => q.eq("profileId", profileId).eq("status", status))
-      .first();
+      .take(50);
+    const exercise = pending.find((e) => e.lessonId === lessonId);
     if (exercise) return exercise;
   }
   return null;
 }
 
-// Due items first: previously reviewed ones (overdue first), then brand-new.
+// Within a lesson: due items first, then the least recently reviewed, so a
+// lesson can always be practised.
+async function pickLessonTargets(ctx: MutationCtx, lessonId: Id<"lessons">, now: number) {
+  const items = (await Promise.all((await lessonItemIds(ctx, lessonId)).map((id) => ctx.db.get("items", id)))).filter(
+    (item): item is Doc<"items"> => item !== null && !item.suspended,
+  );
+  const shuffled = items.sort(() => Math.random() - 0.5);
+  const due = shuffled.filter((item) => item.due <= now);
+  const rest = shuffled.filter((item) => item.due > now).sort((a, b) => (a.lastReviewedAt ?? 0) - (b.lastReviewedAt ?? 0));
+  return [...due, ...rest].slice(0, TARGETS_PER_EXERCISE);
+}
+
+// Everything: due items first, previously reviewed ones before brand-new.
 async function pickTargets(ctx: MutationCtx, profileId: Id<"profiles">, now: number) {
   const due = await ctx.db
     .query("items")
@@ -53,16 +67,20 @@ async function recentAccuracy(ctx: MutationCtx, profileId: Id<"profiles">) {
   return attempts.filter((a) => a.verdict === "correct").length / attempts.length;
 }
 
-// Returns the profile's pending exercise, creating (and generating) one if needed.
-async function ensurePending(ctx: MutationCtx, profileId: Id<"profiles">) {
-  const pending = await pendingExercise(ctx, profileId);
+// Returns the pending exercise for the profile (and lesson), creating and
+// generating one if needed. Only "Everything" may introduce new items.
+async function ensurePending(ctx: MutationCtx, profileId: Id<"profiles">, lessonId?: Id<"lessons">) {
+  const pending = await pendingExercise(ctx, profileId, lessonId);
   if (pending) return pending._id;
-  const targets = await pickTargets(ctx, profileId, Date.now());
+  const now = Date.now();
+  const targets = lessonId ? await pickLessonTargets(ctx, lessonId, now) : await pickTargets(ctx, profileId, now);
   const accuracy = await recentAccuracy(ctx, profileId);
   const allowNewItem =
-    targets.length === 0 || (targets.length < TARGETS_PER_EXERCISE && (accuracy ?? 1) >= NEW_ITEM_ACCURACY);
+    !lessonId &&
+    (targets.length === 0 || (targets.length < TARGETS_PER_EXERCISE && (accuracy ?? 1) >= NEW_ITEM_ACCURACY));
   const exerciseId = await ctx.db.insert("exercises", {
     profileId,
+    lessonId,
     status: "generating",
     itemIds: targets.map((t) => t._id),
     allowNewItem,
@@ -73,10 +91,14 @@ async function ensurePending(ctx: MutationCtx, profileId: Id<"profiles">) {
 }
 
 export const next = mutation({
-  args: { profileId: v.id("profiles") },
-  handler: async (ctx, { profileId }) => {
+  args: { profileId: v.id("profiles"), lessonId: v.optional(v.id("lessons")) },
+  handler: async (ctx, { profileId, lessonId }) => {
     await requireProfile(ctx, profileId);
-    return await ensurePending(ctx, profileId);
+    if (lessonId) {
+      const lesson = await ctx.db.get("lessons", lessonId);
+      if (lesson === null || lesson.profileId !== profileId) throw new Error("Lesson not found");
+    }
+    return await ensurePending(ctx, profileId, lessonId);
   },
 });
 
@@ -89,7 +111,7 @@ export const skip = mutation({
     if (exercise.status === "ready" || exercise.status === "failed") {
       await ctx.db.patch("exercises", exerciseId, { status: "skipped" });
     }
-    return await ensurePending(ctx, exercise.profileId);
+    return await ensurePending(ctx, exercise.profileId, exercise.lessonId);
   },
 });
 
@@ -380,21 +402,25 @@ export const saveAttempt = internalMutation({
       previous.flatMap((a) => a.itemResults.filter((r) => r.outcome === "inaudible").map((r) => r.itemId)),
     );
     const counts = (itemId: Id<"items">) => previous.length === 0 || inaudibleBefore.has(itemId);
+    const srsBefore = [];
     for (const result of args.itemResults) {
       if (!counts(result.itemId)) continue;
       const item = await ctx.db.get("items", result.itemId);
       if (item === null) continue;
-      await recordEvidence(ctx, item, {
-        outcome: result.outcome === "inaudible" ? "exposure" : result.outcome,
-        source: `translation:${args.mode}`,
-        detail: args.answer,
-      });
+      srsBefore.push(
+        await recordEvidence(ctx, item, {
+          outcome: result.outcome === "inaudible" ? "exposure" : result.outcome,
+          source: `translation:${args.mode}`,
+          detail: args.answer,
+        }),
+      );
     }
+    await ctx.db.patch("attempts", attemptId, { srsBefore });
     if (previous.length === 0) {
       for (const mistake of args.mistakes) await recordMistake(ctx, exercise.profileId, mistake);
       await ctx.db.patch("exercises", args.exerciseId, { status: "answered" });
       // Prepare the next sentence while the learner reads the feedback.
-      await ensurePending(ctx, exercise.profileId);
+      await ensurePending(ctx, exercise.profileId, exercise.lessonId);
     }
     return attemptId;
   },
@@ -409,10 +435,21 @@ export const contest = mutation({
     await requireProfile(ctx, attempt.profileId);
     if (attempt.contested) return null;
     await ctx.db.patch("attempts", attemptId, { contested: true });
+    // Restore the schedules the failed items had before this attempt.
     for (const result of attempt.itemResults) {
       if (result.outcome !== "incorrect") continue;
+      const before = attempt.srsBefore?.find((s) => s.itemId === result.itemId);
       const item = await ctx.db.get("items", result.itemId);
-      if (item) await recordEvidence(ctx, item, { outcome: "correct", source: "contest", detail: attempt.answer });
+      if (item === null || before === undefined) continue;
+      const { itemId, ...state } = before;
+      await ctx.db.patch("items", itemId, state);
+      await ctx.db.insert("evidence", {
+        profileId: attempt.profileId,
+        itemId,
+        outcome: "correct",
+        source: "contest",
+        detail: attempt.answer,
+      });
     }
     for (const { pattern } of attempt.mistakes) {
       const mistake = await ctx.db

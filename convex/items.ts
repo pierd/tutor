@@ -2,10 +2,9 @@ import { mutation, query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
-import { itemKindValidator, outcomeValidator } from "./schema";
+import { outcomeValidator, itemKindValidator } from "./schema";
 import { requireItem, requireProfile } from "./lib/auth";
 import { applyOutcome, initialState, type Outcome } from "./lib/srs";
-import { STARTER_SETS } from "./seeds/frEs";
 
 const LIST_LIMIT = 500;
 
@@ -52,6 +51,15 @@ export async function recordEvidence(
   evidence: { outcome: Outcome; source: string; detail?: string },
 ) {
   const now = Date.now();
+  const before = {
+    itemId: item._id,
+    due: item.due,
+    intervalDays: item.intervalDays,
+    ease: item.ease,
+    reps: item.reps,
+    lapses: item.lapses,
+    lastReviewedAt: item.lastReviewedAt,
+  };
   await ctx.db.insert("evidence", {
     profileId: item.profileId,
     itemId: item._id,
@@ -66,6 +74,7 @@ export async function recordEvidence(
     lapses: next.lapses,
     lastReviewedAt: next.lastReviewedAt,
   });
+  return before;
 }
 
 export async function recordMistake(
@@ -92,15 +101,23 @@ export async function recordMistake(
 }
 
 export const list = query({
-  args: { profileId: v.id("profiles"), kind: v.optional(itemKindValidator) },
-  handler: async (ctx, { profileId, kind }) => {
+  args: { profileId: v.id("profiles"), lessonId: v.optional(v.id("lessons")) },
+  handler: async (ctx, { profileId, lessonId }) => {
     await requireProfile(ctx, profileId);
-    return await ctx.db
-      .query("items")
-      .withIndex("by_profileId_and_kind_and_key", (q) =>
-        kind === undefined ? q.eq("profileId", profileId) : q.eq("profileId", profileId).eq("kind", kind),
-      )
+    if (lessonId === undefined) {
+      return await ctx.db
+        .query("items")
+        .withIndex("by_profileId_and_kind_and_key", (q) => q.eq("profileId", profileId))
+        .take(LIST_LIMIT);
+    }
+    const lesson = await ctx.db.get("lessons", lessonId);
+    if (lesson === null || lesson.profileId !== profileId) throw new Error("Lesson not found");
+    const links = await ctx.db
+      .query("lessonItems")
+      .withIndex("by_lessonId_and_itemId", (q) => q.eq("lessonId", lessonId))
       .take(LIST_LIMIT);
+    const items = await Promise.all(links.map((link) => ctx.db.get("items", link.itemId)));
+    return items.filter((item): item is Doc<"items"> => item !== null);
   },
 });
 
@@ -156,33 +173,5 @@ export const setSuspended = mutation({
     await requireItem(ctx, itemId);
     await ctx.db.patch("items", itemId, { suspended });
     return null;
-  },
-});
-
-export const starterSetFor = query({
-  args: { profileId: v.id("profiles") },
-  handler: async (ctx, { profileId }) => {
-    const profile = await requireProfile(ctx, profileId);
-    const entry = Object.entries(STARTER_SETS).find(
-      ([, set]) => set.baseLang === profile.baseLang && set.targetLang === profile.targetLang,
-    );
-    return entry ? { set: entry[0], count: entry[1].items.length } : null;
-  },
-});
-
-export const addStarterSet = mutation({
-  args: { profileId: v.id("profiles"), set: v.string() },
-  handler: async (ctx, { profileId, set }) => {
-    const profile = await requireProfile(ctx, profileId);
-    const starter = STARTER_SETS[set];
-    if (!starter || starter.baseLang !== profile.baseLang || starter.targetLang !== profile.targetLang) {
-      throw new Error("Starter set doesn't match this profile");
-    }
-    let added = 0;
-    for (const item of starter.items) {
-      const { created } = await upsertItem(ctx, profileId, item);
-      if (created) added++;
-    }
-    return added;
   },
 });

@@ -19,6 +19,10 @@ separate progress.
 |---|---|
 | `profiles` | Language pair + goal. `baseLang` is also the language AI explanations/feedback should use. |
 | `userSettings` | Per user: `activeProfileId`, `uiLocale`. |
+| `units` / `lessons` | Curriculum per profile: ordered units containing ordered lessons. A unit has the learner's own `definitionOfDone` and is only closed by them. |
+| `lessonItems` | Many-to-many lesson ↔ item. Progress lives on items, so an item practised anywhere counts in every lesson containing it. Lesson progress = mean item strength + due count; unit = over the distinct items of its lessons (`units.tree`). The virtual **Everything** lesson covers all items. |
+| `cards` | Ready-made practice material for cheap modes: `meaning` (base-language gloss → target word) or `form` (prompt with `___` gap + `cue`, e.g. conjugation). Answering credits every item in `itemIds`. Created once (seed or AI lesson builder), then free to practise. |
+| `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
 | `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). |
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
 | `roles` | Admin role per user. Granted only from the CLI to an existing account: `npx convex run admin:grant '{"email":"…"}'` (`admin:revoke` to undo). |
@@ -30,9 +34,32 @@ separate progress.
 Lesson types are meant to be plugins: generator (AI action) + UI + grader that
 writes evidence/mistakes. Progress views are derived from items + evidence.
 
+### Practice modes (per lesson, cheapest first)
+
+| Mode | Cost | Where |
+|---|---|---|
+| Flashcards (multiple choice / typed) | free | `practice.drawCards` + `practice.answerCard`, `src/lessons/Flashcards.tsx` |
+| Say the word | 1 STT call (~$0.0001) | `practice.checkSpoken` (local match via `convex/lib/text.ts`), learner can overrule, `src/lessons/SayWord.tsx` |
+| Sentences | LLM generate + grade | translation challenge below, scoped by `lessonId` |
+| Reading | planned (Phase C) | |
+
+`drawCards` ranks cards by due items then weak items, max two per item, with
+seeded shuffling (the client passes `seed`) and distractors from sibling
+cards (other forms of the same verb) or the same lesson. Cards are drawn once
+per round with a one-shot query so the deck doesn't reshuffle.
+
+Spaced repetition: a `correct` answer only reschedules an item when it's due
+(drilling flashcards doesn't push items months out); `incorrect` always counts.
+
+Starter content: `convex/seeds/` (`StarterUnit` shape in `seeds/types.ts`),
+inserted with `units.insertUnit` / `insertLesson`, which reuse existing items
+and cards. Spanish→French: unit "Lo básico" (5 lessons, ~92 items, ~808 cards).
+
 ### Translation challenge (`convex/translation.ts`, `src/lessons/TranslationLesson.tsx`)
 
-1. `translation.next` returns the pending exercise or creates one: picks up to
+1. `translation.next({ profileId, lessonId? })` returns the pending exercise for
+   that lesson or creates one. In a lesson it picks due items then the least
+   recently reviewed lesson items (never new items). In Everything it picks up to
    2 due items (previously reviewed first, then new ones shuffled) and decides
    whether the AI may introduce one new item (no targets, or few targets and
    ≥80% recent accuracy). Empty profiles bootstrap this way for any language
@@ -47,8 +74,8 @@ writes evidence/mistakes. Progress views are derived from items + evidence.
 4. `saveAttempt` records evidence (inaudible → `exposure`), mistakes, marks the
    exercise answered and immediately creates the next pending exercise. A typed
    follow-up only settles items that were inaudible.
-5. `contest` undoes a grade's negative effects (adds `correct` evidence for
-   failed items, decrements mistake counts).
+5. `contest` restores the failed items' schedules from `attempts.srsBefore`,
+   logs `correct` evidence and decrements mistake counts.
 
 LLM choices live in `convex/ai/models.ts`. Prompt checks without the UI:
 `npx convex run translation:smokeTest '{"baseLang":"es","targetLang":"fr"}'`
