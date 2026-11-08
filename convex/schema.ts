@@ -67,6 +67,19 @@ const schema = defineSchema({
     .index("by_itemId", ["itemId"])
     .index("by_profileId", ["profileId"]),
 
+  // Granted from the CLI: npx convex run admin:grant '{"email":"…"}'
+  roles: defineTable({
+    userId: v.id("users"),
+    role: v.literal("admin"),
+  }).index("by_userId", ["userId"]),
+
+  // Learner audio in file storage; owned so actions can check access.
+  recordings: defineTable({
+    userId: v.id("users"),
+    storageId: v.id("_storage"),
+    mediaType: v.string(),
+  }).index("by_userId", ["userId"]),
+
   // Recurring error patterns, e.g. "aux:avoir-for-etre".
   mistakes: defineTable({
     profileId: v.id("profiles"),

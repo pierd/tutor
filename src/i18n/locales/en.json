@@ -17,7 +17,7 @@
   },
   "nav": {
     "progress": "Progress",
-    "classic": "Classic games"
+    "lab": "Voice lab"
   },
   "profile": {
     "setupTitle": "Create your first learning profile",
@@ -55,5 +55,20 @@
     "strength": "Strength",
     "knewIt": "I knew it",
     "didNot": "I didn't"
+  },
+  "lab": {
+    "title": "Voice lab",
+    "intro": "Compare speech models on your own voice before we pick them for lessons. Nothing here affects your progress.",
+    "reference": "Sentence to say",
+    "hear": "Hear it",
+    "recordHint": "Record yourself saying the sentence. Also try saying it wrong on purpose: a good model writes what you actually said, not what you meant.",
+    "record": "Record",
+    "recordAgain": "Record again",
+    "stop": "Stop",
+    "models": "Transcription models",
+    "languageHint": "Tell the models the language ({{lang}})",
+    "compare": "Transcribe with selected models",
+    "transcribing": "Transcribing…",
+    "diffLegend": "Highlighted words differ from the sentence above (case and punctuation ignored, accents count)."
   }
 }

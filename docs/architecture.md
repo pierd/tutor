@@ -6,7 +6,8 @@ teach**. Stack: Vite + React 19 + Tailwind 4 frontend (`src/`), Convex backend
 speech-to-text and text-to-speech (gateway needs a paid Convex plan; voice is
 alpha — see https://docs.convex.dev/ai-gateway/voice.md).
 
-See [roadmap.md](roadmap.md) for what's built and what's next.
+See [roadmap.md](roadmap.md) for what's built and what's next, and
+[voice.md](voice.md) for speech models and gateway quirks.
 
 ## Core model: items + evidence
 
@@ -20,6 +21,8 @@ separate progress.
 | `userSettings` | Per user: `activeProfileId`, `uiLocale`. |
 | `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). |
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
+| `roles` | Admin role per user. Granted only from the CLI to an existing account: `npx convex run admin:grant '{"email":"…"}'` (`admin:revoke` to undo). |
+| `recordings` | Learner audio in file storage, owned by a user; upload via `convex/recordings.ts`, actions check ownership with `recordings.getOwned`. |
 | `mistakes` | Recurring error patterns (`pattern` tag like `aux:avoir-for-etre`), counted, optionally linked to an item. Write via `recordMistake`. |
 
 Lesson types are meant to be plugins: generator (AI action) + UI + grader that
@@ -35,6 +38,9 @@ reschedule.
 - Auth: `requireUserId` / `requireProfile` / `requireItem` in
   `convex/lib/auth.ts`. Never accept a user id as an argument; every public
   function that takes a `profileId` or `itemId` must go through these.
+- Admin-only features: hide in the UI via `api.admin.me` **and** enforce on the
+  server (`requireAdmin` in queries/mutations; actions check
+  `internal.admin.checkAdmin`, see `convex/voiceLab.ts`).
 - Time-dependent queries take `now` from the client (rounded to the minute)
   instead of calling `Date.now()` — see `items.due`.
 - Lists are bounded (`.take(n)`), no `.collect()`.
@@ -70,7 +76,6 @@ reschedule.
 
 ## Legacy
 
-`src/dummy/*.jsx` are the original hardcoded games (Spanish UI), shown under
-the "Classic games" tab. Their full content is archived in
-`docs/suggested-lessons/` so they can be recreated as suggested lessons; delete
-the JSX once AI lessons replace them (also drop `allowJs` in `tsconfig.app.json`).
+The original hardcoded games were removed from the app; their full content is
+archived in `docs/suggested-lessons/` (source in git history at `f7a14bf`) so
+they can be recreated as suggested lessons.

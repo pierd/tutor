@@ -17,7 +17,7 @@
   },
   "nav": {
     "progress": "Postępy",
-    "classic": "Klasyczne gry"
+    "lab": "Laboratorium głosu"
   },
   "profile": {
     "setupTitle": "Utwórz swój pierwszy profil nauki",
@@ -61,5 +61,20 @@
     "strength": "Opanowanie",
     "knewIt": "Znam to",
     "didNot": "Jeszcze nie"
+  },
+  "lab": {
+    "title": "Laboratorium głosu",
+    "intro": "Porównaj modele mowy na własnym głosie, zanim wybierzemy je do lekcji. Nic tutaj nie wpływa na Twoje postępy.",
+    "reference": "Zdanie do powiedzenia",
+    "hear": "Odsłuchaj",
+    "recordHint": "Nagraj, jak mówisz to zdanie. Spróbuj też celowo powiedzieć je źle: dobry model zapisze to, co faktycznie padło, a nie to, co miało paść.",
+    "record": "Nagraj",
+    "recordAgain": "Nagraj ponownie",
+    "stop": "Zatrzymaj",
+    "models": "Modele transkrypcji",
+    "languageHint": "Podaj modelom język ({{lang}})",
+    "compare": "Transkrybuj wybranymi modelami",
+    "transcribing": "Transkrypcja…",
+    "diffLegend": "Wyróżnione słowa różnią się od zdania powyżej (wielkość liter i interpunkcja pomijane, znaki diakrytyczne się liczą)."
   }
 }

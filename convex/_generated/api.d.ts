@@ -8,15 +8,20 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
+import type * as ai_voice from "../ai/voice.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_languages from "../lib/languages.js";
 import type * as lib_srs from "../lib/srs.js";
+import type * as lib_voices from "../lib/voices.js";
 import type * as profiles from "../profiles.js";
+import type * as recordings from "../recordings.js";
 import type * as seeds_frEs from "../seeds/frEs.js";
 import type * as settings from "../settings.js";
+import type * as voiceLab from "../voiceLab.js";
 
 import type {
   ApiFromModules,
@@ -25,15 +30,20 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
+  "ai/voice": typeof ai_voice;
   auth: typeof auth;
   http: typeof http;
   items: typeof items;
   "lib/auth": typeof lib_auth;
   "lib/languages": typeof lib_languages;
   "lib/srs": typeof lib_srs;
+  "lib/voices": typeof lib_voices;
   profiles: typeof profiles;
+  recordings: typeof recordings;
   "seeds/frEs": typeof seeds_frEs;
   settings: typeof settings;
+  voiceLab: typeof voiceLab;
 }>;
 
 /**

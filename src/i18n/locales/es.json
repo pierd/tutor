@@ -17,7 +17,7 @@
   },
   "nav": {
     "progress": "Progreso",
-    "classic": "Juegos clásicos"
+    "lab": "Laboratorio de voz"
   },
   "profile": {
     "setupTitle": "Crea tu primer perfil de aprendizaje",
@@ -58,5 +58,20 @@
     "strength": "Dominio",
     "knewIt": "Lo sabía",
     "didNot": "No lo sabía"
+  },
+  "lab": {
+    "title": "Laboratorio de voz",
+    "intro": "Compara modelos de voz con tu propia voz antes de elegirlos para las lecciones. Nada de esto afecta a tu progreso.",
+    "reference": "Frase para decir",
+    "hear": "Escuchar",
+    "recordHint": "Grábate diciendo la frase. Prueba también a decirla mal a propósito: un buen modelo escribe lo que dijiste de verdad, no lo que querías decir.",
+    "record": "Grabar",
+    "recordAgain": "Grabar de nuevo",
+    "stop": "Detener",
+    "models": "Modelos de transcripción",
+    "languageHint": "Indicar el idioma a los modelos ({{lang}})",
+    "compare": "Transcribir con los modelos elegidos",
+    "transcribing": "Transcribiendo…",
+    "diffLegend": "Las palabras resaltadas difieren de la frase de arriba (sin contar mayúsculas ni puntuación; los acentos sí cuentan)."
   }
 }

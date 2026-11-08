@@ -9,9 +9,7 @@ import { LocalePicker } from "./i18n/LocalePicker";
 import { ProfileSetup } from "./profiles/ProfileSetup";
 import { ProfileSwitcher } from "./profiles/ProfileSwitcher";
 import { ProgressView } from "./progress/ProgressView";
-import FrenchVerbGame from "./dummy/practica-etre-avoir.jsx";
-import FrenchErVerbsGame from "./dummy/practica-verbos-er.jsx";
-import FrenchEssentialVerbsGame from "./dummy/practica-30-verbos.jsx";
+import { VoiceLab } from "./voice/VoiceLab";
 
 export function App() {
   const { t } = useTranslation();
@@ -42,14 +40,20 @@ function useSyncedLocale() {
   return useMutation(api.settings.setUiLocale);
 }
 
+type Tab = "progress" | "lab";
+
 function Content() {
   const { t } = useTranslation();
   const setUiLocale = useSyncedLocale();
   const profile = useQuery(api.profiles.getActive);
-  const [tab, setTab] = useState<"progress" | "classic">("progress");
+  const isAdmin = useQuery(api.admin.me)?.isAdmin ?? false;
+  const [tab, setTab] = useState<Tab>("progress");
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   if (profile === undefined) return null;
+  // Admin-only tabs are also enforced server-side.
+  const tabs: Tab[] = isAdmin ? ["progress", "lab"] : ["progress"];
+  const activeTab = tabs.includes(tab) ? tab : "progress";
 
   if (profile === null) {
     return (
@@ -70,20 +74,22 @@ function Content() {
           <div className="text-xl font-bold text-gray-900">{t("app.title")}</div>
           <ProfileSwitcher active={profile} onNewProfile={() => setCreatingProfile(true)} />
         </div>
-        <div className="inline-flex rounded-lg bg-gray-100 p-1">
-          {(["progress", "classic"] as const).map((key) => (
-            <button
-              key={key}
-              type="button"
-              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                tab === key ? "bg-gray-900 text-white shadow-sm" : "text-gray-700 hover:bg-gray-200"
-              }`}
-              onClick={() => setTab(key)}
-            >
-              {t(`nav.${key}`)}
-            </button>
-          ))}
-        </div>
+        {tabs.length > 1 && (
+          <div className="inline-flex rounded-lg bg-gray-100 p-1">
+            {tabs.map((key) => (
+              <button
+                key={key}
+                type="button"
+                className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === key ? "bg-gray-900 text-white shadow-sm" : "text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => setTab(key)}
+              >
+                {t(`nav.${key}`)}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-3">
           <LocalePicker onChange={(uiLocale) => void setUiLocale({ uiLocale })} />
           <SignOut />
@@ -92,48 +98,12 @@ function Content() {
       <main className="flex-1 bg-gray-50 p-6">
         {creatingProfile ? (
           <ProfileSetup onDone={() => setCreatingProfile(false)} />
-        ) : tab === "progress" ? (
-          <ProgressView profile={profile} />
+        ) : activeTab === "lab" ? (
+          <VoiceLab key={profile._id} profile={profile} />
         ) : (
-          <ClassicGames />
+          <ProgressView profile={profile} />
         )}
       </main>
-    </div>
-  );
-}
-
-// The original hardcoded games (Spanish UI). Specs are archived in
-// docs/suggested-lessons/; remove once AI lessons replace them.
-function ClassicGames() {
-  const [game, setGame] = useState<"etre-avoir" | "verbs-er" | "verbs-essential">("etre-avoir");
-  const games = [
-    ["etre-avoir", "être / avoir"],
-    ["verbs-er", "-er verbs"],
-    ["verbs-essential", "30 verbos"],
-  ] as const;
-  return (
-    <div className="space-y-4">
-      <div className="inline-flex rounded-lg bg-gray-100 p-1">
-        {games.map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              game === key ? "bg-gray-900 text-white shadow-sm" : "text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => setGame(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {game === "etre-avoir" ? (
-        <FrenchVerbGame />
-      ) : game === "verbs-er" ? (
-        <FrenchErVerbsGame />
-      ) : (
-        <FrenchEssentialVerbsGame />
-      )}
     </div>
   );
 }

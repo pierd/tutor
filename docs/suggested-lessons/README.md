@@ -1,7 +1,7 @@
 # Suggested lessons
 
-Specs of the original hardcoded practice games (removed from `src/dummy/` once
-AI-generated lessons replace them). Each file holds the full content and the
+Specs of the original hardcoded practice games (removed from the app; they
+lived in `src/dummy/`). Each file holds the full content and the
 mechanics, so the lesson can be recreated in the app as a suggested lesson for
 its language pair. The original source is in git history (`f7a14bf`).
 

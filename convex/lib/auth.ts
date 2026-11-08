@@ -24,3 +24,17 @@ export async function requireItem(ctx: QueryCtx, itemId: Id<"items">) {
   await requireProfile(ctx, item.profileId);
   return item;
 }
+
+export async function isAdmin(ctx: QueryCtx, userId: Id<"users">) {
+  const role = await ctx.db
+    .query("roles")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .first();
+  return role?.role === "admin";
+}
+
+export async function requireAdmin(ctx: QueryCtx) {
+  const userId = await requireUserId(ctx);
+  if (!(await isAdmin(ctx, userId))) throw new Error("Admins only");
+  return userId;
+}
