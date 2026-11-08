@@ -28,7 +28,7 @@ separate progress.
 | `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
 | `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). |
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
-| `users` | Convex Auth's table plus `approvedAt`. Sign-up only puts a user on the **wishlist**; until an admin approves them (`convex/wishlist.ts`, "Wishlist" in the admin nav) they only see a waiting page. Admins always have access. |
+| `users` | Convex Auth's table plus `approvedAt`. Sign-up only puts a user on the **wishlist**; until an admin approves them (`convex/wishlist.ts`, "Wishlist" in the admin nav) they only see a waiting page. Admins always have access. New sign-ups email the owner (`convex/notifications.ts`, scheduled from the auth callback in `convex/auth.ts`). |
 | `roles` | Admin role per user. Granted only from the CLI to an existing account: `npx convex run admin:grant '{"email":"…"}'` (`admin:revoke` to undo). |
 | `recordings` | Learner audio in file storage, owned by a user; upload via `convex/recordings.ts`, actions check ownership with `recordings.getOwned`. |
 | `exercises` | Translation challenge queue: one generated sentence (`prompt` in base language, accepted `answers`, `itemIds`, pre-rendered TTS of the model answer). Status `generating → ready → answered` (or `skipped`/`failed`). One pending exercise per profile. |
@@ -185,7 +185,10 @@ reschedule.
   `VITE_CONVEX_URL`. Never set `VITE_CONVEX_URL` by hand in Vercel.
 - Prod Convex env: `JWT_PRIVATE_KEY`, `JWKS` (own keys, not dev's) and
   `SITE_URL=https://tutor.lessismore.studio`, plus `POSTHOG_PROJECT_TOKEN` /
-  `POSTHOG_HOST`. Vercel needs `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST`.
+  `POSTHOG_HOST`, and `FORWARD_EMAIL_PASSWORD` (generated password of the
+  forwardemail.net alias tutor@lessismore.studio) / `NOTIFY_EMAIL` (where
+  wishlist sign-up emails go; unset = no email). Vercel needs
+  `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST`.
 
 ## Languages and localization
 

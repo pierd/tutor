@@ -24,6 +24,7 @@ import type * as lib_posthogAi from "../lib/posthogAi.js";
 import type * as lib_srs from "../lib/srs.js";
 import type * as lib_text from "../lib/text.js";
 import type * as lib_voices from "../lib/voices.js";
+import type * as notifications from "../notifications.js";
 import type * as practice from "../practice.js";
 import type * as profiles from "../profiles.js";
 import type * as reading from "../reading.js";
@@ -60,6 +61,7 @@ declare const fullApi: ApiFromModules<{
   "lib/srs": typeof lib_srs;
   "lib/text": typeof lib_text;
   "lib/voices": typeof lib_voices;
+  notifications: typeof notifications;
   practice: typeof practice;
   profiles: typeof profiles;
   reading: typeof reading;
