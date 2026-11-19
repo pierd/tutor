@@ -130,6 +130,10 @@
       "count_one": "{{count}} texto",
       "count_many": "{{count}} textos",
       "count_other": "{{count}} textos"
+    },
+    "passive": {
+      "title": "Pasivo",
+      "description": "Una presentación lenta de todas las tarjetas para dejar de fondo y mirar de vez en cuando. No cuenta para el progreso."
     }
   },
   "cards": {
@@ -145,6 +149,20 @@
     "dontKnow": "No lo sé",
     "expected": "Se esperaba: {{expected}}",
     "saidItRight": "Lo dije bien"
+  },
+  "passive": {
+    "speed": "Velocidad",
+    "speeds": {
+      "slow": "Lenta",
+      "normal": "Normal",
+      "fast": "Rápida"
+    },
+    "readAloud": "Leer en voz alta",
+    "play": "Reproducir",
+    "pause": "Pausa",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "noProgress": "Mirar en modo pasivo no cambia tu progreso."
   },
   "lessonStatus": {
     "failed": "error",

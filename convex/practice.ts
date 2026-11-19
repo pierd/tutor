@@ -112,6 +112,34 @@ export const drawCards = query({
   },
 });
 
+// Every card of a lesson (or everything) for passive viewing, in creation
+// order; the client shuffles. Read-only: watching records no evidence.
+export const allCards = query({
+  args: { profileId: v.id("profiles"), lessonId: v.optional(v.id("lessons")) },
+  handler: async (ctx, { profileId, lessonId }) => {
+    await requireProfile(ctx, profileId);
+    let cards = await ctx.db
+      .query("cards")
+      .withIndex("by_profileId", (q) => q.eq("profileId", profileId))
+      .take(MAX_CARDS_SCANNED);
+    if (lessonId) {
+      const lesson = await ctx.db.get("lessons", lessonId);
+      if (lesson === null || lesson.profileId !== profileId) throw new Error("Lesson not found");
+      const ids = new Set(await lessonItemIds(ctx, lessonId));
+      cards = cards.filter((card) => card.itemIds.some((id) => ids.has(id)));
+    }
+    const itemIds = [...new Set(cards.flatMap((card) => card.itemIds))];
+    const suspended = new Set(
+      (await Promise.all(itemIds.map((id) => ctx.db.get("items", id))))
+        .filter((item): item is Doc<"items"> => item !== null && item.suspended)
+        .map((item) => item._id),
+    );
+    return cards
+      .filter((card) => !card.itemIds.some((id) => suspended.has(id)))
+      .map((card) => ({ _id: card._id, kind: card.kind, prompt: card.prompt, cue: card.cue, answer: card.answer }));
+  },
+});
+
 export const answerCard = mutation({
   args: {
     cardId: v.id("cards"),

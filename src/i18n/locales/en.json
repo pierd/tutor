@@ -125,6 +125,10 @@
       "description": "A short text with tap-to-translate words and quick questions.",
       "count_one": "{{count}} text",
       "count_other": "{{count}} texts"
+    },
+    "passive": {
+      "title": "Passive",
+      "description": "A slow slideshow of all the cards to keep on in the background and glance at. Doesn't count toward progress."
     }
   },
   "cards": {
@@ -140,6 +144,20 @@
     "dontKnow": "I don't know",
     "expected": "Expected: {{expected}}",
     "saidItRight": "I said it right"
+  },
+  "passive": {
+    "speed": "Speed",
+    "speeds": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    },
+    "readAloud": "Read aloud",
+    "play": "Play",
+    "pause": "Pause",
+    "previous": "Previous",
+    "next": "Next",
+    "noProgress": "Passive viewing doesn't change your progress."
   },
   "lessonStatus": {
     "failed": "failed",

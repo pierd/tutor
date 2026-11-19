@@ -14,17 +14,29 @@ function set(next: State) {
   listeners.forEach((listener) => listener());
 }
 
-export function playAudio(url: string, { owner, rate = 1 }: { owner: string; rate?: number }) {
+// `onEnd` fires only when the clip plays to the end (not when stopped).
+export function playAudio(
+  url: string,
+  { owner, rate = 1, onEnd }: { owner: string; rate?: number; onEnd?: () => void },
+) {
   stopAudio();
   const clip = new Audio(url);
   clip.preservesPitch = true;
   clip.playbackRate = rate;
   clip.onplay = () => audio === clip && set({ owner, playing: true });
   clip.onpause = () => audio === clip && set({ owner, playing: false });
-  clip.onended = () => audio === clip && stopAudio();
+  clip.onended = () => {
+    if (audio !== clip) return;
+    stopAudio();
+    onEnd?.();
+  };
   audio = clip;
   set({ owner, playing: true });
-  void clip.play().catch(() => audio === clip && stopAudio());
+  void clip.play().catch(() => {
+    if (audio !== clip) return;
+    stopAudio();
+    onEnd?.();
+  });
 }
 
 export function pauseAudio() {

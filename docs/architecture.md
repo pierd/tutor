@@ -46,6 +46,13 @@ writes evidence/mistakes. Progress views are derived from items + evidence.
 | Say the word | 1 STT call (~$0.0001) | `practice.checkSpoken` (local match via `convex/lib/text.ts`), learner can overrule, `src/lessons/SayWord.tsx` |
 | Sentences | LLM generate + grade | translation challenge below, scoped by `lessonId` |
 | Reading | 1 LLM call per text (reused), TTS on request | `convex/reading.ts`, `convex/ai/readingAi.ts`, `src/lessons/Reading.tsx` |
+| Passive | free (TTS once per card if "Read aloud") | `practice.allCards`, `src/lessons/Passive.tsx` |
+
+Passive is a slideshow of every card in the lesson (shuffled, prompt then
+answer, looping with a reshuffle) to leave running and glance at. It records
+**no evidence**: the learner isn't actively engaged, so it never changes
+progress. Speed slow/normal/fast; with "Read aloud" it waits for the answer's
+audio before moving on. Holds a screen wake lock while playing.
 
 Generated content is kept for revisiting: earlier reading texts (with saved
 answers, retakeable) and answered sentences (`translation.history`: prompt,

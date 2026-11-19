@@ -37,6 +37,7 @@ Product vision (from the owner's notes): two pillars —
   multiple-choice questions graded locally, read-aloud TTS.
 - History of generated content (reading texts, answered sentences), slower
   playback for all audio, optional AI illustrations for reading texts.
+- Passive mode: background slideshow of a lesson's cards, no evidence.
 - PostHog analytics: product events in the web app, LLM traces (generation,
   grading, reading, coach) from Convex. See architecture.md.
 

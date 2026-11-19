@@ -135,6 +135,10 @@
       "count_few": "{{count}} teksty",
       "count_many": "{{count}} tekstów",
       "count_other": "{{count}} tekstu"
+    },
+    "passive": {
+      "title": "Pasywny",
+      "description": "Powolny pokaz wszystkich fiszek do włączenia w tle i zerkania od czasu do czasu. Nie wpływa na postępy."
     }
   },
   "cards": {
@@ -150,6 +154,20 @@
     "dontKnow": "Nie wiem",
     "expected": "Oczekiwano: {{expected}}",
     "saidItRight": "To było dobrze"
+  },
+  "passive": {
+    "speed": "Tempo",
+    "speeds": {
+      "slow": "Wolne",
+      "normal": "Normalne",
+      "fast": "Szybkie"
+    },
+    "readAloud": "Czytaj na głos",
+    "play": "Odtwórz",
+    "pause": "Pauza",
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "noProgress": "Oglądanie w trybie pasywnym nie zmienia postępów."
   },
   "lessonStatus": {
     "failed": "błąd",

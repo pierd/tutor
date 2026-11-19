@@ -5,7 +5,13 @@ import { ListenControls } from "../lib/ListenControls";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { DeckCard } from "./useDeck";
 
-export function CardPrompt({ card, revealed }: { card: DeckCard; revealed?: boolean }) {
+export function CardPrompt({
+  card,
+  revealed,
+}: {
+  card: Pick<DeckCard, "kind" | "prompt" | "cue" | "answer">;
+  revealed?: boolean;
+}) {
   const { t } = useTranslation();
   if (card.kind === "meaning") {
     return (
