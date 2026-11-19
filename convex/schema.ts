@@ -18,6 +18,37 @@ export const outcomeValidator = v.union(
   v.literal("exposure"),
 );
 
+// Study material written by the coach: details on one item (forms,
+// conjugation tables, examples) and readable notes for a lesson.
+const studyTableValidator = v.object({
+  title: v.optional(v.string()),
+  header: v.optional(v.array(v.string())),
+  rows: v.array(v.array(v.string())),
+});
+
+const studyExampleValidator = v.object({ text: v.string(), translation: v.string() });
+
+export const itemDetailsValidator = v.object({
+  explanation: v.optional(v.string()),
+  facts: v.optional(v.array(v.object({ label: v.string(), value: v.string() }))),
+  tables: v.optional(v.array(studyTableValidator)),
+  examples: v.optional(v.array(studyExampleValidator)),
+});
+
+export const lessonGuideValidator = v.object({
+  sections: v.array(
+    v.object({
+      heading: v.string(),
+      body: v.string(),
+      tables: v.optional(v.array(studyTableValidator)),
+      examples: v.optional(v.array(studyExampleValidator)),
+    }),
+  ),
+});
+
+// Set while the coach writes study material in the background.
+const studyStatusValidator = v.optional(v.union(v.literal("writing"), v.literal("failed")));
+
 const schema = defineSchema({
   ...authTables,
 
@@ -75,6 +106,8 @@ const schema = defineSchema({
     status: v.optional(v.union(v.literal("building"), v.literal("failed"))),
     buildFocus: v.optional(v.string()),
     error: v.optional(v.string()),
+    guide: v.optional(lessonGuideValidator),
+    guideStatus: studyStatusValidator,
   })
     .index("by_unitId_and_order", ["unitId", "order"])
     .index("by_profileId", ["profileId"]),
@@ -194,6 +227,8 @@ const schema = defineSchema({
     text: v.string(),
     gloss: v.optional(v.string()),
     notes: v.optional(v.string()),
+    details: v.optional(itemDetailsValidator),
+    detailsStatus: studyStatusValidator,
     due: v.number(),
     intervalDays: v.number(),
     ease: v.number(),

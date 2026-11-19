@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { strength } from "../../convex/lib/srs";
 import { useMinuteClock } from "../lib/useMinuteClock";
+import { ExpandIcon, ItemDetails } from "./study";
 
 const KINDS = ["lemma", "chunk", "grammar", "glyph"] as const;
 const MINUTE = 60 * 1000;
@@ -22,12 +24,20 @@ function useRelativeDue(now: number) {
 }
 
 // Items of a lesson (or all items), grouped by kind, with manual review.
+// Tapping an item shows its details (forms, examples).
 export function ItemList({ profileId, lessonId }: { profileId: Id<"profiles">; lessonId?: Id<"lessons"> }) {
   const { t } = useTranslation();
   const now = useMinuteClock();
   const items = useQuery(api.items.list, { profileId, lessonId });
   const review = useMutation(api.items.review);
   const relativeDue = useRelativeDue(now);
+  const [expanded, setExpanded] = useState<Set<Id<"items">>>(new Set());
+  const toggle = (itemId: Id<"items">) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(itemId)) next.add(itemId);
+      return next;
+    });
 
   if (items === undefined) return null;
 
@@ -50,12 +60,22 @@ export function ItemList({ profileId, lessonId }: { profileId: Id<"profiles">; l
             <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
               {group.map((item) => {
                 const s = strength(item);
+                const open = expanded.has(item._id);
                 return (
                   <li key={item._id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-gray-900">{item.text}</p>
-                      {item.gloss && <p className="truncate text-sm text-gray-500">{item.gloss}</p>}
-                    </div>
+                    <button
+                      onClick={() => toggle(item._id)}
+                      aria-expanded={open}
+                      className="flex min-w-0 flex-1 items-start gap-1.5 text-left"
+                    >
+                      <span className="mt-1">
+                        <ExpandIcon open={open} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-medium text-gray-900">{item.text}</span>
+                        {item.gloss && <span className="block truncate text-sm text-gray-500">{item.gloss}</span>}
+                      </span>
+                    </button>
                     <div className="w-28" title={`${t("progress.strength")}: ${Math.round(s * 100)}%`}>
                       <div className="h-1.5 rounded-full bg-gray-100">
                         <div className="h-1.5 rounded-full bg-gray-900" style={{ width: `${Math.round(s * 100)}%` }} />
@@ -76,6 +96,11 @@ export function ItemList({ profileId, lessonId }: { profileId: Id<"profiles">; l
                         {t("progress.didNot")}
                       </button>
                     </div>
+                    {open && (
+                      <div className="basis-full pl-6">
+                        <ItemDetails item={item} />
+                      </div>
+                    )}
                   </li>
                 );
               })}

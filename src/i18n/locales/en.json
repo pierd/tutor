@@ -126,9 +126,13 @@
       "count_one": "{{count}} text",
       "count_other": "{{count}} texts"
     },
-    "passive": {
-      "title": "Passive",
+    "passiveCards": {
+      "title": "Passive flashcards",
       "description": "A slow slideshow of all the cards to keep on in the background and glance at. Doesn't count toward progress."
+    },
+    "passiveStudy": {
+      "title": "Passive learning",
+      "description": "Each word and grammar point with its forms and examples, shown long enough to read, in a loop. Doesn't count toward progress."
     }
   },
   "cards": {
@@ -157,7 +161,20 @@
     "pause": "Pause",
     "previous": "Previous",
     "next": "Next",
-    "noProgress": "Passive viewing doesn't change your progress."
+    "noProgress": "Passive viewing doesn't change your progress.",
+    "noDetails": "None of these items have details yet, so only the words are shown. Open an item or the lesson to ask the coach to fill them in."
+  },
+  "study": {
+    "notesTitle": "Study notes",
+    "writing": "The coach is writing study notes and item details…",
+    "missingGuide": "This lesson has no study notes yet.",
+    "missingDetails_one": "{{count}} item has no details yet.",
+    "missingDetails_other": "{{count}} items have no details yet.",
+    "failed": "Some of it couldn't be written. You can try again.",
+    "fill": "Ask the coach to fill in",
+    "itemWriting": "The coach is writing details…",
+    "itemMissing": "No details yet.",
+    "itemFailed": "Writing details failed."
   },
   "lessonStatus": {
     "failed": "failed",

@@ -131,9 +131,13 @@
       "count_many": "{{count}} textos",
       "count_other": "{{count}} textos"
     },
-    "passive": {
-      "title": "Pasivo",
+    "passiveCards": {
+      "title": "Tarjetas pasivas",
       "description": "Una presentación lenta de todas las tarjetas para dejar de fondo y mirar de vez en cuando. No cuenta para el progreso."
+    },
+    "passiveStudy": {
+      "title": "Aprendizaje pasivo",
+      "description": "Cada palabra y punto de gramática con sus formas y ejemplos, el tiempo justo para leerlo, en bucle. No cuenta para el progreso."
     }
   },
   "cards": {
@@ -162,7 +166,21 @@
     "pause": "Pausa",
     "previous": "Anterior",
     "next": "Siguiente",
-    "noProgress": "Mirar en modo pasivo no cambia tu progreso."
+    "noProgress": "Mirar en modo pasivo no cambia tu progreso.",
+    "noDetails": "Ningún elemento tiene detalles todavía, así que solo se muestran las palabras. Abre un elemento o la lección para pedir al coach que los complete."
+  },
+  "study": {
+    "notesTitle": "Apuntes",
+    "writing": "El coach está escribiendo los apuntes y los detalles…",
+    "missingGuide": "Esta lección aún no tiene apuntes.",
+    "missingDetails_one": "{{count}} elemento aún no tiene detalles.",
+    "missingDetails_many": "{{count}} elementos aún no tienen detalles.",
+    "missingDetails_other": "{{count}} elementos aún no tienen detalles.",
+    "failed": "No se pudo escribir todo. Puedes intentarlo de nuevo.",
+    "fill": "Pedir al coach que lo complete",
+    "itemWriting": "El coach está escribiendo los detalles…",
+    "itemMissing": "Aún no hay detalles.",
+    "itemFailed": "No se pudieron escribir los detalles."
   },
   "lessonStatus": {
     "failed": "error",

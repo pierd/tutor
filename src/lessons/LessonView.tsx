@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, BookOpen, Eye, Layers, Loader2, Mic, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, Eye, Glasses, Layers, Loader2, Mic, Sparkles } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { track } from "../lib/posthog";
@@ -9,19 +9,22 @@ import { useMinuteClock } from "../lib/useMinuteClock";
 import { Flashcards } from "./Flashcards";
 import { ItemList } from "./ItemList";
 import { ProgressBar } from "./LessonNav";
-import { Passive } from "./Passive";
+import { PassiveCards } from "./PassiveCards";
+import { PassiveStudy } from "./PassiveStudy";
 import { Reading } from "./Reading";
 import { SayWord } from "./SayWord";
+import { LessonGuide } from "./study";
 import { TranslationLesson } from "./TranslationLesson";
 
-type Mode = "flashcards" | "say" | "reading" | "sentences" | "passive";
+type Mode = "flashcards" | "say" | "reading" | "sentences" | "passiveCards" | "passiveStudy";
 
 const MODES: { mode: Mode; icon: typeof Layers; ai: boolean }[] = [
   { mode: "flashcards", icon: Layers, ai: false },
   { mode: "say", icon: Mic, ai: false },
   { mode: "reading", icon: BookOpen, ai: true },
   { mode: "sentences", icon: Sparkles, ai: true },
-  { mode: "passive", icon: Eye, ai: false },
+  { mode: "passiveCards", icon: Eye, ai: false },
+  { mode: "passiveStudy", icon: Glasses, ai: false },
 ];
 
 // One lesson (or "Everything"): progress, practice modes, and its items.
@@ -74,6 +77,7 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
         </div>
       ) : mode === null ? (
         <>
+          {lesson && <LessonGuide lesson={lesson} profileId={profile._id} />}
           <div className="grid gap-3 sm:grid-cols-2">
             {MODES.map(({ mode: m, icon: Icon, ai }) => (
               <button
@@ -108,8 +112,10 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
             <Flashcards profileId={profile._id} lessonId={lessonId} />
           ) : mode === "say" ? (
             <SayWord profileId={profile._id} lessonId={lessonId} />
-          ) : mode === "passive" ? (
-            <Passive profileId={profile._id} lessonId={lessonId} />
+          ) : mode === "passiveCards" ? (
+            <PassiveCards profileId={profile._id} lessonId={lessonId} />
+          ) : mode === "passiveStudy" ? (
+            <PassiveStudy profileId={profile._id} lessonId={lessonId} />
           ) : mode === "reading" ? (
             <Reading profile={profile} lessonId={lessonId} />
           ) : (

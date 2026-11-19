@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* Time left on a passive-mode slide (src/lessons/Slideshow.tsx). */
+@keyframes slideshow-progress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}

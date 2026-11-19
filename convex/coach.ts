@@ -14,6 +14,7 @@ import { requireProfile } from "./lib/auth";
 import { lessonOutlineValidator, seedCardValidator, seedItemValidator } from "./seeds/validators";
 import { addLessonContent, createUnit, lessonItemIds, nextLessonOrder } from "./units";
 import { captureAiGeneration, captureAiToolSpan, createAiContext } from "./lib/posthogAi";
+import { startLessonStudy } from "./study";
 
 // Coach chat: the learner and the coach shape lessons and units together.
 // The coach only *proposes* (tools write to `proposals`); content is created
@@ -323,6 +324,7 @@ export const accept = mutation({
         order: await nextLessonOrder(ctx, unitId),
       });
       await addLessonContent(ctx, row.profileId, lessonId, p);
+      await startLessonStudy(ctx, lessonId);
       await ctx.db.patch("proposals", proposalId, { status: "accepted", createdUnitId: unitId, createdLessonId: lessonId });
       await note(ctx, row.threadId, `Learner accepted the lesson "${p.title}"`);
       return lessonId;
@@ -413,6 +415,7 @@ export const finishBuild = internalMutation({
     if (lesson === null || lesson.status !== "building") return null;
     await addLessonContent(ctx, lesson.profileId, lessonId, { items, cards });
     await ctx.db.patch("lessons", lessonId, { status: undefined, error: undefined });
+    await startLessonStudy(ctx, lessonId);
     return null;
   },
 });

@@ -26,7 +26,7 @@ separate progress.
 | `coachThreads` | One `@convex-dev/agent` thread per profile for the coach chat (`coach.reset` starts a new one). |
 | `proposals` | Lessons (full items + cards) or unit outlines the coach proposed in chat; `pending → accepted/dismissed`. Content is created only on accept. |
 | `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
-| `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). |
+| `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). Optional `details` (study material, see below). |
 | `evidence` | Append-only log: item × outcome (`correct`, `incorrect`, `lookup`, `exposure`) × `source` (lesson type). **Every lesson type reports through `recordEvidence` in `convex/items.ts`.** |
 | `users` | Convex Auth's table plus `approvedAt`. Sign-up only puts a user on the **wishlist**; until an admin approves them (`convex/wishlist.ts`, "Wishlist" in the admin nav) they only see a waiting page. Admins always have access. New sign-ups email the owner (`convex/notifications.ts`, scheduled from the auth callback in `convex/auth.ts`). |
 | `roles` | Admin role per user. Granted only from the CLI to an existing account: `npx convex run admin:grant '{"email":"…"}'` (`admin:revoke` to undo). |
@@ -46,13 +46,17 @@ writes evidence/mistakes. Progress views are derived from items + evidence.
 | Say the word | 1 STT call (~$0.0001) | `practice.checkSpoken` (local match via `convex/lib/text.ts`), learner can overrule, `src/lessons/SayWord.tsx` |
 | Sentences | LLM generate + grade | translation challenge below, scoped by `lessonId` |
 | Reading | 1 LLM call per text (reused), TTS on request | `convex/reading.ts`, `convex/ai/readingAi.ts`, `src/lessons/Reading.tsx` |
-| Passive | free (TTS once per card if "Read aloud") | `practice.allCards`, `src/lessons/Passive.tsx` |
+| Passive flashcards | free (TTS once per card if "Read aloud") | `practice.allCards`, `src/lessons/PassiveCards.tsx` |
+| Passive learning | free (shows existing item details) | `items.list`, `src/lessons/PassiveStudy.tsx` |
 
-Passive is a slideshow of every card in the lesson (shuffled, prompt then
-answer, looping with a reshuffle) to leave running and glance at. It records
-**no evidence**: the learner isn't actively engaged, so it never changes
-progress. Speed slow/normal/fast; with "Read aloud" it waits for the answer's
-audio before moving on. Holds a screen wake lock while playing.
+The passive modes are slideshows to leave running and glance at, built on
+`src/lessons/Slideshow.tsx` (shuffled loop until paused, speed
+slow/normal/fast, previous/next, a bar showing time left, screen wake lock).
+They record **no evidence**: the learner isn't actively engaged, so they never
+change progress. Passive flashcards show each card's prompt and then its answer.
+With "Read aloud" on, the answer stays up until its audio finishes. Passive
+learning shows each item with its study details (see below) for a base time
+plus time per word of content.
 
 Generated content is kept for revisiting: earlier reading texts (with saved
 answers, retakeable) and answered sentences (`translation.history`: prompt,
@@ -84,6 +88,27 @@ Spaced repetition: a `correct` answer only reschedules an item when it's due
 Starter content: `convex/seeds/` (`StarterUnit` shape in `seeds/types.ts`),
 inserted with `units.insertUnit` / `insertLesson`, which reuse existing items
 and cards. Spanish→French: unit "Lo básico" (5 lessons, ~92 items, ~808 cards).
+
+### Study material (`convex/study.ts`, `convex/ai/studyAi.ts`, `src/lessons/study.tsx`)
+
+What the learner reads, as opposed to practises, all written by `COACH_MODEL` in
+the base language:
+
+- `items.details`: facts (gender, plural, auxiliary…), tables (e.g. one
+  conjugation table per tense), explanation, examples. Shown when an item row
+  in the item list is expanded.
+- `lessons.guide`: read-through study notes, 2–5 sections of text with
+  optional tables and examples. Shown as "Study notes" above the practice
+  modes.
+
+Lessons created by the coach (`coach.accept`, `coach.finishBuild`) get both
+automatically (`startLessonStudy`). Older lessons and the starter unit show an
+"Ask the coach to fill in" button (`study.fillLesson`). Each item has its own
+button (`study.fillItem`), which also covers items outside any lesson. Only
+missing parts are written: 8 items per LLM call, in parallel, saved batch by
+batch. Status lives in `lessons.guideStatus` / `items.detailsStatus`
+(`writing` / `failed`). Prompt check:
+`npx convex run study:smokeTest '{"baseLang":"es","targetLang":"fr","title":"…","items":[…]}'`.
 
 ### Coach chat (`convex/coach.ts`, `src/coach/`)
 
