@@ -18,13 +18,13 @@
   },
   "nav": {
     "everything": "Wszystko",
+    "coach": "Coach · nowe lekcje",
     "due_one": "{{count}} do powtórki",
     "due_few": "{{count}} do powtórki",
     "due_many": "{{count}} do powtórki",
     "due_other": "{{count}} do powtórki",
     "addStarter": "+ Dodaj jednostkę startową „{{title}}”",
     "lab": "Laboratorium głosu",
-    "coach": "Coach · nowe lekcje",
     "wishlist": "Lista oczekujących"
   },
   "profile": {
@@ -196,8 +196,7 @@
   },
   "coach": {
     "title": "Coach",
-    "intro": "Opisz, czego chcesz się nauczyć, albo poproś o plan. Coach proponuje lekcje; to Ty decydujesz, co zostanie dodane.",
-    "newChat": "Nowa rozmowa",
+    "intro": "Pytaj o to, czego się uczysz, opisz lekcję, której chcesz, albo poproś o plan. Coach proponuje, a ty decydujesz, co zostanie dodane lub zmienione.",
     "placeholder": "np. lekcja o liczbach od 1 do 20…",
     "send": "Wyślij",
     "suggestPlan": "Zaproponuj plan do mojego celu",
@@ -216,7 +215,30 @@
     "dismiss": "Odrzuć",
     "accepted": "Dodano",
     "open": "Otwórz",
-    "dismissed": "Odrzucono"
+    "dismissed": "Odrzucono",
+    "ask": "Zapytaj coacha",
+    "askingAbout": "Temat: {{label}}",
+    "placeholderTopic": "Zadaj pytanie albo napisz, co jest nie tak…",
+    "suggestExplain": "Wyjaśnij to prościej",
+    "suggestExamples": "Podaj więcej przykładów",
+    "suggestFix": "Coś tu jest nie tak, popraw to, proszę",
+    "itemFix": "Poprawka",
+    "guideFix": "Nowe notatki",
+    "applyFix": "Zastosuj poprawkę",
+    "fixApplied": "Zastosowano",
+    "fixGloss": "Znaczenie",
+    "topicIntro": "Zapytaj o cokolwiek dotyczącego „{{label}}”. Jeśli coś jest nie tak, napisz, a coach zaproponuje poprawkę.",
+    "conversations": "Rozmowy",
+    "newConversation": "Nowa rozmowa",
+    "close": "Zamknij",
+    "untitled": "Rozmowa",
+    "noConversations": "Nie ma jeszcze rozmów.",
+    "notes": {
+      "fixApplied": "Zastosowano poprawkę do „{{title}}”",
+      "lessonAccepted": "Dodano lekcję „{{title}}”",
+      "unitAccepted": "Dodano jednostkę „{{title}}”; jej lekcje są przygotowywane",
+      "dismissed": "Odrzucono „{{title}}”"
+    }
   },
   "reading": {
     "intro": "Krótki tekst napisany do tej lekcji, z pytaniami. Powstaje raz i zostaje, dopóki nie poprosisz o nowy.",

@@ -23,7 +23,7 @@ separate progress.
 | `lessonItems` | Many-to-many lesson ↔ item. Progress lives on items, so an item practised anywhere counts in every lesson containing it. Lesson progress = mean item strength + due count; unit = over the distinct items of its lessons (`units.tree`). The virtual **Everything** lesson covers all items. |
 | `cards` | Ready-made practice material for cheap modes: `meaning` (base-language gloss → target word) or `form` (prompt with `___` gap + `cue`, e.g. conjugation). Answering credits every item in `itemIds`. Created once (seed or AI lesson builder), then free to practise. |
 | `readings` | Reading comprehension text per lesson (absent `lessonId` = Everything): title, text, `glossary` (every word form → gloss, optional `itemKey`), questions (true/false or choice, `itemKeys`), cached read-aloud audio, `lastScore` + `lastAnswers`, optional `illustrations` (scene prompt per paragraph + image). All texts are kept as history (`reading.history`, `reading.get`). |
-| `coachThreads` | One `@convex-dev/agent` thread per profile for the coach chat (`coach.reset` starts a new one). |
+| `coachThreads` | One row per coach conversation (`@convex-dev/agent` thread): `title`, optional `focus` (the item or lesson notes it's about). |
 | `proposals` | Lessons (full items + cards) or unit outlines the coach proposed in chat; `pending → accepted/dismissed`. Content is created only on accept. |
 | `ttsCache` | Rendered pronunciations keyed by `model|voice|text`. |
 | `items` | A unit of knowledge: `kind` = `lemma` (base word form; inflected forms are evidence on it), `chunk` (set phrase), `grammar` (point from a fixed per-language list — map onto existing keys, don't invent duplicates), `glyph` (letters/kana). Holds spaced-repetition state. Unique per profile on `(kind, key)`; keys are normalized (NFC, lowercase, trimmed). Optional `details` (study material, see below). |
@@ -112,17 +112,32 @@ batch. Status lives in `lessons.guideStatus` / `items.detailsStatus`
 
 ### Coach chat (`convex/coach.ts`, `src/coach/`)
 
+The coach is a side panel (`src/coach/CoachPanel.tsx`; full screen on phones)
+opened from the header (or "Coach · new lessons" in the nav, which starts a new conversation), over the right side of whatever page is showing (it floats, so the page doesn't move). All coach buttons use `CoachButton` (`src/coach/AskCoach.tsx`). It holds one
+conversation at a time, a list of earlier ones (`coach.threads`) and a "new
+conversation" button; `coach.send` without `threadId` starts a conversation
+titled after its first message or its topic.
+
 Iterative chat built on the `@convex-dev/agent` component (mounted in
 `convex/convex.config.ts`; needs convex ≥ 1.46). The learner describes a lesson
 or asks for a plan; the coach (`COACH_MODEL`) replies in the base language and
-calls one of two tools, which only write a `proposals` row:
+calls one of its tools, which only write a `proposals` row:
 
 - `proposeLesson` — complete lesson: items + cards (cleaned by
   `cleanContent`), into an existing unit or a new one.
 - `proposeUnit` — outline of lessons with a `focus` each.
+- `proposeItemFix` / `proposeNotesFix` — corrected gloss/notes/details of an
+  item (found by kind + key) or a lesson's study notes (whole `guide`),
+  proposed only when the learner asks for a change.
+
+"Ask the coach" buttons (`src/coach/AskCoach.tsx`, provided through
+`AskCoachContext` from `App`) sit on the study notes and on each expanded
+item. They open the panel on a new conversation about that topic; its first
+`coach.send` carries it as `focus`, stored on `coachThreads.focus`. `respond`
+puts the focused item's or notes' current content into the instructions.
 
 The chat renders tool results as proposal cards (Accept/Dismiss). `coach.accept`
-creates the lesson (via `addLessonContent`) or the unit; unit lessons are
+applies a fix, or creates the lesson (via `addLessonContent`) or the unit; unit lessons are
 created with `status: "building"` and filled by `coach.buildLesson`
 (`buildLessonContent` in `convex/ai/lessonContent.ts`), retryable via
 `rebuildLesson`. Accept/dismiss leave a `[note]` user message in the thread so

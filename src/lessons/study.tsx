@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
-import { BookText, ChevronDown, ChevronRight, Loader2, Sparkles } from "lucide-react";
+import { BookText, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { track } from "../lib/posthog";
+import { AskCoachButton, CoachButton } from "../coach/AskCoach";
 
 // Study material written by the coach: item details and lesson notes.
 
@@ -96,8 +97,23 @@ export function DetailsView({ details }: { details: NonNullable<Doc<"items">["de
   );
 }
 
+export function GuideSections({ guide }: { guide: NonNullable<Doc<"lessons">["guide"]> }) {
+  return (
+    <>
+      {guide.sections.map((section, i) => (
+        <div key={i} className="space-y-3">
+          <h3 className="font-semibold text-gray-900">{section.heading}</h3>
+          <Paragraphs text={section.body} className="text-sm text-gray-700" />
+          {section.tables && section.tables.length > 0 && <Tables tables={section.tables} />}
+          {section.examples && section.examples.length > 0 && <Examples examples={section.examples} />}
+        </div>
+      ))}
+    </>
+  );
+}
+
 // Expanded view of one item: facts, forms, examples, or a button to have the
-// coach write them.
+// coach write them; and a button to ask the coach about the item.
 export function ItemDetails({ item }: { item: Doc<"items"> }) {
   const { t } = useTranslation();
   const fill = useMutation(api.study.fillItem);
@@ -123,20 +139,14 @@ export function ItemDetails({ item }: { item: Doc<"items"> }) {
         </div>
       )}
       {item.notes && <p className="text-gray-500">{item.notes}</p>}
+      <AskCoachButton topic={{ focus: { kind: "item", itemId: item._id }, label: item.text }} />
     </div>
   );
 }
 
 function FillButton({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation();
-  return (
-    <button
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-sm font-medium text-violet-700 hover:bg-violet-100"
-    >
-      <Sparkles size={14} /> {t("study.fill")}
-    </button>
-  );
+  return <CoachButton onClick={onClick}>{t("study.fill")}</CoachButton>;
 }
 
 // The lesson's read-through notes, plus a prompt to fill in whatever study
@@ -191,14 +201,10 @@ export function LessonGuide({ lesson, profileId }: { lesson: Doc<"lessons">; pro
           </button>
           {open && (
             <div className="space-y-6 border-t border-gray-100 px-4 py-4">
-              {guide.sections.map((section, i) => (
-                <div key={i} className="space-y-3">
-                  <h3 className="font-semibold text-gray-900">{section.heading}</h3>
-                  <Paragraphs text={section.body} className="text-sm text-gray-700" />
-                  {section.tables && section.tables.length > 0 && <Tables tables={section.tables} />}
-                  {section.examples && section.examples.length > 0 && <Examples examples={section.examples} />}
-                </div>
-              ))}
+              <GuideSections guide={guide} />
+              <AskCoachButton
+                topic={{ focus: { kind: "guide", lessonId: lesson._id }, label: `${t("study.notesTitle")} · ${lesson.title}` }}
+              />
             </div>
           )}
         </section>

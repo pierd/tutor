@@ -42,6 +42,8 @@ Product vision (from the owner's notes): two pillars —
 - Study material: item details (conjugation tables, gender/plural, examples)
   and lesson study notes, written by the coach; automatic for new lessons, a
   button fills in older ones.
+- "Ask the coach" on study notes and items: questions about a word, grammar
+  point or the notes, and fixes proposed as cards the learner applies.
 - PostHog analytics: product events in the web app, LLM traces (generation,
   grading, reading, coach) from Convex. See architecture.md.
 
@@ -79,7 +81,8 @@ Product vision (from the owner's notes): two pillars —
 - Mistake patterns are recorded but not yet used to pick what to drill.
 
 - No editing of lessons/units/cards after creation (rename, reorder, delete,
-  fix a card) — the coach can only propose new ones.
+  fix a card) — the coach can only propose new ones, or fix an item's
+  gloss/notes/details and a lesson's study notes.
 - Units' learner-written definition of done and closing a unit have a schema
   but no UI yet.
 - A proposeLesson call takes ~25 s (the model writes all cards in the tool

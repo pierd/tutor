@@ -18,12 +18,12 @@
   },
   "nav": {
     "everything": "Todo",
+    "coach": "Coach · nuevas lecciones",
     "due_one": "{{count}} pendiente",
     "due_many": "{{count}} pendientes",
     "due_other": "{{count}} pendientes",
     "addStarter": "+ Añadir unidad inicial «{{title}}»",
     "lab": "Laboratorio de voz",
-    "coach": "Coach · nuevas lecciones",
     "wishlist": "Lista de espera"
   },
   "profile": {
@@ -190,8 +190,7 @@
   },
   "coach": {
     "title": "Coach",
-    "intro": "Describe lo que quieres aprender o pide un plan. El coach propone lecciones; tú decides qué se añade.",
-    "newChat": "Nueva conversación",
+    "intro": "Pregunta sobre lo que estás aprendiendo, describe una lección que te gustaría o pide un plan. El coach propone; tú decides qué se añade o se cambia.",
     "placeholder": "p. ej. una lección sobre los números del 1 al 20…",
     "send": "Enviar",
     "suggestPlan": "Propón un plan para mi objetivo",
@@ -209,7 +208,30 @@
     "dismiss": "Descartar",
     "accepted": "Añadida",
     "open": "Abrir",
-    "dismissed": "Descartada"
+    "dismissed": "Descartada",
+    "ask": "Preguntar al coach",
+    "askingAbout": "Sobre: {{label}}",
+    "placeholderTopic": "Haz una pregunta o di qué está mal…",
+    "suggestExplain": "Explícamelo de forma más sencilla",
+    "suggestExamples": "Dame más ejemplos",
+    "suggestFix": "Aquí hay algo mal, corrígelo, por favor",
+    "itemFix": "Corrección",
+    "guideFix": "Nuevos apuntes",
+    "applyFix": "Aplicar corrección",
+    "fixApplied": "Aplicada",
+    "fixGloss": "Significado",
+    "topicIntro": "Pregunta lo que quieras sobre «{{label}}». Si algo está mal, dilo y el coach propondrá una corrección.",
+    "conversations": "Conversaciones",
+    "newConversation": "Nueva conversación",
+    "close": "Cerrar",
+    "untitled": "Conversación",
+    "noConversations": "Todavía no hay conversaciones.",
+    "notes": {
+      "fixApplied": "Aplicaste la corrección a «{{title}}»",
+      "lessonAccepted": "Añadiste la lección «{{title}}»",
+      "unitAccepted": "Añadiste la unidad «{{title}}»; se están preparando sus lecciones",
+      "dismissed": "Descartaste «{{title}}»"
+    }
   },
   "reading": {
     "intro": "Un texto corto escrito para esta lección, con preguntas. Se escribe una vez y se guarda hasta que pidas otro.",

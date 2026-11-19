@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
-import { Check, Layers, X } from "lucide-react";
+import { Check, Layers, Wrench, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { track } from "../lib/posthog";
 import { useMinuteClock } from "../lib/useMinuteClock";
+import { DetailsView, GuideSections } from "../lessons/study";
 
 const MAX_ITEMS_SHOWN = 24;
 
@@ -24,6 +25,15 @@ export function ProposalCard({
   const tree = useStableQuery(api.units.tree, { profileId: proposal.profileId, now });
   const [busy, setBusy] = useState(false);
   const p = proposal.proposal;
+  const isFix = p.kind === "itemFix" || p.kind === "guideFix";
+  const label = {
+    lesson: t("coach.lessonProposal"),
+    unit: t("coach.unitProposal"),
+    itemFix: t("coach.itemFix"),
+    guideFix: t("coach.guideFix"),
+  }[p.kind];
+  const acceptLabel = isFix ? t("coach.applyFix") : p.kind === "lesson" ? t("coach.acceptLesson") : t("coach.acceptUnit");
+  const openLessonId = p.kind === "guideFix" ? p.lessonId : proposal.createdLessonId;
 
   const unitLabel =
     p.kind === "lesson"
@@ -36,14 +46,29 @@ export function ProposalCard({
     <div className="space-y-3 rounded-xl border-2 border-gray-900 bg-white p-5">
       <div>
         <p className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-          <Layers size={12} /> {p.kind === "lesson" ? t("coach.lessonProposal") : t("coach.unitProposal")}
+          {isFix ? <Wrench size={12} /> : <Layers size={12} />} {label}
           {unitLabel && <span className="font-normal normal-case"> · {unitLabel}</span>}
         </p>
         <h3 className="mt-1 text-lg font-bold text-gray-900">{p.title}</h3>
-        {p.description && <p className="text-sm text-gray-600">{p.description}</p>}
+        {"description" in p && p.description && <p className="text-sm text-gray-600">{p.description}</p>}
+        {isFix && <p className="text-sm text-gray-600">{p.summary}</p>}
       </div>
 
-      {p.kind === "lesson" ? (
+      {p.kind === "itemFix" ? (
+        <div className="space-y-3 border-t border-gray-100 pt-3 text-sm text-gray-700">
+          {p.gloss !== undefined && (
+            <p>
+              <span className="text-gray-500">{t("coach.fixGloss")}:</span> <span className="font-medium text-gray-900">{p.gloss}</span>
+            </p>
+          )}
+          {p.notes !== undefined && <p className="text-gray-500">{p.notes}</p>}
+          {p.details && <DetailsView details={p.details} />}
+        </div>
+      ) : p.kind === "guideFix" ? (
+        <div className="max-h-96 space-y-6 overflow-y-auto border-t border-gray-100 pt-3">
+          <GuideSections guide={p.guide} />
+        </div>
+      ) : p.kind === "lesson" ? (
         <>
           <ul className="flex flex-wrap gap-1.5">
             {p.items.slice(0, MAX_ITEMS_SHOWN).map((item) => (
@@ -91,7 +116,7 @@ export function ProposalCard({
             }}
             className="inline-flex items-center gap-1 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
           >
-            <Check size={16} /> {p.kind === "lesson" ? t("coach.acceptLesson") : t("coach.acceptUnit")}
+            <Check size={16} /> {acceptLabel}
           </button>
           <button
             disabled={busy}
@@ -103,9 +128,9 @@ export function ProposalCard({
         </div>
       ) : proposal.status === "accepted" ? (
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-green-700">✓ {t("coach.accepted")}</span>
-          {proposal.createdLessonId && (
-            <button onClick={() => onOpenLesson(proposal.createdLessonId!)} className="text-gray-700 underline underline-offset-4">
+          <span className="text-green-700">✓ {isFix ? t("coach.fixApplied") : t("coach.accepted")}</span>
+          {openLessonId && (
+            <button onClick={() => onOpenLesson(openLessonId)} className="text-gray-700 underline underline-offset-4">
               {t("coach.open")}
             </button>
           )}

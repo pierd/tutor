@@ -6,12 +6,14 @@ import { z } from "zod";
 import { components, internal } from "./_generated/api";
 import { internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { COACH_MODEL } from "./ai/models";
 import { buildLessonContent, cardSchema, cleanContent, contentRules, itemSchema } from "./ai/lessonContent";
+import { guideSchema, itemDetailsSchema } from "./ai/studyAi";
 import { languageLabel } from "./ai/translationAi";
-import { requireProfile } from "./lib/auth";
+import { requireItem, requireProfile } from "./lib/auth";
 import { lessonOutlineValidator, seedCardValidator, seedItemValidator } from "./seeds/validators";
+import { coachFocusValidator, itemDetailsValidator, lessonGuideValidator } from "./schema";
 import { addLessonContent, createUnit, lessonItemIds, nextLessonOrder } from "./units";
 import { captureAiGeneration, captureAiToolSpan, createAiContext } from "./lib/posthogAi";
 import { startLessonStudy } from "./study";
@@ -19,13 +21,6 @@ import { startLessonStudy } from "./study";
 // Coach chat: the learner and the coach shape lessons and units together.
 // The coach only *proposes* (tools write to `proposals`); content is created
 // when the learner accepts a proposal card in the chat.
-
-async function threadFor(ctx: QueryCtx, profileId: Id<"profiles">) {
-  return await ctx.db
-    .query("coachThreads")
-    .withIndex("by_profileId", (q) => q.eq("profileId", profileId))
-    .first();
-}
 
 async function requireThread(ctx: QueryCtx, threadId: string) {
   const link = await ctx.db
@@ -37,39 +32,69 @@ async function requireThread(ctx: QueryCtx, threadId: string) {
   return link;
 }
 
-export const getThread = query({
+// The profile's conversations, newest first.
+export const threads = query({
   args: { profileId: v.id("profiles") },
   handler: async (ctx, { profileId }) => {
     await requireProfile(ctx, profileId);
-    return (await threadFor(ctx, profileId))?.threadId ?? null;
+    const links = await ctx.db
+      .query("coachThreads")
+      .withIndex("by_profileId", (q) => q.eq("profileId", profileId))
+      .order("desc")
+      .take(100);
+    return links.map(({ threadId, title, focus, _creationTime }) => ({
+      threadId,
+      title,
+      focusKind: focus?.kind,
+      createdAt: _creationTime,
+    }));
   },
 });
 
+// Title for a conversation about an "Ask the coach" topic, checked to be the
+// profile's own.
+async function focusTitle(ctx: QueryCtx, profileId: Id<"profiles">, focus: typeof coachFocusValidator.type) {
+  if (focus.kind === "item") {
+    const item = await requireItem(ctx, focus.itemId);
+    if (item.profileId !== profileId) throw new Error("Item not found");
+    return item.text;
+  }
+  const lesson = await ctx.db.get("lessons", focus.lessonId);
+  if (lesson === null || lesson.profileId !== profileId) throw new Error("Lesson not found");
+  return lesson.title;
+}
+
+const TITLE_LENGTH = 60;
+
+// Without `threadId` starts a new conversation (about `focus`, if given).
 export const send = mutation({
-  args: { profileId: v.id("profiles"), prompt: v.string() },
-  handler: async (ctx, { profileId, prompt }) => {
-    const profile = await requireProfile(ctx, profileId);
-    const text = prompt.trim();
+  args: {
+    profileId: v.id("profiles"),
+    threadId: v.optional(v.string()),
+    prompt: v.string(),
+    focus: v.optional(coachFocusValidator),
+  },
+  handler: async (ctx, args) => {
+    const profile = await requireProfile(ctx, args.profileId);
+    const profileId = profile._id;
+    const text = args.prompt.trim();
     if (text === "" || text.length > 4000) throw new Error("Message must be 1–4000 characters");
-    let threadId = (await threadFor(ctx, profileId))?.threadId;
-    if (!threadId) {
-      threadId = await createThread(ctx, components.agent, { userId: profile.userId, title: profile.name });
-      await ctx.db.insert("coachThreads", { profileId, threadId });
+    let threadId = args.threadId;
+    if (threadId) {
+      const link = await requireThread(ctx, threadId);
+      if (link.profileId !== profileId) throw new Error("Thread not found");
+    } else {
+      const title = args.focus
+        ? await focusTitle(ctx, profileId, args.focus)
+        : text.length > TITLE_LENGTH
+          ? `${text.slice(0, TITLE_LENGTH - 1)}…`
+          : text;
+      threadId = await createThread(ctx, components.agent, { userId: profile.userId, title });
+      await ctx.db.insert("coachThreads", { profileId, threadId, title, focus: args.focus });
     }
     const { messageId } = await saveMessage(ctx, components.agent, { threadId, prompt: text });
     await ctx.scheduler.runAfter(0, internal.coach.respond, { profileId, threadId, promptMessageId: messageId, prompt: text });
     return threadId;
-  },
-});
-
-// Starts a fresh conversation (the old thread is left in place).
-export const reset = mutation({
-  args: { profileId: v.id("profiles") },
-  handler: async (ctx, { profileId }) => {
-    await requireProfile(ctx, profileId);
-    const link = await threadFor(ctx, profileId);
-    if (link) await ctx.db.delete("coachThreads", link._id);
-    return null;
   },
 });
 
@@ -97,8 +122,8 @@ export const proposals = query({
 // ---- The coach agent --------------------------------------------------------
 
 export const context = internalQuery({
-  args: { profileId: v.id("profiles") },
-  handler: async (ctx, { profileId }) => {
+  args: { profileId: v.id("profiles"), threadId: v.string() },
+  handler: async (ctx, { profileId, threadId }) => {
     const profile = await ctx.db.get("profiles", profileId);
     if (profile === null) throw new Error("Profile not found");
     const units = await ctx.db
@@ -111,7 +136,11 @@ export const context = internalQuery({
         .query("lessons")
         .withIndex("by_unitId_and_order", (q) => q.eq("unitId", unit._id))
         .take(100);
-      curriculum.push({ unitId: unit._id, title: unit.title, lessons: lessons.map((l) => l.title) });
+      curriculum.push({
+        unitId: unit._id,
+        title: unit.title,
+        lessons: lessons.map((l) => ({ lessonId: l._id, title: l.title })),
+      });
     }
     const items = await ctx.db
       .query("items")
@@ -120,6 +149,7 @@ export const context = internalQuery({
     return {
       profile,
       curriculum,
+      focus: await focusContent(ctx, profileId, threadId),
       itemCount: items.length,
       itemKeys: items.map((item) => item.key),
       knownCount: items.filter((item) => item.reps > 0).length,
@@ -127,9 +157,30 @@ export const context = internalQuery({
   },
 });
 
+// Current content of what the conversation is about, for the instructions.
+async function focusContent(ctx: QueryCtx, profileId: Id<"profiles">, threadId: string) {
+  const focus = (
+    await ctx.db
+      .query("coachThreads")
+      .withIndex("by_threadId", (q) => q.eq("threadId", threadId))
+      .unique()
+  )?.focus;
+  if (!focus) return null;
+  if (focus.kind === "item") {
+    const item = await ctx.db.get("items", focus.itemId);
+    if (item === null || item.profileId !== profileId) return null;
+    const { kind, key, text, gloss, notes, details } = item;
+    return `the item ${JSON.stringify({ kind, key, text, gloss, notes, details })}`;
+  }
+  const lesson = await ctx.db.get("lessons", focus.lessonId);
+  if (lesson === null || lesson.profileId !== profileId) return null;
+  return `the study notes of lesson "${lesson.title}" (lessonId ${lesson._id}): ${JSON.stringify(lesson.guide ?? null)}`;
+}
+
 function instructions(c: {
   profile: { baseLang: string; targetLang: string; goal?: string };
-  curriculum: { unitId: string; title: string; lessons: string[] }[];
+  curriculum: { unitId: string; title: string; lessons: { lessonId: string; title: string }[] }[];
+  focus: string | null;
   itemCount: number;
   knownCount: number;
   itemKeys: string[];
@@ -137,7 +188,12 @@ function instructions(c: {
   const base = languageLabel(c.profile.baseLang);
   const target = languageLabel(c.profile.targetLang);
   const curriculum = c.curriculum.length
-    ? c.curriculum.map((u) => `- Unit "${u.title}" (unitId ${u.unitId}): ${u.lessons.join("; ") || "no lessons"}`).join("\n")
+    ? c.curriculum
+        .map(
+          (u) =>
+            `- Unit "${u.title}" (unitId ${u.unitId}): ${u.lessons.map((l) => `"${l.title}" (lessonId ${l.lessonId})`).join("; ") || "no lessons"}`,
+        )
+        .join("\n")
     : "(no units yet)";
   return `You are the learner's language coach inside a learning app. The learner speaks ${base} and is learning ${target}.${c.profile.goal ? ` Their goal: ${c.profile.goal}.` : ""}
 Always reply in ${base}. Be brief and warm.
@@ -148,7 +204,8 @@ The learner is in the driver's seat. Work iteratively with them:
 - They can ask for changes; then make a new proposal. Proposals are shown to them as cards with Accept/Dismiss buttons. Nothing is created until they accept, so never say something was added.
 - Don't repeat the proposal's contents in your text; one or two sentences about it is enough.
 - Prefer extending the existing curriculum over duplicating it. Put a lesson in an existing unit (unitId) when it fits.
-
+- The learner can also ask about a word, phrase, grammar point or a lesson's study notes. Answer their questions directly. Only if they ask you to fix or change something, or agree to your suggested fix, propose the corrected version with proposeItemFix or proposeNotesFix; it's shown as a card they can apply. Change only what needs changing and keep the rest as it was.
+${c.focus ? `\nThis conversation is about ${c.focus}\n` : ""}
 Current curriculum:
 ${curriculum}
 Tracked items: ${c.itemCount} (${c.knownCount} practised). Existing item keys: ${c.itemKeys.join(", ") || "(none)"}
@@ -160,7 +217,7 @@ export const respond = internalAction({
   // `prompt` is only for analytics; optional so already-scheduled runs still validate.
   args: { profileId: v.id("profiles"), threadId: v.string(), promptMessageId: v.string(), prompt: v.optional(v.string()) },
   handler: async (ctx, { profileId, threadId, promptMessageId, prompt }) => {
-    const c = await ctx.runQuery(internal.coach.context, { profileId });
+    const c = await ctx.runQuery(internal.coach.context, { profileId, threadId });
     const aiContext = createAiContext({
       scheduler: ctx.scheduler,
       distinctId: c.profile.userId,
@@ -204,6 +261,61 @@ export const respond = internalAction({
               context: aiContext,
               name: "propose_lesson",
               input,
+              output,
+              latencyMs: Date.now() - started,
+            });
+            return output;
+          },
+        }),
+        proposeItemFix: createTool({
+          description:
+            "Propose a correction to an existing item's gloss, notes or study details. Give only the fields that change; details replace the old details as a whole.",
+          inputSchema: z.object({
+            kind: itemSchema.shape.kind,
+            key: z.string().describe("The item's existing key."),
+            summary: z.string().describe("What changes and why, one sentence in the base language."),
+            gloss: z.string().optional(),
+            notes: z.string().optional(),
+            details: itemDetailsSchema.omit({ key: true }).optional(),
+          }),
+          execute: async (_ctx, { kind, key, ...input }): Promise<{ proposalId: string; summary: string }> => {
+            const started = Date.now();
+            const item: Doc<"items"> | null = await ctx.runQuery(internal.coach.findItem, { profileId, kind, key });
+            if (item === null) throw new Error(`No ${kind} item with key "${key}"`);
+            const proposalId = await save({ kind: "itemFix", itemId: item._id, title: item.text, ...input });
+            const output = { proposalId, summary: `Proposed a fix for "${item.text}".` };
+            await captureAiToolSpan({
+              context: aiContext,
+              name: "propose_item_fix",
+              input: { kind, key, ...input },
+              output,
+              latencyMs: Date.now() - started,
+            });
+            return output;
+          },
+        }),
+        proposeNotesFix: createTool({
+          description: "Propose corrected study notes for a lesson. The notes replace the old ones as a whole.",
+          inputSchema: z.object({
+            lessonId: z.string(),
+            summary: z.string().describe("What changes and why, one sentence in the base language."),
+            guide: guideSchema,
+          }),
+          execute: async (_ctx, { lessonId, ...input }): Promise<{ proposalId: string; summary: string }> => {
+            const started = Date.now();
+            const lesson = c.curriculum.flatMap((u) => u.lessons).find((l) => l.lessonId === lessonId);
+            if (!lesson) throw new Error(`No lesson with id ${lessonId}`);
+            const proposalId = await save({
+              kind: "guideFix",
+              lessonId: lesson.lessonId as Id<"lessons">,
+              title: lesson.title,
+              ...input,
+            });
+            const output = { proposalId, summary: `Proposed new study notes for "${lesson.title}".` };
+            await captureAiToolSpan({
+              context: aiContext,
+              name: "propose_notes_fix",
+              input: { lessonId, ...input },
               output,
               latencyMs: Date.now() - started,
             });
@@ -274,6 +386,22 @@ const proposalValidator = v.union(
     description: v.optional(v.string()),
     lessons: v.array(lessonOutlineValidator),
   }),
+  v.object({
+    kind: v.literal("itemFix"),
+    itemId: v.id("items"),
+    title: v.string(),
+    summary: v.string(),
+    gloss: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    details: v.optional(itemDetailsValidator),
+  }),
+  v.object({
+    kind: v.literal("guideFix"),
+    lessonId: v.id("lessons"),
+    title: v.string(),
+    summary: v.string(),
+    guide: lessonGuideValidator,
+  }),
 );
 
 type ProposalInput =
@@ -286,7 +414,20 @@ type ProposalInput =
       items: { kind: "lemma" | "chunk" | "grammar" | "glyph"; key: string; text: string; gloss?: string; notes?: string }[];
       cards: { itemKeys: string[]; kind: "meaning" | "form"; prompt: string; cue?: string; answer: string; accepted: string[] }[];
     }
-  | { kind: "unit"; title: string; description?: string; lessons: { title: string; description?: string; focus: string }[] };
+  | { kind: "unit"; title: string; description?: string; lessons: { title: string; description?: string; focus: string }[] }
+  | (typeof proposalValidator.type & { kind: "itemFix" | "guideFix" });
+
+export const findItem = internalQuery({
+  args: { profileId: v.id("profiles"), kind: seedItemValidator.fields.kind, key: v.string() },
+  handler: async (ctx, { profileId, kind, key }) => {
+    return await ctx.db
+      .query("items")
+      .withIndex("by_profileId_and_kind_and_key", (q) =>
+        q.eq("profileId", profileId).eq("kind", kind).eq("key", key.normalize("NFC").trim().toLowerCase()),
+      )
+      .unique();
+  },
+});
 
 export const saveProposal = internalMutation({
   args: { profileId: v.id("profiles"), threadId: v.string(), proposal: proposalValidator },
@@ -297,8 +438,30 @@ export const saveProposal = internalMutation({
 
 // ---- Accepting proposals ----------------------------------------------------
 
+// A note in the thread for the coach. The client translates the known ones
+// (NOTES in src/coach/CoachPanel.tsx), so keep the two in sync.
 async function note(ctx: MutationCtx, threadId: string, text: string) {
   await saveMessage(ctx, components.agent, { threadId, message: { role: "user", content: `[${text}]` } });
+}
+
+async function applyFix(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  p: Extract<Doc<"proposals">["proposal"], { kind: "itemFix" | "guideFix" }>,
+) {
+  if (p.kind === "itemFix") {
+    const item = await ctx.db.get("items", p.itemId);
+    if (item === null || item.profileId !== profileId) throw new Error("Item not found");
+    await ctx.db.patch("items", p.itemId, {
+      ...(p.gloss !== undefined && { gloss: p.gloss }),
+      ...(p.notes !== undefined && { notes: p.notes }),
+      ...(p.details !== undefined && { details: p.details, detailsStatus: undefined }),
+    });
+    return;
+  }
+  const lesson = await ctx.db.get("lessons", p.lessonId);
+  if (lesson === null || lesson.profileId !== profileId) throw new Error("Lesson not found");
+  await ctx.db.patch("lessons", p.lessonId, { guide: p.guide });
 }
 
 export const accept = mutation({
@@ -309,6 +472,12 @@ export const accept = mutation({
     await requireProfile(ctx, row.profileId);
     if (row.status !== "pending") return row.createdLessonId ?? null;
     const p = row.proposal;
+    if (p.kind === "itemFix" || p.kind === "guideFix") {
+      await applyFix(ctx, row.profileId, p);
+      await ctx.db.patch("proposals", proposalId, { status: "accepted" });
+      await note(ctx, row.threadId, `Learner applied the fix to "${p.title}"`);
+      return null;
+    }
     if (p.kind === "lesson") {
       let unitId = p.unitId;
       if (unitId) {
@@ -454,6 +623,7 @@ export const smokeTest = internalAction({
       instructions: instructions({
         profile: { baseLang, targetLang, goal },
         curriculum: [],
+        focus: null,
         itemCount: 0,
         knownCount: 0,
         itemKeys: [],

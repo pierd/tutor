@@ -19,7 +19,7 @@ const exampleSchema = z.object({
   translation: z.string().describe("Its translation in the base language."),
 });
 
-const itemDetailsSchema = z.object({
+export const itemDetailsSchema = z.object({
   key: z.string().describe("The item's key, exactly as given."),
   explanation: z.string().optional().describe("1–3 sentences in the base language: meaning, usage, pitfalls."),
   facts: z
@@ -30,7 +30,7 @@ const itemDetailsSchema = z.object({
   examples: z.array(exampleSchema).max(3).optional(),
 });
 
-const guideSchema = z.object({
+export const guideSchema = z.object({
   sections: z
     .array(
       z.object({

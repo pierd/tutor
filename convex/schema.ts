@@ -46,6 +46,11 @@ export const lessonGuideValidator = v.object({
   ),
 });
 
+export const coachFocusValidator = v.union(
+  v.object({ kind: v.literal("item"), itemId: v.id("items") }),
+  v.object({ kind: v.literal("guide"), lessonId: v.id("lessons") }),
+);
+
 // Set while the coach writes study material in the background.
 const studyStatusValidator = v.optional(v.union(v.literal("writing"), v.literal("failed")));
 
@@ -178,10 +183,16 @@ const schema = defineSchema({
     error: v.optional(v.string()),
   }).index("by_profileId", ["profileId"]),
 
-  // Coach chat: one agent-component thread per profile.
+  // Coach chat: one row per conversation (agent-component thread).
   coachThreads: defineTable({
     profileId: v.id("profiles"),
     threadId: v.string(),
+    // From the first message, or what the conversation is about. Missing on
+    // conversations from before titles.
+    title: v.optional(v.string()),
+    // Set when started from an "Ask the coach" button; the item's or notes'
+    // current content goes into the coach's instructions.
+    focus: v.optional(coachFocusValidator),
   })
     .index("by_profileId", ["profileId"])
     .index("by_threadId", ["threadId"]),
@@ -207,6 +218,23 @@ const schema = defineSchema({
         title: v.string(),
         description: v.optional(v.string()),
         lessons: v.array(lessonOutlineValidator),
+      }),
+      // Corrections to existing study material, applied on accept.
+      v.object({
+        kind: v.literal("itemFix"),
+        itemId: v.id("items"),
+        title: v.string(), // the item's text
+        summary: v.string(),
+        gloss: v.optional(v.string()),
+        notes: v.optional(v.string()),
+        details: v.optional(itemDetailsValidator),
+      }),
+      v.object({
+        kind: v.literal("guideFix"),
+        lessonId: v.id("lessons"),
+        title: v.string(), // the lesson's title
+        summary: v.string(),
+        guide: lessonGuideValidator,
       }),
     ),
     createdUnitId: v.optional(v.id("units")),

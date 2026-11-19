@@ -1,15 +1,15 @@
 import { useMutation } from "convex/react";
 import { useQuery, useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
-import { FlaskConical, Layers, Loader2, MessageCircle, Users } from "lucide-react";
+import { FlaskConical, Layers, Loader2, Users } from "lucide-react";
 import { api } from "../../convex/_generated/api";
+import { AskCoachButton } from "../coach/AskCoach";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { useMinuteClock } from "../lib/useMinuteClock";
 
 export type Selection =
   | { kind: "everything" }
   | { kind: "lesson"; lessonId: Id<"lessons"> }
-  | { kind: "coach" }
   | { kind: "lab" }
   | { kind: "wishlist" };
 
@@ -93,16 +93,6 @@ export function LessonNav({
         active={selection.kind === "everything"}
         onClick={() => onSelect({ kind: "everything" })}
       />
-      <button
-        onClick={() => onSelect({ kind: "coach" })}
-        className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium ${
-          selection.kind === "coach"
-            ? "border-gray-900 bg-gray-900 text-white"
-            : "border-gray-300 bg-white text-gray-800 hover:border-gray-900"
-        }`}
-      >
-        <MessageCircle size={16} /> {t("nav.coach")}
-      </button>
       {tree.units.map((unit) => (
         <div key={unit._id} className="space-y-1">
           <div className="px-3">
@@ -133,6 +123,7 @@ export function LessonNav({
           {t("nav.addStarter", { title: starter.title })}
         </button>
       )}
+      <AskCoachButton className="w-full py-2">{t("nav.coach")}</AskCoachButton>
       {isAdmin && (
         <button
           onClick={() => onSelect({ kind: "lab" })}

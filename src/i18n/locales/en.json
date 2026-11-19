@@ -18,11 +18,11 @@
   },
   "nav": {
     "everything": "Everything",
+    "coach": "Coach · new lessons",
     "due_one": "{{count}} due",
     "due_other": "{{count}} due",
     "addStarter": "+ Add starter unit “{{title}}”",
     "lab": "Voice lab",
-    "coach": "Coach · new lessons",
     "wishlist": "Wishlist"
   },
   "profile": {
@@ -184,8 +184,7 @@
   },
   "coach": {
     "title": "Coach",
-    "intro": "Describe what you want to learn, or ask for a plan. The coach proposes lessons; you decide what gets added.",
-    "newChat": "New conversation",
+    "intro": "Ask about anything you're learning, describe a lesson you'd like, or ask for a plan. The coach proposes; you decide what gets added or changed.",
     "placeholder": "e.g. a lesson about numbers 1–20…",
     "send": "Send",
     "suggestPlan": "Propose a plan for my goal",
@@ -202,7 +201,30 @@
     "dismiss": "Dismiss",
     "accepted": "Added",
     "open": "Open",
-    "dismissed": "Dismissed"
+    "dismissed": "Dismissed",
+    "ask": "Ask the coach",
+    "askingAbout": "About: {{label}}",
+    "placeholderTopic": "Ask a question, or say what's wrong…",
+    "suggestExplain": "Explain this more simply",
+    "suggestExamples": "Give me more examples",
+    "suggestFix": "Something here is wrong, please fix it",
+    "itemFix": "Fix",
+    "guideFix": "New study notes",
+    "applyFix": "Apply fix",
+    "fixApplied": "Applied",
+    "fixGloss": "Meaning",
+    "topicIntro": "Ask anything about “{{label}}”. If something in it is wrong, say so and the coach will propose a fix.",
+    "conversations": "Conversations",
+    "newConversation": "New conversation",
+    "close": "Close",
+    "untitled": "Conversation",
+    "noConversations": "No conversations yet.",
+    "notes": {
+      "fixApplied": "You applied the fix to “{{title}}”",
+      "lessonAccepted": "You added the lesson “{{title}}”",
+      "unitAccepted": "You added the unit “{{title}}”; its lessons are being built",
+      "dismissed": "You dismissed “{{title}}”"
+    }
   },
   "reading": {
     "intro": "A short text written for this lesson, with questions. It's written once and kept until you ask for a new one.",
