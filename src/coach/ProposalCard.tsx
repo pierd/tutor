@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { Check, Layers, X } from "lucide-react";
 import { api } from "../../convex/_generated/api";
@@ -20,7 +21,7 @@ export function ProposalCard({
   const accept = useMutation(api.coach.accept);
   const dismiss = useMutation(api.coach.dismiss);
   const now = useMinuteClock();
-  const tree = useQuery(api.units.tree, { profileId: proposal.profileId, now });
+  const tree = useStableQuery(api.units.tree, { profileId: proposal.profileId, now });
   const [busy, setBusy] = useState(false);
   const p = proposal.proposal;
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "../lib/useQuery";
 import { useSmoothText, useUIMessages, type UIMessage } from "@convex-dev/agent/react";
 import { useTranslation } from "react-i18next";
 import { Loader2, RotateCcw, Send } from "lucide-react";

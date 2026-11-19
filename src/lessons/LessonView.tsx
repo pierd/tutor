@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery, useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, BookOpen, Eye, Glasses, Layers, Loader2, Mic, Sparkles } from "lucide-react";
 import { api } from "../../convex/_generated/api";
@@ -33,7 +34,7 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
   const now = useMinuteClock();
   const [mode, setMode] = useState<Mode | null>(null);
   const lesson = useQuery(api.units.getLesson, lessonId ? { lessonId } : "skip");
-  const tree = useQuery(api.units.tree, { profileId: profile._id, now });
+  const tree = useStableQuery(api.units.tree, { profileId: profile._id, now });
   const readings = useQuery(api.reading.history, { profileId: profile._id, lessonId });
   const rebuild = useMutation(api.coach.rebuildLesson);
 

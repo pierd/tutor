@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation } from "convex/react";
+import { useQuery } from "../lib/useQuery";
 import type { FunctionReturnType } from "convex/server";
 import { useTranslation } from "react-i18next";
 import { Keyboard, Loader2, Mic, Square } from "lucide-react";

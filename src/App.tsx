@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Authenticated, Unauthenticated, AuthLoading, useMutation, useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, AuthLoading, useMutation } from "convex/react";
+import { useQuery } from "./lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { api } from "../convex/_generated/api";
 import { SignIn } from "./SignIn";

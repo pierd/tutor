@@ -1,4 +1,5 @@
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery, useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { FlaskConical, Layers, Loader2, MessageCircle, Users } from "lucide-react";
 import { api } from "../../convex/_generated/api";
@@ -78,7 +79,7 @@ export function LessonNav({
 }) {
   const { t } = useTranslation();
   const now = useMinuteClock();
-  const tree = useQuery(api.units.tree, { profileId: profile._id, now });
+  const tree = useStableQuery(api.units.tree, { profileId: profile._id, now });
   const starter = useQuery(api.units.starterUnitFor, { profileId: profile._id });
   const addStarter = useMutation(api.units.addStarterUnit);
 

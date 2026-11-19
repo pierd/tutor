@@ -186,6 +186,16 @@ reschedule.
 - Starter content per language pair: `convex/seeds/` (`STARTER_SETS`, keyed
   like `fr-es` = target-base), added via `items.addStarterSet`; idempotent.
 
+## Frontend data loading
+
+Import `useQuery` from `src/lib/useQuery.ts`, not `convex/react`. It's the
+convex-helpers cached hook (`ConvexQueryCacheProvider` in `src/main.tsx`):
+subscriptions stay alive ~5 min after unmounting, so navigating back to a view
+renders its data at once instead of flashing empty. `useStableQuery` also keeps
+the previous result while new args load; use it only when args refine the same
+data (the per-minute `now` passed to `units.tree`), never when they pick
+different data (an id).
+
 ## Analytics (PostHog)
 
 - Frontend: `src/lib/posthog.ts` inits `posthog-js` (autocapture, pageviews,

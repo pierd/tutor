@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { BookText, ChevronDown, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import { api } from "../../convex/_generated/api";
