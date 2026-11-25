@@ -3,6 +3,7 @@ import { Authenticated, Unauthenticated, AuthLoading, useMutation } from "convex
 import { useQuery } from "./lib/useQuery";
 import { useTranslation } from "react-i18next";
 import { api } from "../convex/_generated/api";
+import { AgentsPage } from "./agents/AgentsPage";
 import { SignIn } from "./SignIn";
 import { SignOut } from "./SignOut";
 import { changeLocale, currentLocale } from "./i18n";
@@ -163,6 +164,8 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
           <main className="min-w-0 flex-1 p-6 md:overflow-y-auto">
             {creatingProfile ? (
               <ProfileSetup onDone={() => setCreatingProfile(false)} />
+            ) : selection.kind === "agents" ? (
+              <AgentsPage />
             ) : selection.kind === "lab" && isAdmin ? (
               <VoiceLab key={profile._id} profile={profile} />
             ) : selection.kind === "wishlist" && isAdmin ? (

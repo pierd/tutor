@@ -286,6 +286,18 @@ const schema = defineSchema({
     role: v.literal("admin"),
   }).index("by_userId", ["userId"]),
 
+  // Personal tokens for the MCP server (convex/mcp.ts); only hashes are kept.
+  apiTokens: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    tokenHash: v.string(),
+    // Last characters of the token, to tell them apart in the list.
+    hint: v.string(),
+    lastUsedAt: v.optional(v.number()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_tokenHash", ["tokenHash"]),
+
   // Learner audio in file storage; owned so actions can check access.
   recordings: defineTable({
     userId: v.id("users"),

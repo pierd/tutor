@@ -464,6 +464,62 @@ async function applyFix(
   await ctx.db.patch("lessons", p.lessonId, { guide: p.guide });
 }
 
+// Creates a lesson with its content. Without a usable `unitId` it goes into a
+// new unit. Shared with the MCP server, like the helpers below.
+export async function createLesson(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  p: Pick<Extract<ProposalInput, { kind: "lesson" }>, "unitId" | "unitTitle" | "title" | "description" | "items" | "cards">,
+) {
+  let unitId = p.unitId;
+  if (unitId) {
+    const unit = await ctx.db.get("units", unitId);
+    if (unit === null || unit.profileId !== profileId) unitId = undefined;
+  }
+  unitId ??= await createUnit(ctx, profileId, { title: p.unitTitle ?? p.title });
+  const lessonId = await ctx.db.insert("lessons", {
+    profileId,
+    unitId,
+    title: p.title,
+    description: p.description,
+    order: await nextLessonOrder(ctx, unitId),
+  });
+  await addLessonContent(ctx, profileId, lessonId, p);
+  return { unitId, lessonId };
+}
+
+// Creates a unit whose lessons are built by the coach in the background.
+export async function createUnitFromOutline(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  p: Pick<Extract<ProposalInput, { kind: "unit" }>, "title" | "description" | "lessons">,
+) {
+  const unitId = await createUnit(ctx, profileId, { title: p.title, description: p.description });
+  const lessonIds: Id<"lessons">[] = [];
+  for (const [index, lesson] of p.lessons.entries()) {
+    const lessonId = await ctx.db.insert("lessons", {
+      profileId,
+      unitId,
+      title: lesson.title,
+      description: lesson.description,
+      order: index + 1,
+      status: "building",
+      buildFocus: lesson.focus,
+    });
+    lessonIds.push(lessonId);
+    await ctx.scheduler.runAfter(0, internal.coach.buildLesson, { lessonId });
+  }
+  return { unitId, lessonIds };
+}
+
+// Retries a failed build; returns whether it was started.
+export async function retryBuild(ctx: MutationCtx, lesson: Doc<"lessons">) {
+  if (lesson.status !== "failed" || (await lessonItemIds(ctx, lesson._id)).length > 0) return false;
+  await ctx.db.patch("lessons", lesson._id, { status: "building", error: undefined });
+  await ctx.scheduler.runAfter(0, internal.coach.buildLesson, { lessonId: lesson._id });
+  return true;
+}
+
 export const accept = mutation({
   args: { proposalId: v.id("proposals") },
   handler: async (ctx, { proposalId }) => {
@@ -479,47 +535,20 @@ export const accept = mutation({
       return null;
     }
     if (p.kind === "lesson") {
-      let unitId = p.unitId;
-      if (unitId) {
-        const unit = await ctx.db.get("units", unitId);
-        if (unit === null || unit.profileId !== row.profileId) unitId = undefined;
-      }
-      unitId ??= await createUnit(ctx, row.profileId, { title: p.unitTitle ?? p.title });
-      const lessonId = await ctx.db.insert("lessons", {
-        profileId: row.profileId,
-        unitId,
-        title: p.title,
-        description: p.description,
-        order: await nextLessonOrder(ctx, unitId),
-      });
-      await addLessonContent(ctx, row.profileId, lessonId, p);
+      const { unitId, lessonId } = await createLesson(ctx, row.profileId, p);
       await startLessonStudy(ctx, lessonId);
       await ctx.db.patch("proposals", proposalId, { status: "accepted", createdUnitId: unitId, createdLessonId: lessonId });
       await note(ctx, row.threadId, `Learner accepted the lesson "${p.title}"`);
       return lessonId;
     }
-    const unitId = await createUnit(ctx, row.profileId, { title: p.title, description: p.description });
-    let firstLessonId: Id<"lessons"> | null = null;
-    for (const [index, lesson] of p.lessons.entries()) {
-      const lessonId = await ctx.db.insert("lessons", {
-        profileId: row.profileId,
-        unitId,
-        title: lesson.title,
-        description: lesson.description,
-        order: index + 1,
-        status: "building",
-        buildFocus: lesson.focus,
-      });
-      firstLessonId ??= lessonId;
-      await ctx.scheduler.runAfter(0, internal.coach.buildLesson, { lessonId });
-    }
+    const { unitId, lessonIds } = await createUnitFromOutline(ctx, row.profileId, p);
     await ctx.db.patch("proposals", proposalId, {
       status: "accepted",
       createdUnitId: unitId,
-      createdLessonId: firstLessonId ?? undefined,
+      createdLessonId: lessonIds[0],
     });
     await note(ctx, row.threadId, `Learner accepted the unit "${p.title}"; its lessons are being built`);
-    return firstLessonId;
+    return lessonIds[0] ?? null;
   },
 });
 
@@ -603,9 +632,7 @@ export const rebuildLesson = mutation({
     const lesson = await ctx.db.get("lessons", lessonId);
     if (lesson === null) throw new Error("Lesson not found");
     await requireProfile(ctx, lesson.profileId);
-    if (lesson.status !== "failed" || (await lessonItemIds(ctx, lessonId)).length > 0) return null;
-    await ctx.db.patch("lessons", lessonId, { status: "building", error: undefined });
-    await ctx.scheduler.runAfter(0, internal.coach.buildLesson, { lessonId });
+    await retryBuild(ctx, lesson);
     return null;
   },
 });

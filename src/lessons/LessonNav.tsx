@@ -1,7 +1,7 @@
 import { useMutation } from "convex/react";
 import { useQuery, useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
-import { FlaskConical, Layers, Loader2, Users } from "lucide-react";
+import { Bot, FlaskConical, Layers, Loader2, Users } from "lucide-react";
 import { api } from "../../convex/_generated/api";
 import { AskCoachButton } from "../coach/AskCoach";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
@@ -10,6 +10,7 @@ import { useMinuteClock } from "../lib/useMinuteClock";
 export type Selection =
   | { kind: "everything" }
   | { kind: "lesson"; lessonId: Id<"lessons"> }
+  | { kind: "agents" }
   | { kind: "lab" }
   | { kind: "wishlist" };
 
@@ -124,6 +125,14 @@ export function LessonNav({
         </button>
       )}
       <AskCoachButton className="w-full py-2">{t("nav.coach")}</AskCoachButton>
+      <button
+        onClick={() => onSelect({ kind: "agents" })}
+        className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+          selection.kind === "agents" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
+        }`}
+      >
+        <Bot size={14} /> {t("nav.agents")}
+      </button>
       {isAdmin && (
         <button
           onClick={() => onSelect({ kind: "lab" })}

@@ -47,6 +47,16 @@ export function contentRules(baseLang: string, targetLang: string) {
 - Keep prompts short. Never put the answer inside the prompt.`;
 }
 
+// Why a card can't be practised, or null if it's fine.
+export function cardProblem(card: { kind: "meaning" | "form"; prompt: string; answer: string }) {
+  if (card.prompt.trim() === "") return "the prompt is empty";
+  if (card.answer.trim() === "") return "the answer is empty";
+  if (card.kind === "form" && card.prompt.split("___").length !== 2) {
+    return 'a form card needs exactly one "___" gap in its prompt';
+  }
+  return null;
+}
+
 // Validates AI content: drops cards that reference unknown items or break the
 // gap rule, dedupes items by key.
 export function cleanContent(content: { items: SeedItem[]; cards: SeedCard[] }) {
@@ -61,9 +71,7 @@ export function cleanContent(content: { items: SeedItem[]; cards: SeedCard[] }) 
     }))
     .filter(
       (card) =>
-        card.itemKeys.length > 0 &&
-        card.answer.trim() !== "" &&
-        (card.kind === "meaning" || card.prompt.split("___").length === 2),
+        card.itemKeys.length > 0 && cardProblem(card) === null,
     );
   return { items, cards };
 }

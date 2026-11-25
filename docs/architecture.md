@@ -151,6 +151,32 @@ Messages stream via `saveStreamDeltas` + `syncStreams`; the client uses
 `npx convex run coach:smokeTest '{"baseLang":"es","targetLang":"fr","prompt":"…"}'`
 and `coach:smokeBuild`.
 
+### AI agents (MCP server, `convex/mcp.ts`)
+
+Learners can use their own AI assistant as the coach: an MCP server at
+`<deployment>.convex.site/mcp` (stateless Streamable HTTP, protocol in
+`convex/lib/mcpProtocol.ts`). Tools are defined in `convex/mcp.ts`, their data
+access in `convex/mcpData.ts`.
+
+- It covers what the coach can do (lessons, unit outlines, item and notes
+  fixes, study material) plus editing: add/update/delete cards, update items,
+  add to / remove from lessons, rename units and lessons, move lessons. No
+  deleting of lessons, units or items, and it never touches progress.
+- Changes apply directly, not as `proposals`: the assistant is told to agree
+  on them in its own conversation first. Creation shares the coach's helpers
+  (`createLesson`, `createUnitFromOutline`); **when the coach gains an ability,
+  add the matching tool**.
+- Auth: personal tokens (`convex/apiTokens.ts`, only SHA-256 hashes stored)
+  made on the AI agents page (`src/agents/AgentsPage.tsx`), sent as a bearer
+  header or, for clients without headers, as `/mcp/t/<token>`. Every call runs
+  as the token's owner, `userId` goes to internal functions that check
+  ownership of every id, and the wishlist gate applies (`apiTokens.byHash`).
+- Errors meant for the agent are `ConvexError`s with a string.
+- Generated study material never overwrites notes or details written
+  meanwhile (`study.saveGuide` / `saveDetails`).
+
+Tests: `npm test` (`convex/mcp.test.ts`, convex-test).
+
 ### Translation challenge (`convex/translation.ts`, `src/lessons/TranslationLesson.tsx`)
 
 1. `translation.next({ profileId, lessonId? })` returns the pending exercise for

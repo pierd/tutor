@@ -44,6 +44,8 @@ Product vision (from the owner's notes): two pillars —
   button fills in older ones.
 - "Ask the coach" on study notes and items: questions about a word, grammar
   point or the notes, and fixes proposed as cards the learner applies.
+- AI agents: MCP server with the coach's abilities plus card/item/lesson
+  editing, personal tokens and a setup page. See architecture.md.
 - PostHog analytics: product events in the web app, LLM traces (generation,
   grading, reading, coach) from Convex. See architecture.md.
 
@@ -80,8 +82,9 @@ Product vision (from the owner's notes): two pillars —
 
 - Mistake patterns are recorded but not yet used to pick what to drill.
 
-- No editing of lessons/units/cards after creation (rename, reorder, delete,
-  fix a card) — the coach can only propose new ones, or fix an item's
+- No editing of lessons/units/cards in the app after creation (rename,
+  reorder, delete, fix a card). Through MCP agents can do all but reorder
+  and delete lessons/units; the in-app coach can only propose new ones, or fix an item's
   gloss/notes/details and a lesson's study notes.
 - Units' learner-written definition of done and closing a unit have a schema
   but no UI yet.

@@ -25,7 +25,8 @@
     "due_other": "{{count}} do powtórki",
     "addStarter": "+ Dodaj jednostkę startową „{{title}}”",
     "lab": "Laboratorium głosu",
-    "wishlist": "Lista oczekujących"
+    "wishlist": "Lista oczekujących",
+    "agents": "Agenci AI"
   },
   "profile": {
     "setupTitle": "Utwórz swój pierwszy profil nauki",
@@ -280,5 +281,58 @@
     "approve": "Zatwierdź",
     "revoke": "Odbierz dostęp",
     "confirmRevoke": "Odebrać dostęp użytkownikowi {{email}}?"
+  },
+  "agents": {
+    "title": "Agenci AI",
+    "intro": "Używaj własnego asystenta AI jako coacha: poproś go, żeby zaplanował jednostkę, napisał lekcję, wyjaśnił słowo albo poprawił twoje fiszki. Łączy się przez MCP i ma dostęp tylko do twoich profili w Tutorze.",
+    "pick": "Którego asystenta używasz?",
+    "needToken": "Utwórz token. Pozwala asystentowi korzystać z twoich profili i zostanie wstawiony w kroki poniżej.",
+    "create": "Utwórz token",
+    "tokenReady": "Token utworzony i wstawiony w kroki poniżej. Widać go tylko teraz, więc dokończ konfigurację, zanim opuścisz stronę.",
+    "runThis": "Uruchom w terminalu:",
+    "urlSecret": "Ten adres zawiera twój token: nie udostępniaj go. W każdej chwili możesz go unieważnić poniżej.",
+    "claude": {
+      "s1": "W Claude (w przeglądarce albo w aplikacji na komputer) otwórz Ustawienia → Łączniki i kliknij „Dodaj własny łącznik”.",
+      "s2": "Nazwij go Tutor i wklej ten adres jako URL:",
+      "s3": "Kliknij „Dodaj”. Potem w czacie włącz Tutor w menu narzędzi."
+    },
+    "chatgpt": {
+      "s1": "W ChatGPT otwórz Ustawienia → Aplikacje i łączniki → Ustawienia zaawansowane i włącz tryb dewelopera. (Nie jest dostępny w każdym planie).",
+      "s2": "Wróć do Aplikacji i łączników i kliknij „Utwórz”. Nazwij go Tutor, wybierz „Brak uwierzytelniania” i wklej ten adres jako URL serwera MCP:",
+      "s3": "Potwierdź, że ufasz aplikacji, i kliknij „Utwórz”. Potem w czacie dodaj Tutor z menu +."
+    },
+    "claudeCode": {
+      "s2": "Uruchom Claude Code i sprawdź, czy /mcp pokazuje tutor jako połączony."
+    },
+    "codex": {
+      "s1": "Zapisz token w zmiennej środowiskowej (dodaj tę linię do profilu powłoki, np. ~/.zshrc, żeby została na stałe):",
+      "s2": "Potem dodaj serwer:"
+    },
+    "gemini": {
+      "s2": "Uruchom Gemini CLI i sprawdź, czy /mcp pokazuje tutor."
+    },
+    "cursor": {
+      "s1": "Otwórz Cursor Settings → Tools & MCP → „New MCP Server” (otworzy ~/.cursor/mcp.json) i dodaj:"
+    },
+    "vscode": {
+      "s1": "Uruchom „MCP: Open User Configuration” z palety poleceń i dodaj:",
+      "s2": "Uruchom serwer z tego pliku i korzystaj z Tutora w trybie agenta w Copilot Chat."
+    },
+    "other": {
+      "name": "Inny",
+      "s1": "Zadziała każdy klient obsługujący zdalne serwery MCP (Streamable HTTP). Adres serwera:",
+      "s2": "Wysyłaj token w tym nagłówku:",
+      "s3": "Jeśli klient nie umie wysyłać nagłówków, użyj tego adresu:"
+    },
+    "tryAsking": "Potem spróbuj: „Zrób w Tutorze lekcję z tego artykułu” albo „Sprawdź fiszki z mojej ostatniej lekcji i popraw te niejasne”.",
+    "tokens": "Tokeny",
+    "tokensIntro": "Każdy, kto ma token, może zmieniać twoje lekcje. Unieważniaj te, których już nie używasz.",
+    "created": "utworzony {{date}}",
+    "lastUsed": "ostatnio użyty {{date}}",
+    "neverUsed": "nigdy nieużyty",
+    "revoke": "Unieważnij",
+    "revokeConfirm": "Unieważnić „{{name}}”? Asystenci, którzy go używają, stracą dostęp.",
+    "copy": "Kopiuj",
+    "createFailed": "Nie udało się utworzyć tokenu. Możesz mieć najwyżej 20; unieważnij nieużywane i spróbuj ponownie."
   }
 }

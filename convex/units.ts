@@ -10,12 +10,31 @@ import type { SeedLesson, StarterUnit } from "./seeds/types";
 
 const STARTER_UNITS: StarterUnit[] = [FR_ES];
 
-const MAX_UNITS = 100;
-const MAX_LESSONS_PER_UNIT = 100;
+export const MAX_UNITS = 100;
+export const MAX_LESSONS_PER_UNIT = 100;
 const MAX_ITEMS_PER_LESSON = 500;
-const MAX_ITEMS_PER_PROFILE = 2000;
+export const MAX_ITEMS_PER_PROFILE = 2000;
 
 // ---- Writing content --------------------------------------------------------
+
+// Inserts the card unless the profile already has the same one; returns its
+// id, or null for a duplicate.
+export async function insertCard(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  card: Pick<Doc<"cards">, "itemIds" | "kind" | "prompt" | "cue" | "answer" | "accepted">,
+) {
+  const existing = await ctx.db
+    .query("cards")
+    .withIndex("by_profileId_and_prompt", (q) => q.eq("profileId", profileId).eq("prompt", card.prompt))
+    .take(20);
+  if (existing.some((c) => c.cue === card.cue && c.answer === card.answer)) return null;
+  return await ctx.db.insert("cards", {
+    profileId,
+    ...card,
+    accepted: card.accepted.length ? card.accepted : [card.answer],
+  });
+}
 
 // Adds items and cards to a lesson. Items and cards that already exist in the
 // profile are reused, so content can overlap between lessons.
@@ -41,19 +60,13 @@ export async function addLessonContent(
       return id ? [id] : [];
     });
     if (ids.length === 0) continue;
-    const existing = await ctx.db
-      .query("cards")
-      .withIndex("by_profileId_and_prompt", (q) => q.eq("profileId", profileId).eq("prompt", card.prompt))
-      .take(20);
-    if (existing.some((c) => c.cue === card.cue && c.answer === card.answer)) continue;
-    await ctx.db.insert("cards", {
-      profileId,
+    await insertCard(ctx, profileId, {
       itemIds: ids,
       kind: card.kind,
       prompt: card.prompt,
       cue: card.cue,
       answer: card.answer,
-      accepted: card.accepted.length ? card.accepted : [card.answer],
+      accepted: card.accepted,
     });
   }
 }

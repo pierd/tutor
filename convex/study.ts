@@ -34,14 +34,28 @@ export async function startLessonStudy(ctx: MutationCtx, lessonId: Id<"lessons">
   await ctx.scheduler.runAfter(0, internal.study.writeLesson, { lessonId });
 }
 
+// Both return whether writing was started (false: already underway, or the
+// lesson itself isn't built yet). Callers check ownership.
+export async function requestLessonStudy(ctx: MutationCtx, lesson: Doc<"lessons">) {
+  if (lesson.guideStatus === "writing" || lesson.status) return false;
+  await startLessonStudy(ctx, lesson._id);
+  return true;
+}
+
+export async function requestItemStudy(ctx: MutationCtx, item: Doc<"items">) {
+  if (item.detailsStatus === "writing") return false;
+  await ctx.db.patch("items", item._id, { detailsStatus: "writing" });
+  await ctx.scheduler.runAfter(0, internal.study.writeItems, { profileId: item.profileId, itemIds: [item._id] });
+  return true;
+}
+
 export const fillLesson = mutation({
   args: { lessonId: v.id("lessons") },
   handler: async (ctx, { lessonId }) => {
     const lesson = await ctx.db.get("lessons", lessonId);
     if (lesson === null) throw new Error("Lesson not found");
     await requireProfile(ctx, lesson.profileId);
-    if (lesson.guideStatus === "writing" || lesson.status) return null;
-    await startLessonStudy(ctx, lessonId);
+    await requestLessonStudy(ctx, lesson);
     return null;
   },
 });
@@ -49,10 +63,7 @@ export const fillLesson = mutation({
 export const fillItem = mutation({
   args: { itemId: v.id("items") },
   handler: async (ctx, { itemId }) => {
-    const item = await requireItem(ctx, itemId);
-    if (item.detailsStatus === "writing") return null;
-    await ctx.db.patch("items", itemId, { detailsStatus: "writing" });
-    await ctx.scheduler.runAfter(0, internal.study.writeItems, { profileId: item.profileId, itemIds: [itemId] });
+    await requestItemStudy(ctx, await requireItem(ctx, itemId));
     return null;
   },
 });
@@ -176,6 +187,9 @@ export const saveDetails = internalMutation({
   args: { entries: v.array(v.object({ itemId: v.id("items"), details: itemDetailsValidator })) },
   handler: async (ctx, { entries }) => {
     for (const { itemId, details } of entries) {
+      // Someone (the learner's fix, an agent) wrote details meanwhile: keep theirs.
+      const item = await ctx.db.get("items", itemId);
+      if (item?.detailsStatus !== "writing") continue;
       await ctx.db.patch("items", itemId, { details, detailsStatus: undefined });
     }
     return null;
@@ -196,7 +210,9 @@ export const failItems = internalMutation({
 export const saveGuide = internalMutation({
   args: { lessonId: v.id("lessons"), guide: lessonGuideValidator },
   handler: async (ctx, { lessonId, guide }) => {
-    await ctx.db.patch("lessons", lessonId, { guide });
+    // Notes written meanwhile (a fix, an agent) win over the generated ones.
+    const lesson = await ctx.db.get("lessons", lessonId);
+    if (lesson && !lesson.guide) await ctx.db.patch("lessons", lessonId, { guide });
     return null;
   },
 });

@@ -23,7 +23,8 @@
     "due_other": "{{count}} due",
     "addStarter": "+ Add starter unit “{{title}}”",
     "lab": "Voice lab",
-    "wishlist": "Wishlist"
+    "wishlist": "Wishlist",
+    "agents": "AI agents"
   },
   "profile": {
     "setupTitle": "Create your first learning profile",
@@ -266,5 +267,58 @@
     "approve": "Approve",
     "revoke": "Revoke",
     "confirmRevoke": "Revoke access for {{email}}?"
+  },
+  "agents": {
+    "title": "AI agents",
+    "intro": "Use your own AI assistant as your coach: ask it to plan a unit, write a lesson, explain a word or improve your flashcards. It connects through MCP and can only reach your Tutor profiles.",
+    "pick": "Which assistant do you use?",
+    "needToken": "Create a token. It lets the assistant use your profiles, and it's filled into the steps below.",
+    "create": "Create token",
+    "tokenReady": "Token created and filled into the steps below. It's shown only this once, so finish the setup before leaving this page.",
+    "runThis": "Run this in a terminal:",
+    "urlSecret": "This URL contains your token: keep it private. You can revoke it below at any time.",
+    "claude": {
+      "s1": "In Claude (on the web or in the desktop app), open Settings → Connectors and click “Add custom connector”.",
+      "s2": "Name it Tutor and paste this as the URL:",
+      "s3": "Click “Add”. Then, in a chat, turn Tutor on in the tools menu."
+    },
+    "chatgpt": {
+      "s1": "In ChatGPT, open Settings → Apps & Connectors → Advanced settings and turn on Developer mode. (It isn't available on every plan.)",
+      "s2": "Back in Apps & Connectors, click “Create”. Name it Tutor, choose “No authentication”, and paste this as the MCP server URL:",
+      "s3": "Confirm that you trust the app and click “Create”. Then, in a chat, add Tutor from the + menu."
+    },
+    "claudeCode": {
+      "s2": "Start Claude Code and check that /mcp shows tutor as connected."
+    },
+    "codex": {
+      "s1": "Keep the token in an environment variable (add this line to your shell profile, e.g. ~/.zshrc, so it stays):",
+      "s2": "Then add the server:"
+    },
+    "gemini": {
+      "s2": "Start Gemini CLI and check that /mcp lists tutor."
+    },
+    "cursor": {
+      "s1": "Open Cursor Settings → Tools & MCP → “New MCP Server” (it opens ~/.cursor/mcp.json) and add:"
+    },
+    "vscode": {
+      "s1": "Run “MCP: Open User Configuration” from the Command Palette and add:",
+      "s2": "Start the server from that file, then use Tutor in Copilot Chat's agent mode."
+    },
+    "other": {
+      "name": "Other",
+      "s1": "Any client that supports remote MCP servers (Streamable HTTP) works. Server URL:",
+      "s2": "Send the token in this header:",
+      "s3": "If the client can't send headers, use this URL instead:"
+    },
+    "tryAsking": "Then try: “Make a Tutor lesson from this article” or “Check the flashcards in my last lesson and fix the confusing ones.”",
+    "tokens": "Tokens",
+    "tokensIntro": "Anyone with a token can change your lessons. Revoke the ones you no longer use.",
+    "created": "created {{date}}",
+    "lastUsed": "last used {{date}}",
+    "neverUsed": "never used",
+    "revoke": "Revoke",
+    "revokeConfirm": "Revoke “{{name}}”? Assistants using it will lose access.",
+    "copy": "Copy",
+    "createFailed": "Couldn't create the token. You can have up to 20; revoke ones you don't use and try again."
   }
 }

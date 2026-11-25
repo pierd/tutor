@@ -16,7 +16,7 @@ type NewItem = {
   notes?: string;
 };
 
-function normalizeKey(key: string) {
+export function normalizeKey(key: string) {
   return key.normalize("NFC").trim().toLowerCase();
 }
 
