@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# Tutor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A language-learning app where **the learner drives and AI teaches**. Each
+profile is one language pair with its own progress. Everything you learn is
+tracked as items (words, phrases, grammar points, letters) with spaced
+repetition. You practise them through flashcards, reading, translation
+challenges and voice. An AI coach builds lessons and units toward your goal,
+and your own AI assistant can do the same through an MCP server.
 
-Currently, two official plugins are available:
+Live at https://tutor.lessismore.studio (sign-up goes onto a wishlist that an
+admin approves).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+Vite + React 19 + Tailwind 4 (`src/`), [Convex](https://convex.dev) backend
+with Convex Auth and the Convex AI Gateway for LLM, speech and images
+(`convex/`), PostHog analytics, i18next UI in English, Spanish and Polish.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Running locally
 
-## Expanding the ESLint configuration
+Requires Node (version in `.nvmrc`) and access to the Convex project.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```sh
+npm install
+npx convex dev      # pushes functions to your dev deployment, writes .env.local
+npm run dev         # in another terminal: Vite on http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Copy the PostHog keys from `.env.example` into `.env.local` if you want
+analytics locally. Backend secrets are set on the deployment with
+`npx convex env set`, not in `.env.local`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To use the app you need an approved account: sign up, then approve yourself
+from an admin account, or grant admin from the CLI with
+`npx convex run admin:grant '{"email":"…"}'`.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Checks
+
+```sh
+npm test            # vitest + convex-test (convex/*.test.ts)
+npx tsc -p convex   # typecheck the backend
+npm run lint
+npm run build       # typecheck the frontend and build
 ```
+
+## Deploying
+
+Every push to `main` deploys to production through
+`.github/workflows/deploy.yml`: tests, then
+`npx convex deploy --cmd 'npm run build'` (Convex prod functions, then the
+frontend), then GitHub Pages. See the Deployments section of
+[docs/architecture.md](docs/architecture.md).
+
+## Documentation
+
+- [docs/architecture.md](docs/architecture.md): data model, features and
+  where their code lives, conventions, localization, deployments, product
+  decisions.
+- [docs/roadmap.md](docs/roadmap.md): what's done, known gaps, next steps.
+- [docs/voice.md](docs/voice.md): speech models and AI Gateway quirks.
+- [AGENTS.md](AGENTS.md): instructions for AI coding agents.

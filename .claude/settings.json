@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)"
+    ],
+    "deny": [
+      "Bash(npx convex deploy*)"
+    ]
+  }
+}
