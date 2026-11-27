@@ -12,6 +12,9 @@ import { ProfileSetup } from "./profiles/ProfileSetup";
 import { ProfileSwitcher } from "./profiles/ProfileSwitcher";
 import { VoiceLab } from "./voice/VoiceLab";
 import { LessonNav, type Selection } from "./lessons/LessonNav";
+import { Link } from "./lib/Link";
+import { navigate, usePath } from "./lib/router";
+import { parseRoute, profilePath } from "./lib/routes";
 import { LessonView } from "./lessons/LessonView";
 import { CoachPanel } from "./coach/CoachPanel";
 import { CoachButton } from "./coach/AskCoach";
@@ -80,13 +83,16 @@ function Gate() {
 
 function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLocale> }) {
   const { t } = useTranslation();
-  const profile = useQuery(api.profiles.getActive);
+  const route = parseRoute(usePath());
+  const active = useQuery(api.profiles.getActive);
+  const profiles = useQuery(api.profiles.list);
   const isAdmin = useQuery(api.admin.me)?.isAdmin ?? false;
-  // Remembered per profile so switching profiles doesn't keep a foreign lesson.
-  const [picked, setPicked] = useState<{ profileId: string; selection: Selection } | null>(null);
-  const [creatingProfile, setCreatingProfile] = useState(false);
-  // The coach side panel, also remembered per profile. `threadId` null with
-  // the panel open is a new conversation (about `topic`, if set).
+  const setActive = useMutation(api.profiles.setActive);
+  const routeLessonId = route.kind === "profile" ? route.lessonId : undefined;
+  const routeLesson = useQuery(api.units.getLesson, routeLessonId ? { lessonId: routeLessonId } : "skip");
+  const mainRef = useRef<HTMLElement>(null);
+  // The coach side panel, remembered per profile. `threadId` null with the
+  // panel open is a new conversation (about `topic`, if set).
   const [coach, setCoach] = useState<{
     profileId: string;
     open: boolean;
@@ -96,14 +102,45 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
     openedBy?: string;
   } | null>(null);
 
-  if (profile === undefined) return null;
-  const selection: Selection =
-    profile && picked?.profileId === profile._id ? picked.selection : { kind: "everything" };
+  // The profile in the URL, if it's one of the user's; otherwise the active one.
+  const routed = route.kind === "profile" ? profiles?.find((p) => p._id === route.profileId) : undefined;
+  const profile = routed ?? active;
+  const activeId = active?._id;
+  const routedId = routed?._id;
+  // A lesson in the URL that doesn't exist or belongs to another profile.
+  const badLesson = routeLesson === null || (routeLesson !== undefined && routeLesson.profileId !== routedId);
 
-  if (profile === null) {
+  // Send unknown URLs, unknown profiles and bad lessons to a valid page.
+  const redirect =
+    !activeId || profiles === undefined
+      ? null
+      : route.kind === "home" || route.kind === "notFound" || (route.kind === "profile" && !routedId)
+        ? profilePath(activeId)
+        : routedId && badLesson
+          ? profilePath(routedId)
+          : null;
+  useEffect(() => {
+    if (redirect) navigate(redirect, { replace: true });
+  }, [redirect]);
+
+  // Opening a profile's URL makes it the active one (what "/" opens next time).
+  useEffect(() => {
+    if (routedId && activeId && routedId !== activeId) void setActive({ profileId: routedId });
+  }, [routedId, activeId, setActive]);
+
+  // Each page starts at the top.
+  const pageKey = route.kind === "profile" ? profilePath(route.profileId, route.lessonId, route.mode) : route.kind;
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+  }, [pageKey]);
+
+  if (active === undefined || profiles === undefined) return null;
+
+  if (active === null || !profile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50 px-4">
-        <ProfileSetup />
+        <ProfileSetup onCreated={(profileId) => navigate(profilePath(profileId))} />
         <div className="flex gap-3">
           <LocalePicker onChange={(uiLocale) => void setUiLocale({ uiLocale })} />
           <SignOut />
@@ -112,7 +149,15 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
     );
   }
 
-  const select = (s: Selection) => setPicked({ profileId: profile._id, selection: s });
+  const lessonId = routeLesson && !badLesson ? routeLesson._id : undefined;
+  const selection: Selection =
+    route.kind === "agents" || route.kind === "lab" || route.kind === "wishlist"
+      ? { kind: route.kind }
+      : lessonId
+        ? { kind: "lesson", lessonId }
+        : { kind: "everything" };
+  const mode = route.kind === "profile" ? route.mode : undefined;
+
   const coachState = coach?.profileId === profile._id ? coach : null;
   const openCoach = (threadId: string | null, topic?: CoachTopic) =>
     setCoach({ profileId: profile._id, open: true, threadId, topic });
@@ -129,8 +174,10 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
       <div className="flex min-h-screen flex-col md:h-screen">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="text-xl font-bold text-gray-900">{t("app.title")}</div>
-            <ProfileSwitcher active={profile} onNewProfile={() => setCreatingProfile(true)} />
+            <Link to={profilePath(profile._id)} className="text-xl font-bold text-gray-900">
+              {t("app.title")}
+            </Link>
+            <ProfileSwitcher profiles={profiles} active={profile} />
           </div>
           <div className="flex items-center gap-3">
             <CoachButton
@@ -150,31 +197,26 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
         </header>
         <div className="relative flex flex-1 flex-col bg-gray-50 md:min-h-0 md:flex-row">
           <aside className="border-b border-gray-200 p-4 md:w-72 md:shrink-0 md:overflow-y-auto md:border-r md:border-b-0">
-            <LessonNav
-              key={profile._id}
-              profile={profile}
-              selection={selection}
-              onSelect={(s) => {
-                setCreatingProfile(false);
-                select(s);
-              }}
-              isAdmin={isAdmin}
-            />
+            <LessonNav key={profile._id} profile={profile} selection={selection} isAdmin={isAdmin} />
           </aside>
-          <main className="min-w-0 flex-1 p-6 md:overflow-y-auto">
-            {creatingProfile ? (
-              <ProfileSetup onDone={() => setCreatingProfile(false)} />
-            ) : selection.kind === "agents" ? (
+          <main ref={mainRef} className="min-w-0 flex-1 p-6 md:overflow-y-auto">
+            {route.kind === "newProfile" ? (
+              <ProfileSetup
+                onCreated={(profileId) => navigate(profilePath(profileId))}
+                onCancel={() => navigate(profilePath(profile._id))}
+              />
+            ) : route.kind === "agents" ? (
               <AgentsPage />
-            ) : selection.kind === "lab" && isAdmin ? (
+            ) : route.kind === "lab" && isAdmin ? (
               <VoiceLab key={profile._id} profile={profile} />
-            ) : selection.kind === "wishlist" && isAdmin ? (
+            ) : route.kind === "wishlist" && isAdmin ? (
               <WishlistAdmin />
-            ) : (
+            ) : routeLessonId && !lessonId ? null : (
               <LessonView
-                key={`${profile._id}:${selection.kind === "lesson" ? selection.lessonId : "all"}`}
+                key={`${profile._id}:${lessonId ?? "all"}`}
                 profile={profile}
-                lessonId={selection.kind === "lesson" ? selection.lessonId : undefined}
+                lessonId={lessonId}
+                mode={mode}
               />
             )}
           </main>
@@ -187,8 +229,7 @@ function Content({ setUiLocale }: { setUiLocale: ReturnType<typeof useSyncedLoca
               onStarted={(threadId) => setCoach({ ...coachState, threadId, topic: undefined })}
               onClose={closeCoach}
               onOpenLesson={(lessonId) => {
-                setCreatingProfile(false);
-                select({ kind: "lesson", lessonId });
+                navigate(profilePath(profile._id, lessonId));
                 // On phones the panel covers the page.
                 if (!window.matchMedia("(min-width: 768px)").matches) closeCoach();
               }}

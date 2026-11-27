@@ -46,6 +46,8 @@ Product vision (from the owner's notes): two pillars —
   point or the notes, and fixes proposed as cards the learner applies.
 - AI agents: MCP server with the coach's abilities plus card/item/lesson
   editing, personal tokens and a setup page. See architecture.md.
+- Links and back button: every page (profile, lesson, practice mode,
+  agents, admin pages) has its own URL. See architecture.md.
 - PostHog analytics: product events in the web app, LLM traces (generation,
   grading, reading, coach) from Convex. See architecture.md.
 

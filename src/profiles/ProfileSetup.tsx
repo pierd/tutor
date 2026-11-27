@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { BASE_LANGUAGES, TARGET_LANGUAGES } from "../../convex/lib/languages";
 import { currentLocale, languageName } from "../i18n";
 import { track } from "../lib/posthog";
@@ -9,7 +10,14 @@ import { track } from "../lib/posthog";
 const inputClass =
   "w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-colors focus:border-gray-900 focus:ring-1 focus:ring-gray-900";
 
-export function ProfileSetup({ onDone }: { onDone?: () => void }) {
+// The first profile (no onCancel) or another one, from /profiles/new.
+export function ProfileSetup({
+  onCreated,
+  onCancel,
+}: {
+  onCreated: (profileId: Id<"profiles">) => void;
+  onCancel?: () => void;
+}) {
   const { t } = useTranslation();
   const createProfile = useMutation(api.profiles.create);
   const [baseLang, setBaseLang] = useState<string>(currentLocale());
@@ -18,7 +26,7 @@ export function ProfileSetup({ onDone }: { onDone?: () => void }) {
   );
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const isFirst = onDone === undefined;
+  const isFirst = onCancel === undefined;
 
   return (
     <form
@@ -37,9 +45,9 @@ export function ProfileSetup({ onDone }: { onDone?: () => void }) {
           baseLang,
           targetLang,
         })
-          .then(() => {
+          .then((profileId) => {
             track("profile_created", { base_language: baseLang, target_language: targetLang, is_first_profile: isFirst });
-            onDone?.();
+            onCreated(profileId);
           })
           .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
           .finally(() => setBusy(false));
@@ -90,7 +98,7 @@ export function ProfileSetup({ onDone }: { onDone?: () => void }) {
           {!isFirst && (
             <button
               type="button"
-              onClick={onDone}
+              onClick={onCancel}
               className="rounded-lg px-4 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
             >
               {t("profile.cancel")}

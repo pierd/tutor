@@ -2,7 +2,7 @@ import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
-import { requireProfile } from "./lib/auth";
+import { requireProfile, requireUserId } from "./lib/auth";
 import { strength } from "./lib/srs";
 import { upsertItem } from "./items";
 import { FR_ES } from "./seeds/frEs";
@@ -237,12 +237,17 @@ export const tree = query({
   },
 });
 
+// Takes a plain string because the id may come from a URL: a malformed id, a
+// deleted lesson or another user's lesson all return null instead of throwing.
 export const getLesson = query({
-  args: { lessonId: v.id("lessons") },
-  handler: async (ctx, { lessonId }) => {
-    const lesson = await ctx.db.get("lessons", lessonId);
-    if (lesson === null) return null;
-    await requireProfile(ctx, lesson.profileId);
+  args: { lessonId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx);
+    const lessonId = ctx.db.normalizeId("lessons", args.lessonId);
+    const lesson = lessonId && (await ctx.db.get("lessons", lessonId));
+    if (!lesson) return null;
+    const profile = await ctx.db.get("profiles", lesson.profileId);
+    if (profile?.userId !== userId) return null;
     const unit = await ctx.db.get("units", lesson.unitId);
     return { ...lesson, unitTitle: unit?.title ?? "" };
   },

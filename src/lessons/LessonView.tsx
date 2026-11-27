@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery, useStableQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
@@ -7,6 +6,8 @@ import { api } from "../../convex/_generated/api";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { track } from "../lib/posthog";
 import { useMinuteClock } from "../lib/useMinuteClock";
+import { Link } from "../lib/Link";
+import { profilePath, type Mode } from "../lib/routes";
 import { Flashcards } from "./Flashcards";
 import { ItemList } from "./ItemList";
 import { ProgressBar } from "./LessonNav";
@@ -17,8 +18,6 @@ import { SayWord } from "./SayWord";
 import { LessonGuide } from "./study";
 import { TranslationLesson } from "./TranslationLesson";
 
-type Mode = "flashcards" | "say" | "reading" | "sentences" | "passiveCards" | "passiveStudy";
-
 const MODES: { mode: Mode; icon: typeof Layers; ai: boolean }[] = [
   { mode: "flashcards", icon: Layers, ai: false },
   { mode: "say", icon: Mic, ai: false },
@@ -28,11 +27,19 @@ const MODES: { mode: Mode; icon: typeof Layers; ai: boolean }[] = [
   { mode: "passiveStudy", icon: Glasses, ai: false },
 ];
 
-// One lesson (or "Everything"): progress, practice modes, and its items.
-export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; lessonId?: Id<"lessons"> }) {
+// One lesson (or "Everything"): progress, practice modes, and its items. The
+// practice mode is part of the URL, so back leaves it.
+export function LessonView({
+  profile,
+  lessonId,
+  mode,
+}: {
+  profile: Doc<"profiles">;
+  lessonId?: Id<"lessons">;
+  mode?: Mode;
+}) {
   const { t } = useTranslation();
   const now = useMinuteClock();
-  const [mode, setMode] = useState<Mode | null>(null);
   const lesson = useQuery(api.units.getLesson, lessonId ? { lessonId } : "skip");
   const tree = useStableQuery(api.units.tree, { profileId: profile._id, now });
   const readings = useQuery(api.reading.history, { profileId: profile._id, lessonId });
@@ -76,18 +83,16 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
             {t("lessonStatus.retry")}
           </button>
         </div>
-      ) : mode === null ? (
+      ) : mode === undefined ? (
         <>
           {lesson && <LessonGuide lesson={lesson} profileId={profile._id} />}
           <div className="grid gap-3 sm:grid-cols-2">
             {MODES.map(({ mode: m, icon: Icon, ai }) => (
-              <button
+              <Link
                 key={m}
-                onClick={() => {
-                  track("lesson_mode_selected", { lesson_mode: m });
-                  setMode(m);
-                }}
-                className="rounded-xl border border-gray-200 bg-white p-4 text-left transition-colors hover:border-gray-900"
+                to={profilePath(profile._id, lessonId, m)}
+                onClick={() => track("lesson_mode_selected", { lesson_mode: m })}
+                className="block rounded-xl border border-gray-200 bg-white p-4 text-left transition-colors hover:border-gray-900"
               >
                 <div className="flex items-center gap-2 font-semibold text-gray-900">
                   <Icon size={18} /> {t(`modes.${m}.title`)}
@@ -99,16 +104,19 @@ export function LessonView({ profile, lessonId }: { profile: Doc<"profiles">; le
                   )}
                 </div>
                 <p className="mt-1 text-sm text-gray-500">{t(`modes.${m}.description`)}</p>
-              </button>
+              </Link>
             ))}
           </div>
           <ItemList profileId={profile._id} lessonId={lessonId} />
         </>
       ) : (
         <div className="space-y-4">
-          <button onClick={() => setMode(null)} className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900">
+          <Link
+            to={profilePath(profile._id, lessonId)}
+            className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+          >
             <ArrowLeft size={16} /> {t("modes.back")}
-          </button>
+          </Link>
           {mode === "flashcards" ? (
             <Flashcards profileId={profile._id} lessonId={lessonId} />
           ) : mode === "say" ? (

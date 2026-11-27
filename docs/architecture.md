@@ -227,6 +227,29 @@ reschedule.
 - Starter content per language pair: `convex/seeds/` (`STARTER_SETS`, keyed
   like `fr-es` = target-base), added via `items.addStarterSet`; idempotent.
 
+## URLs and navigation
+
+The URL path decides what's shown, so every page can be linked to and the
+browser's back/forward buttons work. `src/lib/routes.ts` defines the paths
+(`parseRoute`, `profilePath`); `src/lib/router.ts` is a small history-API
+router (`usePath`, `navigate`) and `src/lib/Link.tsx` an `<a>` that navigates
+in-app. Use `Link` for anything that changes page, so it can be opened in a
+new tab.
+
+- `/` redirects to the active profile. `/p/<profileId>` is Everything,
+  `/p/<profileId>/lessons/<lessonId>` a lesson, and a practice mode is a
+  further segment (`/flashcards`, `/say`, `/reading`, `/sentences`,
+  `/passive-cards`, `/passive-study`). Also `/profiles/new`, `/agents`,
+  `/lab` and `/wishlist` (admin).
+- Opening another profile's URL makes it the active profile. Unknown paths,
+  profiles the user doesn't own and lessons that don't exist (or belong to
+  another profile) redirect to a valid page; `units.getLesson` takes a plain
+  string and returns null for those instead of throwing.
+- The coach panel is not in the URL (it overlays whatever page is open).
+- GitHub Pages has no SPA fallback, so `npm run build` copies `index.html` to
+  `404.html`, which Pages serves for deep links. PostHog records a pageview
+  per navigation (`capture_pageview: 'history_change'`).
+
 ## Frontend data loading
 
 Import `useQuery` from `src/lib/useQuery.ts`, not `convex/react`. It's the

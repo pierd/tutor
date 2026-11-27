@@ -6,6 +6,8 @@ import { api } from "../../convex/_generated/api";
 import { AskCoachButton } from "../coach/AskCoach";
 import type { Doc, Id } from "../../convex/_generated/dataModel";
 import { useMinuteClock } from "../lib/useMinuteClock";
+import { Link } from "../lib/Link";
+import { profilePath } from "../lib/routes";
 
 export type Selection =
   | { kind: "everything" }
@@ -31,22 +33,23 @@ function Row({
   title,
   progress,
   active,
-  onClick,
+  to,
   indent = false,
   status,
 }: {
   title: string;
   progress: Progress;
   active: boolean;
-  onClick: () => void;
+  to: string;
   indent?: boolean;
   status?: "building" | "failed";
 }) {
   const { t } = useTranslation();
   return (
-    <button
-      onClick={onClick}
-      className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${indent ? "pl-5" : ""} ${
+    <Link
+      to={to}
+      aria-current={active ? "page" : undefined}
+      className={`block w-full rounded-lg px-3 py-2 text-left transition-colors ${indent ? "pl-5" : ""} ${
         active ? "bg-gray-900 text-white" : "text-gray-800 hover:bg-gray-100"
       }`}
     >
@@ -63,19 +66,17 @@ function Row({
         )}
       </div>
       <ProgressBar progress={progress} className={`mt-1.5 ${active ? "bg-gray-700 [&>div]:bg-white" : ""}`} />
-    </button>
+    </Link>
   );
 }
 
 export function LessonNav({
   profile,
   selection,
-  onSelect,
   isAdmin,
 }: {
   profile: Doc<"profiles">;
   selection: Selection;
-  onSelect: (selection: Selection) => void;
   isAdmin: boolean;
 }) {
   const { t } = useTranslation();
@@ -92,7 +93,7 @@ export function LessonNav({
         title={t("nav.everything")}
         progress={tree.everything}
         active={selection.kind === "everything"}
-        onClick={() => onSelect({ kind: "everything" })}
+        to={profilePath(profile._id)}
       />
       {tree.units.map((unit) => (
         <div key={unit._id} className="space-y-1">
@@ -111,7 +112,7 @@ export function LessonNav({
               progress={lesson.progress}
               status={lesson.status}
               active={selection.kind === "lesson" && selection.lessonId === lesson._id}
-              onClick={() => onSelect({ kind: "lesson", lessonId: lesson._id })}
+              to={profilePath(profile._id, lesson._id)}
             />
           ))}
         </div>
@@ -125,33 +126,33 @@ export function LessonNav({
         </button>
       )}
       <AskCoachButton className="w-full py-2">{t("nav.coach")}</AskCoachButton>
-      <button
-        onClick={() => onSelect({ kind: "agents" })}
+      <Link
+        to="/agents"
         className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm ${
           selection.kind === "agents" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
         }`}
       >
         <Bot size={14} /> {t("nav.agents")}
-      </button>
+      </Link>
       {isAdmin && (
-        <button
-          onClick={() => onSelect({ kind: "lab" })}
+        <Link
+          to="/lab"
           className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm ${
             selection.kind === "lab" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
           }`}
         >
           <FlaskConical size={14} /> {t("nav.lab")}
-        </button>
+        </Link>
       )}
       {isAdmin && (
-        <button
-          onClick={() => onSelect({ kind: "wishlist" })}
+        <Link
+          to="/wishlist"
           className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm ${
             selection.kind === "wishlist" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
           }`}
         >
           <Users size={14} /> {t("nav.wishlist")}
-        </button>
+        </Link>
       )}
     </nav>
   );

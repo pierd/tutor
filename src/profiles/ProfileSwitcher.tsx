@@ -1,30 +1,21 @@
-import { useMutation } from "convex/react";
-import { useQuery } from "../lib/useQuery";
 import { useTranslation } from "react-i18next";
-import { api } from "../../convex/_generated/api";
-import type { Doc, Id } from "../../convex/_generated/dataModel";
+import type { Doc } from "../../convex/_generated/dataModel";
 import { languageName } from "../i18n";
+import { navigate } from "../lib/router";
+import { profilePath } from "../lib/routes";
 
 const NEW_PROFILE = "__new__";
 
-export function ProfileSwitcher({
-  active,
-  onNewProfile,
-}: {
-  active: Doc<"profiles">;
-  onNewProfile: () => void;
-}) {
+// Switching opens the profile's URL; the app then makes it the active one.
+export function ProfileSwitcher({ profiles, active }: { profiles: Doc<"profiles">[]; active: Doc<"profiles"> }) {
   const { t } = useTranslation();
-  const profiles = useQuery(api.profiles.list) ?? [active];
-  const setActive = useMutation(api.profiles.setActive);
 
   return (
     <select
       aria-label={t("profile.switchLabel")}
       value={active._id}
       onChange={(event) => {
-        if (event.target.value === NEW_PROFILE) onNewProfile();
-        else void setActive({ profileId: event.target.value as Id<"profiles"> });
+        navigate(event.target.value === NEW_PROFILE ? "/profiles/new" : profilePath(event.target.value));
       }}
       className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900 outline-none focus:border-gray-900"
     >

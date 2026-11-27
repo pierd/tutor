@@ -10,6 +10,8 @@ if (posthogKey && posthogHost) {
   posthog.init(posthogKey, {
     api_host: posthogHost,
     ui_host: 'https://eu.posthog.com',
+    // The app navigates with the history API (src/lib/router.ts).
+    capture_pageview: 'history_change',
     capture_exceptions: {
       capture_unhandled_errors: true,
       capture_unhandled_rejections: true,
