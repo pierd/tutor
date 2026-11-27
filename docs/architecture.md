@@ -264,17 +264,19 @@ different data (an id).
 
 - Convex dev: `tangible-armadillo-223` (used by `npx convex dev` and
   `.env.local`). Convex prod: `optimistic-flamingo-906`.
-- Frontend: Vercel (configured in the Vercel dashboard, not in the repo),
-  serving tutor.lessismore.studio. Its Production build command is
-  `npx convex deploy --cmd 'npm run build'` with a prod `CONVEX_DEPLOY_KEY`,
-  so each deploy pushes functions to prod and injects the prod
-  `VITE_CONVEX_URL`. Never set `VITE_CONVEX_URL` by hand in Vercel.
+- Frontend: GitHub Pages, serving tutor.lessismore.studio (custom domain set
+  in the repo's Pages settings; `public/CNAME` mirrors it). Every push to
+  `main` runs `.github/workflows/deploy.yml`: tests, then
+  `npx convex deploy --cmd 'npm run build'` with the prod `CONVEX_DEPLOY_KEY`
+  (repo secret), which pushes functions to prod and injects the prod
+  `VITE_CONVEX_URL`, then publishes `dist`. Never set `VITE_CONVEX_URL` by
+  hand. A failed test or Convex deploy stops the frontend from publishing.
 - Prod Convex env: `JWT_PRIVATE_KEY`, `JWKS` (own keys, not dev's) and
   `SITE_URL=https://tutor.lessismore.studio`, plus `POSTHOG_PROJECT_TOKEN` /
   `POSTHOG_HOST`, and `FORWARD_EMAIL_PASSWORD` (generated password of the
   forwardemail.net alias tutor@lessismore.studio) / `NOTIFY_EMAIL` (where
-  wishlist sign-up emails go; unset = no email). Vercel needs
-  `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST`.
+  wishlist sign-up emails go; unset = no email). The workflow reads
+  `VITE_POSTHOG_KEY` / `VITE_POSTHOG_HOST` from repo variables (`vars`).
 
 ## Languages and localization
 
